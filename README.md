@@ -23,4 +23,6 @@ Here's description how to run Chorus.
  * Register admin user within Web UI
  * Go to database with your favorite SQL tool and grant this user admin rights
    - UPDATE USER SET admin=1;
+   
+   Good luck.
 

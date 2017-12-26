@@ -294,6 +294,8 @@
                                         <delete file="${project.build.outputDirectory}/log4j.properties"/>
                                         <copy file="src/main/resources/log4j-production.properties"
                                               tofile="${project.build.outputDirectory}/log4j.properties"/>
+                                        <copy file="target/webapp-1.0.war"
+                                              tofile="target/ROOT.war"/>
                                     </tasks>
                                 </configuration>
                             </execution>

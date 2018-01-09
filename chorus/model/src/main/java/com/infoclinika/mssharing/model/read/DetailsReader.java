@@ -42,12 +42,6 @@ public interface DetailsReader extends DetailsReaderTemplate<FileItem, Experimen
 
     List<ShortFileWithConditions> readFilesAndConditionsForExperiment(long actor, long experimentId);
 
-    MSFunctions readFunctionsForFile(long actor, long fileId);
-
-    List<MsFunctionItemDetails> readMs2FunctionItems(long actor, long experiment);
-
-    List<MsFunctionItemDetails> readMs1FunctionItems(long actor, long experiment);
-
     com.google.common.base.Optional<MSExperimentResolutionType> getExperimentResolutionType(long experiment, String ms1FunctionName, String ms2FunctionName);
 
     List<ShortExperimentFileItem> readFilesInOtherExperiments(long actor, long experiment);
@@ -81,29 +75,12 @@ public interface DetailsReader extends DetailsReaderTemplate<FileItem, Experimen
         }
     }
 
-    final class MZGridParamsDetails {
-        public final GridType gridType;
-        public final int mzStart;
-        public final int mzEnd;
-        public final String params;
-        public final int step;
-
-        public MZGridParamsDetails(GridType gridType, int mzStart, int mzEnd, String params, int step) {
-            this.gridType = gridType;
-            this.mzStart = mzStart;
-            this.mzEnd = mzEnd;
-            this.params = params;
-            this.step = step;
-        }
-    }
-
     final class MSFunctionDetails {
         public final String name;
         public final String translatedPath;
         public final MSFunctionType type;
         public final MSResolutionType resolution;
         public final MSFunctionMassAnalyzerType msFunctionMassAnalyzerType;
-        public final MZGridParamsDetails mzGridParams;
         public final String fileName;
         public final long fileId;
         public final boolean dia;
@@ -114,7 +91,6 @@ public interface DetailsReader extends DetailsReaderTemplate<FileItem, Experimen
                 MSFunctionType type,
                 MSResolutionType resolution,
                 MSFunctionMassAnalyzerType msFunctionMassAnalyzerType,
-                MZGridParamsDetails mzGridParams,
                 String fileName,
                 long fileId,
                 boolean dia
@@ -124,7 +100,6 @@ public interface DetailsReader extends DetailsReaderTemplate<FileItem, Experimen
             this.type = type;
             this.resolution = resolution;
             this.msFunctionMassAnalyzerType = msFunctionMassAnalyzerType;
-            this.mzGridParams = mzGridParams;
             this.fileName = fileName;
             this.fileId = fileId;
             this.dia = dia;

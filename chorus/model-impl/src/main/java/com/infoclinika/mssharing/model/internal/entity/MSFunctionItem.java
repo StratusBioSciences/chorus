@@ -45,10 +45,6 @@ public class MSFunctionItem extends AbstractAggregate {
     private Integer lowMz;
     private Integer highMz;
 
-    @OneToOne(cascade = {CascadeType.ALL})
-    @JoinColumn(unique = true, name = "mzGridParams_id")
-    private MZGridParams mzGridParams;
-
     public String getFunctionName() {
         return functionName;
     }
@@ -211,13 +207,6 @@ public class MSFunctionItem extends AbstractAggregate {
         this.highMz = highMz;
     }
 
-    public MZGridParams getMzGridParams() {
-        return mzGridParams;
-    }
-
-    public void setMzGridParams(MZGridParams mzGridParams) {
-        this.mzGridParams = mzGridParams;
-    }
 
     public MSFunctionItem copy() {
         MSFunctionItem copyFunction = new MSFunctionItem();
@@ -372,7 +361,6 @@ public class MSFunctionItem extends AbstractAggregate {
                 ", maxPackets=" + maxPackets +
                 ", lowMz=" + lowMz +
                 ", highMz=" + highMz +
-                ", mzGridParams=" + mzGridParams +
                 "} " + super.toString();
     }
 }

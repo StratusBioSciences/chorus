@@ -13,7 +13,6 @@ angular.module("admin-tools-back", ["ngResource"])
             redirectToSynchronizationState: {method: "GET", params: {path: "synchronize-s3-state-with-db-check"}},
             restartAllCancelled: {method: "GET", params: {path: "restart-all-cancelled-runs"}},
             createPostProcessingTemplates: {method: "GET", params: {path: "generatePostProcessingPipelines"}},
-            fillAllMSFunctionItemsMZGridParams: {method: "GET", params: {path: "fill-all-ms-function-items-mz-grid-params"}},
             checkIsFilesSizeConsistent: {method: "GET", params: {path: "check-is-file-size-consistent"}},
             runBillingMigration: {method: "GET", params: {path: "run-billing-migration"}},
             unarchiveInconsistentFiles: {method: "GET", params: {path: "unarchive-inconsistent-files"}},

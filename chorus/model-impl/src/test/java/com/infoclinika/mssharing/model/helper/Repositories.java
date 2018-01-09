@@ -143,8 +143,6 @@ class Repositories {
     @Inject
     private MSFunctionItemRepository msFunctionItemRepository;
     @Inject
-    private MZGridParamsRepository mzGridParamsRepository;
-    @Inject
     private BillingPropertyRepository billingPropertyRepository;
 
     public List<CrudRepository> get() {

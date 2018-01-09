@@ -69,9 +69,6 @@ public class PredefinedDataCreatorImpl extends DefaultPredefinedDataCreator impl
     private MSFunctionItemRepository msFunctionItemRepository;
 
     @Inject
-    private MZGridParamsRepository mzGridParamsRepository;
-
-    @Inject
     private BillingPropertyRepository billingPropertyRepository;
 
     @Inject
@@ -194,34 +191,6 @@ public class PredefinedDataCreatorImpl extends DefaultPredefinedDataCreator impl
         item.setFunctionName(name);
         item.setTranslatedPath(translatedPath);
         msFunctionItemRepository.save(item);
-    }
-
-    @Override
-    public void translateFileForMS1FunctionValidation(long actor, long file, long experiment, String ms1FunctionName, DetailsReader.MZGridParamsDetails mzGridParams) {
-        final ActiveFileMetaData fmd = fileMetaDataRepository.findOne(file);
-
-
-        final MZGridParams params = mzGridParams == null ? null :
-                new MZGridParams(mzGridParams.gridType, mzGridParams.mzStart, mzGridParams.mzEnd, mzGridParams.params,
-                        mzGridParams.step);
-        if (params != null) {
-            mzGridParamsRepository.save(params);
-        }
-
-        final MSFunctionItem ms1 = new MSFunctionItem();
-        ms1.setFunctionName(ms1FunctionName);
-        ms1.setFunctionType(MSFunctionType.MS);
-        ms1.setTranslatedPath(ms1FunctionName);
-        ms1.setResolutionType(MSResolutionType.HIGH);
-        ms1.setMzGridParams(params);
-
-        final ActiveExperiment activeExperiment = experimentRepository.findOne(experiment);
-
-        final UserLabFileTranslationData translationData = new UserLabFileTranslationData(new User(actor),
-                of(ms1), activeExperiment.getLab());
-        fmd.getUsersFunctions().add(translationData);
-
-        fileMetaDataRepository.save(fmd);
     }
 
     @Override

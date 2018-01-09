@@ -15,9 +15,6 @@ angular.module("admin-dashboard", ["admin-tools-back"])
             pipelines:{
                 createPostProcessingTemplates: createPostProcessingTemplates
             },
-            msfunction: {
-                fillAllMSFunctionItemsMZGridParams: fillAllMSFunctionItemsMZGridParams
-            },
             files:{
                 checkIsFilesSizeConsistent: checkIsFilesSizeConsistent,
                 unarchiveInconsistentFiles: unarchiveInconsistentFiles
@@ -66,12 +63,6 @@ angular.module("admin-dashboard", ["admin-tools-back"])
             AdminTools.createPostProcessingTemplates(function () {
                 console.log("Creating post processing templates is completed.")
             });
-        }
-
-        function fillAllMSFunctionItemsMZGridParams(){
-            AdminTools.fillAllMSFunctionItemsMZGridParams(function(){
-                console.log("Fill MZGridParams for all MSFunctionItems");
-            })
         }
 
         function checkIsFilesSizeConsistent(){

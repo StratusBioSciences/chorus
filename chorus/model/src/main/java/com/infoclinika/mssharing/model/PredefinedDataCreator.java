@@ -49,8 +49,6 @@ public interface PredefinedDataCreator {
 
     void msFunctionItem(String name, String translatedPath);
 
-    void translateFileForMS1FunctionValidation(long actor, long file, long experiment, String ms1FunctionName, DetailsReader.MZGridParamsDetails mzGridParams);
-
     long createExperimentLabelType(String name, int maxSamples);
 
     long createExperimentLabel(long experimentLabelType, String aminoAcid, String name);

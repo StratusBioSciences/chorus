@@ -37,7 +37,7 @@ public class BulkDownloadHelper extends BulkDownloadHelperTemplate<ExperimentIte
     @Inject
     private FileMovingManager fileMovingManager;
 
-    @Resource(name = "billingService")
+    @Resource(name = "billingRestService")
     private BillingService billingService;
 
     @Inject

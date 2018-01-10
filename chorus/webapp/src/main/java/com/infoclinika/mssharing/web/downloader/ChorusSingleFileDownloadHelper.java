@@ -34,7 +34,7 @@ public class ChorusSingleFileDownloadHelper extends SingleFileDownloadHelperTemp
 
     @Value("${amazon.archive.bucket}")
     private String archiveBucket;
-    @Resource(name = "billingService")
+    @Resource(name = "billingRestService")
     private BillingService billingService;
     @Inject
     private SecurityHelper securityHelper;

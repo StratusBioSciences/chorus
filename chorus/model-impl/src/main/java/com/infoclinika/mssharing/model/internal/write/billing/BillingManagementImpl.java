@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
@@ -40,7 +41,7 @@ public class BillingManagementImpl implements BillingManagement {
     private LabPaymentAccountRepository labPaymentAccountRepository;
     @Inject
     private ChargeableItemRepository chargeableItemRepository;
-    @Inject
+    @Resource(name = "billingRestService")
     private BillingService billingService;
     @Inject
     private BillingPropertiesProvider propertiesProvider;

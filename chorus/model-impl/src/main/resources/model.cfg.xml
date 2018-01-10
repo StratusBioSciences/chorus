@@ -55,7 +55,7 @@
     </http:conduit>
 
 
-    <jaxrs:client id="billingService"
+    <jaxrs:client id="billingRestService"
                   address="${billing.service.url}"
                   serviceClass="com.infoclinika.mssharing.services.billing.rest.api.BillingService"
                   inheritHeaders="true">

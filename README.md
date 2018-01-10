@@ -13,14 +13,10 @@ Here's description how to run Chorus.
 
 ### To run the Chorus Project:
 
- * Build the application using 'mvn install' command
- * Copy there files to your home folder and fill them with actual values
-   - webapp/src/main/resources/jdbc.properties
-   - model-impl/src/main/resources/application.properties
- * Copy webapp/target/webapp-1.0.war to <TOMCAT_HOME>/webapps
- * Run Tomcat
- * Point your browser to http://localhost:8080/webapp-1.0
+ * Build the application using 'clean install -pl "!selenium-tests" -DskipTests' command
+ * Copy webapp-1.0.war from target folder to "docker/webapp/ROOT.war"
+ * Install Docker if needed and run "docker-compose up"
+ * Point your browser to http://localhost:8080
  * Register admin user within Web UI
  * Go to database with your favorite SQL tool and grant this user admin rights
    - UPDATE USER SET admin=1;
-

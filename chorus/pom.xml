@@ -24,7 +24,7 @@
         <module>billing-web-services</module>
         <module>mailing</module>
         <module>search-impl</module>
-        <module>selenium-tests</module>
+        <!--<module>selenium-tests</module>-->
         <module>blog</module>
         <module>rest-dto</module>
         <module>background-services</module>

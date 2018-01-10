@@ -42,7 +42,7 @@ public class BillingController extends PagedItemsController {
 
     private static final Logger LOG = LoggerFactory.getLogger(BillingController.class);
 
-    @Resource(name = "billingService")
+    @Resource(name = "billingRestService")
     private BillingService billingService;
     @Inject
     private PaymentHistoryReader paymentHistoryReader;

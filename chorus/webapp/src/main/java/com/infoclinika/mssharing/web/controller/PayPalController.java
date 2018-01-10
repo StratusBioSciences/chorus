@@ -35,7 +35,7 @@ public class PayPalController {
     private static final Logger LOG = Logger.getLogger(PayPalController.class);
     private static final String URI = "https://www.paypal.com/cgi-bin/webscr";
 
-    @Resource(name = "billingService")
+    @Resource(name = "billingRestService")
     private BillingService billingService;
 
     @Inject

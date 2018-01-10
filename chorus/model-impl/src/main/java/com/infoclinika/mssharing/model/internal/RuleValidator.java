@@ -15,10 +15,6 @@ import java.util.List;
  */
 public interface RuleValidator extends com.infoclinika.mssharing.platform.model.RuleValidator {
 
-    boolean userHasPermissionToCreateSearch(long creator, long experiment);
-
-    boolean isAllFilesInExperimentTranslatedForSearch(long experiment);
-
     Predicate<ActiveFileMetaData> userHasReadPermissionsOnFilePredicate(long userId);
 
     AccessLevel getAccessLevel(AbstractFileMetaData input);

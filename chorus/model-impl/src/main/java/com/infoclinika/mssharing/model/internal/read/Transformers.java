@@ -25,7 +25,6 @@ import com.infoclinika.mssharing.model.internal.entity.FileMetaAnnotations;
 import com.infoclinika.mssharing.model.internal.entity.Instrument;
 import com.infoclinika.mssharing.model.internal.entity.Lab;
 import com.infoclinika.mssharing.model.internal.entity.LockMz;
-import com.infoclinika.mssharing.model.internal.entity.MSFunctionItem;
 import com.infoclinika.mssharing.model.internal.entity.NewsItem;
 import com.infoclinika.mssharing.model.internal.entity.PrepToExperimentSample;
 import com.infoclinika.mssharing.model.internal.entity.ProteinDatabase;
@@ -168,15 +167,6 @@ public class Transformers extends DefaultTransformers {
             return input.getChargeableItem();
         }
     };
-
-    public static final Function<UserLabFileTranslationData, Set<MSFunctionItem>> MS_FUNCTIONS_FROM_USER_TRANSLATION_DATA = new Function<UserLabFileTranslationData, Set<MSFunctionItem>>() {
-        @Nullable
-        @Override
-        public Set<MSFunctionItem> apply(UserLabFileTranslationData input) {
-            return input.getFunctions();
-        }
-    };
-
 
     public static BillingChargeType transformChargeType(ChargeableItem.ChargeType chargeType) {
         switch (chargeType) {
@@ -591,7 +581,7 @@ public class Transformers extends DefaultTransformers {
         if (userLabIds.isEmpty()) {
             userLabIds.add(-1L);// add fake lab Id to make getAdditionalInfo work
         }
-        final List<ExperimentAdditionalInfoRecord> additionalInfo = ids.size() > 0 ? experimentRepository.getAdditionalInfo(actor, ids, userLabIds) : Collections.<ExperimentAdditionalInfoRecord>emptyList();
+        final List<ExperimentAdditionalInfoRecord> additionalInfo = ids.size() > 0 ? experimentRepository.getAdditionalInfo(actor, ids) : Collections.<ExperimentAdditionalInfoRecord>emptyList();
         final Iterator<ExperimentAdditionalInfoRecord> sortedInfoIterator = sortAccordingToIds(additionalInfo, ids).iterator();
 
         return new Function<ExperimentDashboardRecord, ExperimentLine>() {
@@ -607,7 +597,7 @@ public class Transformers extends DefaultTransformers {
     private ExperimentLine getExperimentLine(ExperimentDashboardRecord record, ExperimentAdditionalInfoRecord info, Long actor) {
 
         final java.util.Optional<Lab> labOpt = java.util.Optional.ofNullable(record.getLab() != null ? record.getLab() : record.getBillLab());
-        final TranslationStatusRecordItem translationStatusItem = getTranslationStatus(record, info);
+        final TranslationStatusRecordItem translationStatusItem = getTranslationStatus();
 
         final boolean bDownloadAvailable = info.countFilesReadyToDownload == record.getNumberOfFiles();
         final boolean hasUnArchiveRequest = !bDownloadAvailable && info.countArchivedFilesRequestedForUnArchiving > 0;
@@ -643,7 +633,6 @@ public class Transformers extends DefaultTransformers {
                 record.getLastModification(),
                 Transformers.fromSharingType(record.getProject().getSharing().getType()),
                 getChartsLink(record),
-                translationStatusItem.status == DashboardReader.TranslationStatus.SUCCESS,
                 translationStatusItem.errorMessage,
                 record.getLastTranslationAttempt(),
                 getDownloadLink(record.getDownloadToken()),
@@ -657,50 +646,14 @@ public class Transformers extends DefaultTransformers {
                 proteinSearchEnabled,
                 proteinSearchEnabledErrorMessage,
                 labOpt.map(EntityUtil.ENTITY_TO_ID::apply).orElse(null),
-                info.countFilesTranslatedByUser,
                 record.getCreator().getId(),
                 translationStatusItem.status,
                 transformExperimentColumns(record)
         );
     }
 
-    private TranslationStatusRecordItem getTranslationStatus(ExperimentDashboardRecord experiment, ExperimentAdditionalInfoRecord additionalInfo) {
-        final long totalFiles = experiment.getNumberOfFiles();
-        final DashboardReader.TranslationStatus translationStatus;
-        String translationError = null;
-        if (additionalInfo.countFilesTranslationUserSpecificSuccess == 0
-                && additionalInfo.countFilesTranslationUserSpecificFailed == 0
-                && additionalInfo.countFilesTranslationUserSpecificInProgress == 0) {
-            if (additionalInfo.countFilesTranslatedForOwnerSuccessfully == totalFiles) {
-                translationStatus = DashboardReader.TranslationStatus.SUCCESS;
-            } else {
-                if (additionalInfo.countFilesTranslationForOwnerInProgress > 0) {
-                    translationStatus = DashboardReader.TranslationStatus.IN_PROGRESS;
-                } else {
-                    if (additionalInfo.countFilesTranslationForOwnerFailed > 0) {
-                        translationStatus = DashboardReader.TranslationStatus.FAILURE;
-                        translationError = "Not all files were translated successfully";
-                    } else {
-                        translationStatus = DashboardReader.TranslationStatus.NOT_STARTED;
-                    }
-                }
-            }
-        } else {
-            if (additionalInfo.countFilesTranslationUserSpecificFailed > 0) {// if at least one is failed
-                translationStatus = DashboardReader.TranslationStatus.FAILURE;
-                translationError = "Not all files were translated successfully";
-            } else if (additionalInfo.countFilesTranslationUserSpecificInProgress > 0) {// if at least one is in progress
-                translationStatus = DashboardReader.TranslationStatus.IN_PROGRESS;
-            } else {
-                if (additionalInfo.countFilesTranslatedSuccesfullyTotal == totalFiles) {
-                    translationStatus = DashboardReader.TranslationStatus.SUCCESS;
-                } else {
-                    translationStatus = DashboardReader.TranslationStatus.NOT_STARTED;
-                }
-            }
-        }
-
-        return new TranslationStatusRecordItem(translationStatus, translationError);
+    private TranslationStatusRecordItem getTranslationStatus() {
+        return new TranslationStatusRecordItem(DashboardReader.TranslationStatus.NOT_STARTED, null);
     }
 
 
@@ -717,7 +670,6 @@ public class Transformers extends DefaultTransformers {
                     experiment.modified,
                     experiment.accessLevel,
                     "",
-                    false,
                     "",
                     experiment.lastTranslationAttemptDate,
                     "",
@@ -731,7 +683,6 @@ public class Transformers extends DefaultTransformers {
                     experiment.proteinSearchEnabled,
                     experiment.proteinSearchEnabledErrorMessage,
                     experiment.billLab,
-                    experiment.countOfOwnedFilesTranslationData,
                     experiment.owner, DashboardReader.TranslationStatus.NOT_STARTED,
                     new DashboardReader.ExperimentColumns(experiment.name, experiment.creator, experiment.lab.name,
                             experiment.project, experiment.files, experiment.modified));
@@ -906,18 +857,6 @@ public class Transformers extends DefaultTransformers {
                 throw new IllegalStateException("Illegal sharing type: " + type);
         }
         return accessLevel;
-    }
-
-    public static boolean isExperimentDataTranslated(ActiveExperiment experiment) {
-        boolean dataIsTranslated = true;
-        List<? extends ExperimentFileTemplate<?, ?, ?>> data = experiment.getRawFiles().getData();
-        for (ExperimentFileTemplate rawFile : data) {
-            final ActiveFileMetaData fileMetaData = (ActiveFileMetaData) rawFile.getFileMetaData();
-            final Optional<UserLabFileTranslationData> usersFunctions = from(fileMetaData.getUsersFunctions())
-                    .firstMatch(filterByBillLab(experiment));
-            dataIsTranslated = dataIsTranslated && usersFunctions.isPresent() && !usersFunctions.get().getFunctions().isEmpty();
-        }
-        return dataIsTranslated;
     }
 
     public static DashboardReader.TranslationStatus getExperimentTranslationStatus(ActiveExperiment experiment, final Set<Long> userLabs) {
@@ -1180,23 +1119,6 @@ public class Transformers extends DefaultTransformers {
                 return input.getId();
             }
         }).toSet();
-    }
-
-    public Function<ActiveExperiment, AdministrationToolsReader.ExperimentTranslationShortItem> experimentTranslationItemTransformer() {
-        return new Function<ActiveExperiment, AdministrationToolsReader.ExperimentTranslationShortItem>() {
-            @Override
-            public AdministrationToolsReader.ExperimentTranslationShortItem apply(ActiveExperiment exp) {
-                final Lab lab = exp.getLab();
-                return new AdministrationToolsReader.ExperimentTranslationShortItem(
-                        exp.getId(),
-                        exp.getName(),
-                        lab == null ? "<No Lab>" : lab.getName(),
-                        exp.getCreator().getFullName(),
-                        isExperimentDataTranslated(exp),
-                        getChartsLink(exp),
-                        composeExperimentTranslationError(exp));
-            }
-        };
     }
 
     private String transformColumnNameToView(ColumnDefinition columnDefinition) {

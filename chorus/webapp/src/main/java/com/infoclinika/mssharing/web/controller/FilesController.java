@@ -273,16 +273,6 @@ public class FilesController extends PagedItemsController {
 
     }
 
-    @RequestMapping(value = "/per-file-translation/translatedPercent", method = RequestMethod.GET)
-    @ResponseBody
-    public ValueResponse<Float> getReTranslatedPercent() {
-
-        final float translated = administrationToolsReader.alreadyTranslatedPercent();
-
-        return new ValueResponse<Float>(translated);
-    }
-
-
     @RequestMapping(value = "/charts/url", method = RequestMethod.GET)
     @ResponseBody
     public ChartUrlResponse getChartUrlForFiles(@RequestParam(value = "fileIds", required = true) String[] rawIds, Principal principal) {
@@ -307,15 +297,6 @@ public class FilesController extends PagedItemsController {
         LOGGER.info(USER + getUserId(principal) + " requested Un-archive files: " + request);
         fileOperationsManager.markFilesToUnarchive(getUserId(principal), copyOf(request.files));
     }
-
-    @RequestMapping(value = "/removeTranslationData", method = RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.OK)
-    public void removeTranslationData(@RequestBody RemoveTranslationDataRequest filesRequest, Principal principal) {
-        final long actor = getUserId(principal);
-        LOGGER.info(USER + actor + " requested removing of files translation data: " + filesRequest);
-        studyManagement.removeTranslationData(actor, filesRequest.files, filesRequest.lab);
-    }
-
 
     private static class RemoveTranslationDataRequest {
         public List<Long> files;

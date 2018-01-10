@@ -13,7 +13,6 @@ import com.infoclinika.mssharing.model.helper.FileArchivingHelper;
 import com.infoclinika.mssharing.model.helper.StoredObjectPaths;
 import com.infoclinika.mssharing.model.internal.RuleValidator;
 import com.infoclinika.mssharing.model.internal.entity.Lab;
-import com.infoclinika.mssharing.model.internal.entity.MSFunctionItem;
 import com.infoclinika.mssharing.model.internal.entity.UserLabFileTranslationData;
 import com.infoclinika.mssharing.model.internal.entity.Util;
 import com.infoclinika.mssharing.model.internal.entity.restorable.ActiveExperiment;
@@ -24,7 +23,6 @@ import com.infoclinika.mssharing.model.internal.read.Transformers;
 import com.infoclinika.mssharing.model.internal.repository.ExperimentRepository;
 import com.infoclinika.mssharing.model.internal.repository.FeaturesRepository;
 import com.infoclinika.mssharing.model.internal.repository.FileMetaDataRepository;
-import com.infoclinika.mssharing.model.internal.repository.MSFunctionItemRepository;
 import com.infoclinika.mssharing.model.write.FileAccessLogService;
 import com.infoclinika.mssharing.model.write.FileMovingManager;
 import com.infoclinika.mssharing.model.write.FileOperationsManager;
@@ -83,8 +81,6 @@ public class FileOperationsManagerImpl implements FileOperationsManager {
     private FileArchivingHelper fileArchivingHelper;
     @Inject
     private ExperimentRepository experimentRepository;
-    @Inject
-    private MSFunctionItemRepository msFunctionItemRepository;
     private TransactionTemplate transactionTemplate;
 
     @Inject
@@ -144,25 +140,6 @@ public class FileOperationsManagerImpl implements FileOperationsManager {
         fileMetaDataRepository.save(metaData);
         fileAccessLogService.logFileArchiveStart(actor, file);
 
-    }
-
-    private void removeTranslationData(ActiveFileMetaData metaData, UserLabFileTranslationData userTranslationDataToDelete) {
-
-        final ImmutableSet<MSFunctionItem> oldMSFunctionItems = copyOf(userTranslationDataToDelete.getFunctions());
-
-        for (MSFunctionItem msFunctionItem : userTranslationDataToDelete.getFunctions()) {
-            msFunctionItemRepository.delete(msFunctionItem);
-        }
-
-        metaData.getUsersFunctions().remove(userTranslationDataToDelete);
-
-        for (MSFunctionItem oldMSFunctionItem : oldMSFunctionItems) {
-            final Long usedByOtherUsers = msFunctionItemRepository.countByTranslatedPath(oldMSFunctionItem.getTranslatedPath());
-            if (usedByOtherUsers == 0) {
-                LOG.info("*** Translation data has no more references. Remove real data from S3");
-                //TODO: Remove real translated data from S3.
-            }
-        }
     }
 
     private Optional<UserLabFileTranslationData> getUserTranslationDataToDelete(final long actor, Optional<Long> experiment, final ActiveFileMetaData metaData) {

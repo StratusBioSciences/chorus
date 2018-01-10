@@ -9,18 +9,10 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.infoclinika.analysis.storage.cloud.CloudStorageFactory;
 import com.infoclinika.analysis.storage.cloud.CloudStorageItemReference;
 import com.infoclinika.mssharing.model.Notifier;
 import com.infoclinika.mssharing.model.PredefinedDataCreator;
-import com.infoclinika.mssharing.model.api.MSFunctionDataType;
-import com.infoclinika.mssharing.model.api.MSFunctionFragmentationType;
-import com.infoclinika.mssharing.model.api.MSFunctionImageType;
-import com.infoclinika.mssharing.model.api.MSFunctionMassAnalyzerType;
-import com.infoclinika.mssharing.model.api.MSFunctionScanType;
-import com.infoclinika.mssharing.model.api.MSFunctionType;
-import com.infoclinika.mssharing.model.api.MSResolutionType;
 import com.infoclinika.mssharing.model.helper.ExperimentCreationHelper;
 import com.infoclinika.mssharing.model.helper.ExperimentLabelsInfo;
 import com.infoclinika.mssharing.model.helper.ExperimentPreparedSampleItem;
@@ -72,11 +64,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import java.util.UUID;
 
 import static com.google.common.collect.ImmutableList.of;
@@ -134,51 +124,6 @@ public class DemoDataCreator {
     private static final int RESOLUTION = 100000;
     private static final int MAX_SCAN = 4440;
     private static final int MAX_PACKETS = 9052;
-    private static final HashSet<InstrumentManagement.MSFunctionDTO> DEFAULT_MS_FUNCTIONS = Sets.newHashSet(
-            new InstrumentManagement.MSFunctionDTO(
-                    "FTMS + p NSI Full ms [400.00-1800.00]",
-                    "manual-translation/translated-per-file/1/2014-02/50_02.RAW/FTMS + p NSI Full ms [400.00-1800.00]",
-                    MSFunctionDataType.PROFILE,
-                    MSFunctionImageType.INT_IMAGE,
-                    MSFunctionType.MS,
-                    MSFunctionScanType.FULL,
-                    MSFunctionFragmentationType.CAD,
-                    MSFunctionMassAnalyzerType.FTMS,
-                    MSResolutionType.HIGH,
-                    "LTQ FT",
-                    "LTQ FTSN06106F",
-                    true,
-                    true,
-                    false,
-                    RESOLUTION,
-                    0,
-                    6677,
-                    96720,
-                    0,
-                    Integer.MAX_VALUE
-            ),
-            new InstrumentManagement.MSFunctionDTO(
-                    "ITMS + c NSI d Full ms2 445.13@cid35.00 [110.00-460.00]",
-                    "manual-translation/translated-per-file/1/2014-02/50_02.RAW/MS2_DDA",
-                    MSFunctionDataType.CENTROID,
-                    MSFunctionImageType.INT_IMAGE,
-                    MSFunctionType.MS2,
-                    MSFunctionScanType.FULL,
-                    MSFunctionFragmentationType.CAD,
-                    MSFunctionMassAnalyzerType.ITMS,
-                    MSResolutionType.LOW,
-                    "LTQ FT", "LTQ FTSN06106F",
-                    false,
-                    true,
-                    false,
-                    RESOLUTION,
-                    0,
-                    MAX_SCAN,
-                    MAX_PACKETS,
-                    0,
-                    Integer.MAX_VALUE
-            )
-    );
     private static final String NEXT_GEN_SEQUENCING = "Roche";
 
     private static final String PERMANENT_SAMPLE_RAW_FILE_S3_1 = "raw-files/permanent-data/50_02.RAW";
@@ -619,81 +564,6 @@ public class DemoDataCreator {
         metaInfo.instrumentMethod = "Instrument method " + random.nextLong();
 
         fileMetaInfoHelper.updateFileMeta(fileMetaDataId, metaInfo);
-
-        final Set<InstrumentManagement.MSFunctionDTO> functions = new HashSet<>();
-        functions.add(new InstrumentManagement.MSFunctionDTO(
-                "FTMS + p NSI Full ms [500.00-900.00]",
-                THERMO_DIA_MS1.getKey(),
-                MSFunctionDataType.PROFILE,
-                MSFunctionImageType.INT_IMAGE,
-                MSFunctionType.MS,
-                MSFunctionScanType.FULL,
-                MSFunctionFragmentationType.CAD,
-                MSFunctionMassAnalyzerType.FTMS,
-                MSResolutionType.HIGH,
-                "LTQ FT",
-                "LTQ FTSN06106F",
-                true,
-                true,
-                false,
-                RESOLUTION,
-                0,
-                6677,
-                96720,
-                0,
-                Integer.MAX_VALUE
-        ));
-
-
-        final Set<String> ms2Functions = Sets.newHashSet(
-                THERMO_DIA_MS2_1.getKey(),
-                THERMO_DIA_MS2_2.getKey(),
-                THERMO_DIA_MS2_3.getKey(),
-                THERMO_DIA_MS2_4.getKey(),
-                THERMO_DIA_MS2_5.getKey(),
-                THERMO_DIA_MS2_6.getKey(),
-                THERMO_DIA_MS2_7.getKey(),
-                THERMO_DIA_MS2_8.getKey(),
-                THERMO_DIA_MS2_9.getKey(),
-                THERMO_DIA_MS2_10.getKey(),
-                THERMO_DIA_MS2_11.getKey(),
-                THERMO_DIA_MS2_12.getKey(),
-                THERMO_DIA_MS2_13.getKey(),
-                THERMO_DIA_MS2_14.getKey(),
-                THERMO_DIA_MS2_15.getKey(),
-                THERMO_DIA_MS2_16.getKey(),
-                THERMO_DIA_MS2_17.getKey(),
-                THERMO_DIA_MS2_18.getKey(),
-                THERMO_DIA_MS2_19.getKey(),
-                THERMO_DIA_MS2_20.getKey()
-        );
-
-        for (String ms2Function : ms2Functions) {
-            functions.add(new InstrumentManagement.MSFunctionDTO(
-                    ms2Function.substring(ms2Function.lastIndexOf("/") + 1),
-                    ms2Function,
-                    MSFunctionDataType.CENTROID,
-                    MSFunctionImageType.INT_IMAGE,
-                    MSFunctionType.MS2,
-                    MSFunctionScanType.FULL,
-                    MSFunctionFragmentationType.CAD,
-                    MSFunctionMassAnalyzerType.ITMS,
-                    MSResolutionType.LOW,
-                    "LTQ FT", "LTQ FTSN06106F",
-                    false,
-                    true,
-                    false,
-                    RESOLUTION,
-                    0,
-                    MAX_SCAN,
-                    MAX_PACKETS,
-                    0,
-                    Integer.MAX_VALUE
-            ));
-        }
-
-
-        instrumentManagement.replaceFunctionsForFile(andrey, fileMetaDataId, functions);
     }
 
     private long createUserAndVerifyEmail(UserManagement.PersonInfo mikeHead, long uwLab) {
@@ -994,8 +864,6 @@ public class DemoDataCreator {
         metaInfo.instrumentMethod = "Instrument method " + random.nextLong();
 
         fileMetaInfoHelper.updateFileMeta(fileMetaDataId, metaInfo);
-
-        instrumentManagement.replaceFunctionsForFile(user, fileMetaDataId, DEFAULT_MS_FUNCTIONS);
 
         return fileMetaDataId;
     }

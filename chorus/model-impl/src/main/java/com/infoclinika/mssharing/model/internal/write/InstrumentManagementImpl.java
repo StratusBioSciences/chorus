@@ -12,7 +12,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.infoclinika.mssharing.model.UploadLimitException;
@@ -28,16 +27,13 @@ import com.infoclinika.mssharing.model.internal.entity.Instrument;
 import com.infoclinika.mssharing.model.internal.entity.InstrumentCreationRequest;
 import com.infoclinika.mssharing.model.internal.entity.Lab;
 import com.infoclinika.mssharing.model.internal.entity.LockMz;
-import com.infoclinika.mssharing.model.internal.entity.MSFunctionItem;
 import com.infoclinika.mssharing.model.internal.entity.RawFile;
 import com.infoclinika.mssharing.model.internal.entity.User;
-import com.infoclinika.mssharing.model.internal.entity.UserLabFileTranslationData;
 import com.infoclinika.mssharing.model.internal.entity.Util;
 import com.infoclinika.mssharing.model.internal.entity.restorable.AbstractFileMetaData;
 import com.infoclinika.mssharing.model.internal.entity.restorable.ActiveFileMetaData;
 import com.infoclinika.mssharing.model.internal.entity.restorable.DeletedExperiment;
 import com.infoclinika.mssharing.model.internal.entity.restorable.DeletedFileMetaData;
-import com.infoclinika.mssharing.model.internal.entity.restorable.TranslationStatus;
 import com.infoclinika.mssharing.model.internal.helper.InstrumentsDefaults;
 import com.infoclinika.mssharing.model.internal.read.Transformers;
 import com.infoclinika.mssharing.model.internal.repository.DeletedExperimentRepository;
@@ -48,7 +44,6 @@ import com.infoclinika.mssharing.model.internal.repository.FileDownloadJobReposi
 import com.infoclinika.mssharing.model.internal.repository.FileMetaDataRepository;
 import com.infoclinika.mssharing.model.internal.repository.InstrumentRepository;
 import com.infoclinika.mssharing.model.internal.repository.LabRepository;
-import com.infoclinika.mssharing.model.internal.repository.MSFunctionItemRepository;
 import com.infoclinika.mssharing.model.internal.repository.RawFilesRepository;
 import com.infoclinika.mssharing.model.internal.repository.UserRepository;
 import com.infoclinika.mssharing.model.write.FileAccessLogService;
@@ -96,7 +91,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Predicates.or;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.ImmutableSet.of;
-import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 
@@ -147,8 +141,6 @@ public class InstrumentManagementImpl extends DefaultInstrumentManagement<Instru
     private BillingFeaturesHelper billingFeaturesHelper;
     @Inject
     private FileMovingManager fileMovingManager;
-    @Inject
-    private MSFunctionItemRepository msFunctionItemRepository;
     @Inject
     private FileDownloadJobRepository fileDownloadJobRepository;
     @Inject
@@ -552,7 +544,6 @@ public class InstrumentManagementImpl extends DefaultInstrumentManagement<Instru
         }
         final ActiveFileMetaData fileMetaData = fileRepository.findOne(file);
         DeletedFileMetaData deleted = new DeletedFileMetaData((ActiveFileMetaData) fileMetaData.copy(fileMetaData.getName(), fileMetaData.getOwner()));
-        copyMSData(fileMetaData, deleted);
         deleted = deletedFileMetaDataRepository.save(deleted);
         final List<RawFile> rawFiles = experimentFileRepository.findByMetaData(fileMetaData);
 
@@ -575,7 +566,6 @@ public class InstrumentManagementImpl extends DefaultInstrumentManagement<Instru
             throw new AccessDenied("Couldn't restore file");
         }
         ActiveFileMetaData fileMetaData = (ActiveFileMetaData) deleted.copy(deleted.getName(), deleted.getOwner());
-        copyMSData(deleted, fileMetaData);
         fileMetaData = fileRepository.save(fileMetaData);
         final List<RawFile> rawFiles = experimentFileRepository.findByMetaData(deleted);
 
@@ -585,26 +575,6 @@ public class InstrumentManagementImpl extends DefaultInstrumentManagement<Instru
         }
         deletedFileMetaDataRepository.delete(deleted);
         return fileMetaData.getId();
-    }
-
-    public void copyMSData(final AbstractFileMetaData from, final AbstractFileMetaData target) {
-
-        final Set<UserLabFileTranslationData> usersFunctions = from.getUsersFunctions();
-
-        for (UserLabFileTranslationData usersFunction : usersFunctions) {
-            final Set<MSFunctionItem> functions = usersFunction.getFunctions();
-            final ImmutableSet.Builder<MSFunctionItem> builder = ImmutableSet.builder();
-            for (MSFunctionItem function : functions) {
-                final MSFunctionItem originalFunction = msFunctionItemRepository.findOne(function.getId());
-                MSFunctionItem copyFunction = originalFunction.copy();
-                copyFunction = msFunctionItemRepository.save(copyFunction);
-                builder.add(copyFunction);
-            }
-            UserLabFileTranslationData translationData = new UserLabFileTranslationData(usersFunction.getUser(), builder.build(), from.getInstrument().getLab());
-            translationData.setTranslationStatus(usersFunction.getTranslationStatus());
-            target.getUsersFunctions().add(translationData);
-        }
-
     }
 
     private void removeDownloadingGlacierInfo(ActiveFileMetaData fileMetaData) {
@@ -643,71 +613,13 @@ public class InstrumentManagementImpl extends DefaultInstrumentManagement<Instru
     }
 
     @Override
-    public void replaceFunctionsForFile(final long actor, long file, Set<MSFunctionDTO> newFunctions) {
-
-        final ActiveFileMetaData entity = load(file);
-        if (!entity.getOwner().equals(Util.USER_FROM_ID.apply(actor))) {
-            throw new AccessDenied("Only owner can update functions for file");
-        }
-
-        final Set<UserLabFileTranslationData> usersFunctions = entity.getUsersFunctions();
-
-        final UserLabFileTranslationData userTranslationData = tryFind(usersFunctions, new Predicate<UserLabFileTranslationData>() {
-            @Override
-            public boolean apply(UserLabFileTranslationData input) {
-                return input.getLab().equals(entity.getInstrument().getLab());
-            }
-        }).or(new UserLabFileTranslationData(Util.USER_FROM_ID.apply(actor), Collections.<MSFunctionItem>emptySet(), entity.getInstrument().getLab()));
-
-        final Set<MSFunctionItem> oldFunctions = userTranslationData.getFunctions();
-
-        for (MSFunctionItem oldFunction : oldFunctions) {
-            msFunctionItemRepository.delete(oldFunction);
-        }
-
-        userTranslationData.getFunctions().clear();
-
-        for (MSFunctionDTO dto : newFunctions) {
-            MSFunctionItem msFunctionItem = new MSFunctionItem();
-
-            msFunctionItem.setCalibration(dto.calibration);
-            msFunctionItem.setFragmentationType(dto.fragmentationType);
-            msFunctionItem.setDataType(dto.dataType);
-            msFunctionItem.setDia(dto.dia);
-            msFunctionItem.setScanType(dto.scanType);
-            msFunctionItem.setMassAnalyzerType(dto.massAnalyzerType);
-            msFunctionItem.setResolutionType(dto.resolutionType);
-            msFunctionItem.setFunctionName(dto.functionName);
-            msFunctionItem.setFunctionNumber(dto.functionNumber);
-            msFunctionItem.setFunctionType(dto.functionType);
-            msFunctionItem.setImageType(dto.imageType);
-            msFunctionItem.setInstrumentModel(dto.instrumentModel);
-            msFunctionItem.setInstrumentName(dto.instrumentName);
-            msFunctionItem.setMaxPackets(dto.maxPackets);
-            msFunctionItem.setMaxScan(dto.maxScan);
-            msFunctionItem.setPolarity(dto.polarity);
-            msFunctionItem.setResolution(dto.resolution);
-            msFunctionItem.setTranslatedPath(dto.translatedPath);
-            msFunctionItem.setLowMz(dto.lowMz);
-            msFunctionItem.setHighMz(dto.highMz);
-
-            msFunctionItem = msFunctionItemRepository.save(msFunctionItem);
-            userTranslationData.getFunctions().add(msFunctionItem);
-        }
-        userTranslationData.getTranslationStatus().setStatus(TranslationStatus.Status.SUCCESS);
-        userTranslationData.getTranslationStatus().setTranslationError(null);
-        entity.getUsersFunctions().add(userTranslationData);
-        fileRepository.save(entity);
-    }
-
-    @Override
     public void checkCanUploadMore(long instrument, long bytes) {
 
         final Instrument one = instrumentRepository.findOne(instrument);
         final Lab lab = one.getLab();
         final float uploadLimitInGb = lab.getUploadLimitInGb();
-        final long uploadedBytes = labRepository.uploadedDataSize(lab.getId());
-        final double uploadedInGb = (double) (uploadedBytes + bytes) / ONE_GB;
+        final Long uploadedBytes = labRepository.uploadedDataSize(lab.getId());
+        final double uploadedInGb = uploadedBytes != null ? (double) (uploadedBytes + bytes) / ONE_GB : 0;
 
         if (uploadedInGb > uploadLimitInGb) {
             throw new UploadLimitException("The file upload quota has been exceed");

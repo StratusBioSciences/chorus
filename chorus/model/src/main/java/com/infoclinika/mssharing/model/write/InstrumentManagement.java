@@ -9,7 +9,6 @@
 package com.infoclinika.mssharing.model.write;
 
 import com.infoclinika.mssharing.platform.fileserver.StoredObject;
-import com.infoclinika.mssharing.model.api.*;
 import com.infoclinika.mssharing.platform.model.write.FileManagementTemplate;
 import com.infoclinika.mssharing.platform.model.write.FileUploadManagementTemplate;
 import com.infoclinika.mssharing.platform.model.write.InstrumentManagementTemplate;
@@ -65,8 +64,6 @@ public interface InstrumentManagement extends
 
     void removeFilesPermanently(long userId, Set<Long> files);
 
-    void replaceFunctionsForFile(long actor, long fileId, Set<MSFunctionDTO> newFunctions);
-
     void checkCanUploadMore(long instrument, long bytes);
 
     long createDefaultInstrument(long actor, long labId, long modelId);
@@ -88,61 +85,5 @@ public interface InstrumentManagement extends
             this.autotranslate = autotranslate;
         }
     }
-
-    class MSFunctionDTO {
-
-        public final String functionName;
-        public final String translatedPath;
-
-        public final MSFunctionDataType dataType;
-        public final MSFunctionImageType imageType;
-        public final MSFunctionType functionType;
-        public final MSFunctionScanType scanType;
-        public final MSFunctionFragmentationType fragmentationType;
-        public final MSFunctionMassAnalyzerType massAnalyzerType;
-        public final MSResolutionType resolutionType;
-
-        public final String instrumentModel;
-        public final String instrumentName;
-        public final boolean dia;
-        public final boolean polarity;
-        public final boolean calibration;
-        public final int resolution;
-        public final int functionNumber;
-        public final int maxScan;
-        public final int maxPackets;
-        public final int lowMz;
-        public final int highMz;
-
-        public MSFunctionDTO(String functionName, String translatedPath, MSFunctionDataType dataType, MSFunctionImageType imageType,
-                             MSFunctionType functionType, MSFunctionScanType scanType, MSFunctionFragmentationType fragmentationType,
-                             MSFunctionMassAnalyzerType massAnalyzerType, MSResolutionType resolutionType, String instrumentModel, String instrumentName,
-                             boolean dia, boolean polarity, boolean calibration, int resolution, int functionNumber, int maxScan,
-                             int maxPackets, int lowMz, int highMz) {
-            this.functionName = functionName;
-            this.translatedPath = translatedPath;
-            this.dataType = dataType;
-            this.imageType = imageType;
-            this.functionType = functionType;
-            this.scanType = scanType;
-            this.fragmentationType = fragmentationType;
-            this.massAnalyzerType = massAnalyzerType;
-            this.resolutionType = resolutionType;
-            this.instrumentModel = instrumentModel;
-            this.instrumentName = instrumentName;
-            this.dia = dia;
-            this.polarity = polarity;
-            this.calibration = calibration;
-            this.resolution = resolution;
-            this.functionNumber = functionNumber;
-            this.maxScan = maxScan;
-            this.maxPackets = maxPackets;
-            this.lowMz = lowMz;
-            this.highMz = highMz;
-        }
-    }
-
-
-
 
 }

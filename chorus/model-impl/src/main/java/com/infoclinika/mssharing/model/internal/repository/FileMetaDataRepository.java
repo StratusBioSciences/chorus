@@ -222,12 +222,6 @@ public interface FileMetaDataRepository extends FileRepositoryTemplate<ActiveFil
     @Query("select f " + SELECT_UNFINISHED_FILE_BY_USER)
     List<ActiveFileMetaData> unfinishedByUser(@Param("user") long actor);
 
-    @Query("select count(*) from  ActiveFileMetaData f join f.usersFunctions uf where uf.functions is not empty")
-    long reTranslatedCount();
-
-    @Query("select count(*) from  ActiveFileMetaData f join f.usersFunctions uf where uf.translationStatus.translationSubmitted = true")
-    long sentForTranslationCount();
-
     @Query("select new com.infoclinika.mssharing.model.internal.repository.TranslatedFileIdInExperiment(e.id, rawFile.fileMetaData.id) " +
             "from ActiveExperiment e join e.rawFiles.data rawFile where rawFile.fileMetaData.usersFunctions is not empty")
     List<TranslatedFileIdInExperiment> findTranslatedFilesWithExperiments();
@@ -296,8 +290,7 @@ public interface FileMetaDataRepository extends FileRepositoryTemplate<ActiveFil
             "left join f.usersFunctions uf " +
             "where l.id not in(1,2,8,68,69,90,250) " +
             "and (f.contentId is not null or f.archiveId is not null) " +
-            "and f.sizeIsConsistent = false " +
-            "and (select count(*) from UserLabFileTranslationData td where td in(uf) and size(td.functions) > 0) = 0")
+            "and f.sizeIsConsistent = false ")
     List<Long> getInconsistentFilesIds();
 
     @Query("select f from ActiveFileMetaData f left join f.instrument instrument left join instrument.lab lab left join f.owner own" +

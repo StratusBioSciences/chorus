@@ -13,7 +13,6 @@ public class ExperimentLine extends ExperimentReaderTemplate.ExperimentLineTempl
 
     public final boolean isOwner;
     public final String msChartsUrl;
-    public final boolean translated;
     public final String translationErrors;
     public final Date lastTranslationAttemptDate;
     public final boolean isAvailableForCopying;
@@ -27,21 +26,19 @@ public class ExperimentLine extends ExperimentReaderTemplate.ExperimentLineTempl
     public final String proteinSearchEnabledErrorMessage;
     public final int analyzesCount;
     public final Long billLab;
-    public final long countOfOwnedFilesTranslationData;
     public final DashboardReader.TranslationStatus translationStatus;
     public final DashboardReader.ExperimentColumns columns;
 
     public ExperimentLine(long id, LabReaderTemplate.LabLineTemplate lab, String name, String creator, String project,
                           long files, Date modified, AccessLevel accessLevel, String msChartsUrl,
-                          boolean translated, String translationErrors, Date lastTranslationAttemptDate,
+                          String translationErrors, Date lastTranslationAttemptDate,
                           String downloadLink,
                           boolean owner, boolean isAvailableForCopying, boolean downloadAvailable, boolean hasUnArchiveRequest, boolean hasUnArchiveDownloadOnlyRequest,
                           boolean translationAvailable, boolean canArchive, boolean canUnarchive,
                           int analyzesCount, boolean proteinSearchEnabled, String proteinSearchEnabledErrorMessage,
-                          Long billLab, long countOfOwnedFilesTranslationData, long ownerId, DashboardReader.TranslationStatus translationStatus, DashboardReader.ExperimentColumns columns) {
+                          Long billLab, long ownerId, DashboardReader.TranslationStatus translationStatus, DashboardReader.ExperimentColumns columns) {
         super(id, name, project, files, modified, lab, downloadLink, creator, accessLevel, ownerId);
         this.msChartsUrl = msChartsUrl;
-        this.translated = translated;
         this.translationErrors = translationErrors;
         this.lastTranslationAttemptDate = lastTranslationAttemptDate;
         isOwner = owner;
@@ -56,21 +53,19 @@ public class ExperimentLine extends ExperimentReaderTemplate.ExperimentLineTempl
         this.proteinSearchEnabledErrorMessage = proteinSearchEnabledErrorMessage;
         this.analyzesCount = analyzesCount;
         this.billLab = billLab;
-        this.countOfOwnedFilesTranslationData = countOfOwnedFilesTranslationData;
         this.translationStatus = translationStatus;
         this.columns = columns;
     }
 
     public ExperimentLine(ExperimentReaderTemplate.ExperimentLineTemplate other,
-                          boolean isOwner, String msChartsUrl, boolean translated, String translationErrors,
+                          boolean isOwner, String msChartsUrl, String translationErrors,
                           Date lastTranslationAttemptDate, boolean isAvailableForCopying, boolean downloadAvailable, boolean hasUnArchiveRequest, boolean hasUnArchiveDownloadOnlyRequest,
                           boolean translationAvailable, boolean canUnarchive, boolean canArchive,
                           boolean proteinSearchEnabled, String proteinSearchEnabledErrorMessage,
-                          int analyzesCount, Long billLab, long countOfOwnedFilesTranslationData, DashboardReader.TranslationStatus translationStatus, DashboardReader.ExperimentColumns columns) {
+                          int analyzesCount, Long billLab, DashboardReader.TranslationStatus translationStatus, DashboardReader.ExperimentColumns columns) {
         super(other);
         this.isOwner = isOwner;
         this.msChartsUrl = msChartsUrl;
-        this.translated = translated;
         this.translationErrors = translationErrors;
         this.lastTranslationAttemptDate = lastTranslationAttemptDate;
         this.isAvailableForCopying = isAvailableForCopying;
@@ -84,14 +79,13 @@ public class ExperimentLine extends ExperimentReaderTemplate.ExperimentLineTempl
         this.proteinSearchEnabledErrorMessage = proteinSearchEnabledErrorMessage;
         this.analyzesCount = analyzesCount;
         this.billLab = billLab;
-        this.countOfOwnedFilesTranslationData = countOfOwnedFilesTranslationData;
         this.translationStatus = translationStatus;
         this.columns = columns;
     }
 
     public ExperimentLine(ExperimentReaderTemplate.ExperimentLineTemplate lineTemplate, long billLab) {
-        this(lineTemplate, false, null, false, null, null, false, false, false, false, false, false, false, false, null,
-                0, billLab, 0, DashboardReader.TranslationStatus.NOT_STARTED, null);
+        this(lineTemplate, false, null, null, null, false, false, false, false, false, false, false, false, null,
+                0, billLab, DashboardReader.TranslationStatus.NOT_STARTED, null);
     }
 
     @Override
@@ -105,14 +99,12 @@ public class ExperimentLine extends ExperimentReaderTemplate.ExperimentLineTempl
         if (analyzesCount != that.analyzesCount) return false;
         if (canArchive != that.canArchive) return false;
         if (canUnarchive != that.canUnarchive) return false;
-        if (countOfOwnedFilesTranslationData != that.countOfOwnedFilesTranslationData) return false;
         if (downloadAvailable != that.downloadAvailable) return false;
         if (hasUnArchiveDownloadOnlyRequest != that.hasUnArchiveDownloadOnlyRequest) return false;
         if (hasUnArchiveRequest != that.hasUnArchiveRequest) return false;
         if (isAvailableForCopying != that.isAvailableForCopying) return false;
         if (isOwner != that.isOwner) return false;
         if (proteinSearchEnabled != that.proteinSearchEnabled) return false;
-        if (translated != that.translated) return false;
         if (translationAvailable != that.translationAvailable) return false;
         if (billLab != null ? !billLab.equals(that.billLab) : that.billLab != null) return false;
         if (columns != null ? !columns.equals(that.columns) : that.columns != null) return false;
@@ -131,7 +123,6 @@ public class ExperimentLine extends ExperimentReaderTemplate.ExperimentLineTempl
         int result = super.hashCode();
         result = 31 * result + (isOwner ? 1 : 0);
         result = 31 * result + (msChartsUrl != null ? msChartsUrl.hashCode() : 0);
-        result = 31 * result + (translated ? 1 : 0);
         result = 31 * result + (translationErrors != null ? translationErrors.hashCode() : 0);
         result = 31 * result + (lastTranslationAttemptDate != null ? lastTranslationAttemptDate.hashCode() : 0);
         result = 31 * result + (isAvailableForCopying ? 1 : 0);
@@ -144,7 +135,6 @@ public class ExperimentLine extends ExperimentReaderTemplate.ExperimentLineTempl
         result = 31 * result + (proteinSearchEnabled ? 1 : 0);
         result = 31 * result + analyzesCount;
         result = 31 * result + (billLab != null ? billLab.hashCode() : 0);
-        result = 31 * result + (int) (countOfOwnedFilesTranslationData ^ (countOfOwnedFilesTranslationData >>> 32));
         result = 31 * result + (translationStatus != null ? translationStatus.hashCode() : 0);
         result = 31 * result + (columns != null ? columns.hashCode() : 0);
         return result;

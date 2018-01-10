@@ -105,13 +105,6 @@ angular.module("experiments-back", ["ngResource"])
             "unarchive": {method: "PUT", params: {path: "unarchive"}}
         });
     })
-    .factory("ExperimentSearchMsFunctionItems", function ($resource) {
-        return $resource("../experiment/searches/:experiment/:path/:filter", {experiment: "@experiment"}, {
-            "getMs1FunctionItems": {method: "GET", params: {path: "ms1FunctionItems"}, isArray: true},
-            "getInvalidMs1FunctionItemsForDMS": {method: "GET", params: {path: "ms1FunctionItems", filter: "invalid"}, isArray: true},
-            "getMs2FunctionItems": {method: "GET", params: {path: "ms2FunctionItems"}, isArray: true}
-        });
-    })
     .factory("ExperimentColumns", function ($resource) {
         return $resource("../experiments/column-view/:path/:id", {}, {
             "available": {method: "GET", isArray: true, params: {path: "all"}},

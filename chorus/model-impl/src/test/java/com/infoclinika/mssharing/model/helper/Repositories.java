@@ -141,8 +141,6 @@ class Repositories {
     @Inject
     FailedEmailsNotifierRepository failedEmailsNotifierRepository;
     @Inject
-    private MSFunctionItemRepository msFunctionItemRepository;
-    @Inject
     private BillingPropertyRepository billingPropertyRepository;
 
     public List<CrudRepository> get() {
@@ -200,7 +198,6 @@ class Repositories {
                 advertisementRepository,
                 experimentLabelRepository,
                 experimentLabelTypeRepository,
-                msFunctionItemRepository,
                 billingPropertyRepository
         );
     }

@@ -72,7 +72,6 @@ public class ExperimentReaderImpl extends DefaultExperimentReader<ActiveExperime
         return new ExperimentLine(experimentReaderHelper.getDefaultTransformer().apply(activeExperiment),
                 false,
                 transformers.getChartsLink(activeExperiment),
-                Transformers.isExperimentDataTranslated(activeExperiment),
                 Transformers.composeExperimentTranslationError(activeExperiment),
                 activeExperiment.getLastTranslationAttempt(),
                 false,
@@ -84,7 +83,6 @@ public class ExperimentReaderImpl extends DefaultExperimentReader<ActiveExperime
                 null,
                 0,
                 labOpt.transform(EntityUtil.ENTITY_TO_ID).orNull(),
-                0,
                 Transformers.getExperimentTranslationStatus(activeExperiment, Sets.<Long>newHashSet()),
                 new DashboardReader.ExperimentColumns(
                         activeExperiment.getName(),

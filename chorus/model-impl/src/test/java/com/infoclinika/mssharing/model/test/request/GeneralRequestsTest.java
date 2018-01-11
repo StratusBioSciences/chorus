@@ -155,7 +155,7 @@ public class GeneralRequestsTest extends AbstractTest {
         final String hplc = "Some Hplc";
 
         final Optional<Long> instrumentRequest =
-                instrumentManagement.newInstrumentRequest(bob, uc.getLab3(), model, new InstrumentDetails(name, serialNumber, hplc, "", Collections.<LockMzItem>emptyList(), true), new ArrayList<Long>());
+                instrumentManagement.newInstrumentRequest(bob, uc.getLab3(), model, new InstrumentDetails(name, serialNumber, hplc, "", Collections.<LockMzItem>emptyList()), new ArrayList<Long>());
 
         assertTrue(instrumentRequest.isPresent());
 
@@ -168,7 +168,6 @@ public class GeneralRequestsTest extends AbstractTest {
         assertEquals(creationItem.hplc, hplc);
         assertEquals(creationItem.serialNumber, serialNumber);
 
-        assertEquals(creationItem.autoTranslate, true);
         assertEquals(creationItem.lockMasses.size(), 0);
 
     }

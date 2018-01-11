@@ -137,7 +137,7 @@ public class SearcherImplTest extends AbstractTestNGSpringContextTests {
     @Test(dependsOnMethods = "testSearchBecomeEnable")
     public void testCountItems() {
         createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel()
-                , new InstrumentDetails("fooo", anyStr(), anyStr(), anyStr(), lockMasses, true)).get();
+                , new InstrumentDetails("fooo", anyStr(), anyStr(), anyStr(), lockMasses)).get();
         final Searcher.Count fooo = searcher.getItemsCount(new PagedItemInfo(25, 0, "", true, "fooo"), bob);
         assertTrue(fooo.instruments == 1);
     }
@@ -154,7 +154,7 @@ public class SearcherImplTest extends AbstractTestNGSpringContextTests {
 
     private Long labInstrument() {
         if(labInstrument.isPresent()) return labInstrument.get();
-        labInstrument = createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel(), new InstrumentDetails(LAB_INSTRUMENT_NAME, anyStr(), anyStr(), anyStr(), lockMasses, true));
+        labInstrument = createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel(), new InstrumentDetails(LAB_INSTRUMENT_NAME, anyStr(), anyStr(), anyStr(), lockMasses));
         return labInstrument.get();
     }
 
@@ -321,7 +321,7 @@ public class SearcherImplTest extends AbstractTestNGSpringContextTests {
     public void testSearchHisPagedInstruments() {
 
         final long instrument = createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel()
-                , new InstrumentDetails("fooooo", anyStr(), anyStr(), anyStr(), lockMasses, true)).get();
+                , new InstrumentDetails("fooooo", anyStr(), anyStr(), anyStr(), lockMasses)).get();
         PagedItem<InstrumentLine> instruments = searcher.pagedInstruments(bob, getPageItem("foo", false));
         assertTrue(any(instruments, new Predicate<InstrumentLine>() {
             @Override
@@ -385,7 +385,7 @@ public class SearcherImplTest extends AbstractTestNGSpringContextTests {
         lab = labManagement.createLab(adminId, new LabManagementTemplate.LabInfoTemplate(anyStr(), new UserManagementTemplate.PersonInfo(anyStr(), anyStr(), anyStr()), anyStr()), anyStr());
         bob = userManagement.createPersonAndApproveMembership(new UserManagement.PersonInfo(anyStr(), anyStr(), anyStr()), anyStr(), lab, null);
         kate = userManagement.createPersonAndApproveMembership(new UserManagement.PersonInfo(anyStr(), anyStr(), anyStr()), anyStr(), lab, null);
-        createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel(), new InstrumentDetails(anyStr(), anyStr(), anyStr(), anyStr(), lockMasses, true));
+        createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel(), new InstrumentDetails(anyStr(), anyStr(), anyStr(), anyStr(), lockMasses));
     }
 
     private long experiment(long proj, String name, String description) {
@@ -443,7 +443,7 @@ public class SearcherImplTest extends AbstractTestNGSpringContextTests {
 
     public long saveFile(long species) {
         if (!labInstrument.isPresent())
-            labInstrument = createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel(), new InstrumentDetails(anyStr(), anyStr(), anyStr(), anyStr(), lockMasses, true));
+            labInstrument = createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel(), new InstrumentDetails(anyStr(), anyStr(), anyStr(), anyStr(), lockMasses));
         return saveFile(labInstrument.get(), species);
     }
 

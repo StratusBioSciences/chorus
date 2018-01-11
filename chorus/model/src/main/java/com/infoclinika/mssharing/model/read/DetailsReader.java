@@ -44,13 +44,11 @@ public interface DetailsReader extends DetailsReaderTemplate<FileItem, Experimen
 
         public final String hplc;
         public final List<LockMzItem> lockMasses;
-        public final boolean autoTranslate;
 
-        public InstrumentCreationItem(RequestsDetailsReaderTemplate.InstrumentCreationItemTemplate other, String hplc, List<LockMzItem> lockMasses, boolean autoTranslate) {
+        public InstrumentCreationItem(RequestsDetailsReaderTemplate.InstrumentCreationItemTemplate other, String hplc, List<LockMzItem> lockMasses) {
             super(other);
             this.hplc = hplc;
             this.lockMasses = lockMasses;
-            this.autoTranslate = autoTranslate;
         }
     }
 

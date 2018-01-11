@@ -457,7 +457,7 @@ public class DemoDataCreator {
     private Optional<Long> createInstrumentAndApproveIfNeeded(long user, long lab, String instrumentName, String serialNumber, String hplc, String peripherals, long model) {
 
         final boolean labHead = labManagement.isLabHead(user, lab);
-        final InstrumentDetails details = new InstrumentDetails(instrumentName, serialNumber, hplc, peripherals, Collections.<LockMzItem>emptyList(), isInit);
+        final InstrumentDetails details = new InstrumentDetails(instrumentName, serialNumber, hplc, peripherals, Collections.<LockMzItem>emptyList());
 
         if (labHead) {
             return Optional.of(instrumentManagement.createInstrument(user, lab, model, details));

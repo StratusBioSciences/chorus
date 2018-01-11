@@ -123,7 +123,7 @@ public class SearcherImpl
 
     @Override
     protected InstrumentLine transformInstrument(InstrumentRepositoryTemplate.AccessedInstrument<Instrument> accessed) {
-        return new InstrumentLine(instrumentReaderHelper.getDefaultTransformer().apply(accessed), accessed.instrument.isAutoTranslate());
+        return new InstrumentLine(instrumentReaderHelper.getDefaultTransformer().apply(accessed));
     }
 
     @Override

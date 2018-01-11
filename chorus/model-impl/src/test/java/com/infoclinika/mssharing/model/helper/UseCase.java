@@ -204,7 +204,7 @@ public class UseCase {
     }
 
     public Optional<Long> createInstrumentAndApproveIfNeeded(long user, long lab, long model) {
-        return createInstrumentAndApproveIfNeeded(user, lab, model, new InstrumentDetails(anyStr(), anyStr(), anyStr(), anyStr(), Collections.<LockMzItem>emptyList(), true));
+        return createInstrumentAndApproveIfNeeded(user, lab, model, new InstrumentDetails(anyStr(), anyStr(), anyStr(), anyStr(), Collections.<LockMzItem>emptyList()));
     }
 
     private Optional<Long> createInstrumentAndApproveIfNeeded(long user,

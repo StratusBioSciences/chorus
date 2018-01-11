@@ -115,8 +115,7 @@ public class InstrumentManagementImpl extends DefaultInstrumentManagement<Instru
             UUID.randomUUID().toString(),
             "",
             "",
-            new ArrayList<>(),
-            false
+            new ArrayList<>()
     );
     private static final String EMPTY_INSTRUMENT_NAME = null;
 
@@ -177,7 +176,6 @@ public class InstrumentManagementImpl extends DefaultInstrumentManagement<Instru
             @Override
             public Instrument apply(Instrument input) {
                 input.setHplc(instrumentDetails.hplc);
-                input.setAutoTranslate(instrumentDetails.autoTranslate);
                 input.getLockMasses().clear();
                 input.getLockMasses().addAll(transformToLockMz(instrumentDetails));
                 return input;
@@ -197,7 +195,6 @@ public class InstrumentManagementImpl extends DefaultInstrumentManagement<Instru
             @Override
             public InstrumentCreationRequest apply(InstrumentCreationRequest input) {
                 input.setHplc(details.hplc);
-                input.setAutoTranslate(details.autoTranslate);
                 input.getLockMasses().clear();
                 input.getLockMasses().addAll(transformToLockMz(details));
                 return input;
@@ -220,7 +217,6 @@ public class InstrumentManagementImpl extends DefaultInstrumentManagement<Instru
         return managementHelper.approveInstrumentCreation(actor, requestId, new Function<Instrument, Instrument>() {
             @Override
             public Instrument apply(Instrument input) {
-                input.setAutoTranslate(one.isAutoTranslate());
                 input.setHplc(one.getHplc());
                 input.getLockMasses().addAll(one.getLockMasses());
                 return input;

@@ -315,7 +315,6 @@ public class DetailsReaderImpl extends DefaultDetailsReader<ActiveFileMetaData, 
 
         return new InstrumentItem(transformed,
                 transformed.lockMasses,
-                transformed.autoTranslate,
                 transformed.hplc
         );
 
@@ -349,7 +348,7 @@ public class DetailsReaderImpl extends DefaultDetailsReader<ActiveFileMetaData, 
         final InstrumentItemTemplate instrumentItemTemplate = instrumentHelper.getDefaultTransformer().apply(accessedInstrument);
         final ImmutableList<LockMzItem> lockMasses = from(transform(instrument.getLockMasses(), LOCK_MZ_ITEM_FUNCTION)).toList();
 
-        return new InstrumentItem(instrumentItemTemplate, lockMasses, instrument.isAutoTranslate(), instrument.getHplc());
+        return new InstrumentItem(instrumentItemTemplate, lockMasses, instrument.getHplc());
     }
 
     @Override

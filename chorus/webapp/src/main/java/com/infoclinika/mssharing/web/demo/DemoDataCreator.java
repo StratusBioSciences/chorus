@@ -134,27 +134,6 @@ public class DemoDataCreator {
     private static final String PERMANENT_SAMPLE_RAW_FILE_S3_6 = "raw-files/permanent-data/500f_03.RAW";
 
     private static final String CHORUS_UNIT_TESTS = "chorus-unit-tests";
-    private static final CloudStorageItemReference THERMO_DIA_MS1 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms [500.00-900.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_1 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 510.48@hcd20.00 [72.00-1080.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_2 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 530.49@hcd20.00 [74.67-1120.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_3 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 550.50@hcd20.00 [77.33-1160.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_4 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 570.51@hcd20.00 [80.00-1200.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_5 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 590.52@hcd20.00 [83.00-1245.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_6 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 610.53@hcd20.00 [85.67-1285.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_7 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 630.54@hcd20.00 [88.33-1325.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_8 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 650.55@hcd20.00 [91.00-1365.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_9 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 670.55@hcd20.00 [93.67-1405.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_10 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 690.56@hcd20.00 [96.33-1445.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_11 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 710.57@hcd20.00 [99.00-1485.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_12 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 730.58@hcd20.00 [102.00-1530.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_13 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 750.59@hcd20.00 [104.67-1570.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_14 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 770.60@hcd20.00 [107.33-1610.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_15 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 790.61@hcd20.00 [110.00-1650.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_16 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 810.62@hcd20.00 [112.67-1690.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_17 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 830.63@hcd20.00 [115.33-1730.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_18 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 850.64@hcd20.00 [118.33-1775.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_19 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 870.65@hcd20.00 [121.00-1815.00]");
-    private static final CloudStorageItemReference THERMO_DIA_MS2_20 = new CloudStorageItemReference(CHORUS_UNIT_TESTS, "skyline-translated/translated-per-file/20130311_DIA_Pit01.raw/FTMS + p NSI Full ms2 890.65@hcd20.00 [123.67-1855.00]");
 
     private static final String MS_STUDY_TYPE = "Mass Spectrometry";
 

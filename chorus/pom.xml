@@ -31,7 +31,6 @@
         <module>webapp-common</module>
         <module>webapp</module>
         <module>uploader-ws-api</module>
-        <module>skyline-webapp</module>
         <!--<module>viewers-webapp</module>-->
     </modules>
 

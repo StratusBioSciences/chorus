@@ -81,7 +81,6 @@ import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.collect.Sets.newTreeSet;
 import static com.infoclinika.mssharing.model.internal.read.Transformers.LOCK_MZ_ITEM_FUNCTION;
-import static com.infoclinika.mssharing.model.internal.read.Transformers.getExperimentTranslationStatus;
 import static com.infoclinika.mssharing.model.internal.read.Transformers.transformStorageStatus;
 import static com.infoclinika.mssharing.platform.entity.EntityUtil.ENTITY_TO_ID;
 import static com.infoclinika.mssharing.platform.model.impl.ValidatorPreconditions.checkAccess;
@@ -138,13 +137,6 @@ public class DetailsReaderImpl extends DefaultDetailsReader<ActiveFileMetaData, 
 
                 final ExperimentItemTemplate byDefault = experimentHelper.getDefaultTransformer().apply(experiment);
                 final String msChartsLink = transformers.getChartsLink(experiment);
-                final ImmutableSet<Long> userLabs = from(userRepository.findOne(actor).getLabMemberships()).transform(new Function<UserLabMembership<? extends UserTemplate<?>, Lab>, Long>() {
-                    @Override
-                    public Long apply(UserLabMembership<? extends UserTemplate<?>, Lab> labMembership) {
-                        return labMembership.getLab().getId();
-                    }
-                }).toSet();
-                final TranslationStatus translationStatus = getExperimentTranslationStatus(experiment, userLabs);
                 final Set<ExperimentSample> samples = newTreeSet(new Ordering<ExperimentSample>() {
                     @Override
                     public int compare(ExperimentSample o1, ExperimentSample o2) {
@@ -185,10 +177,7 @@ public class DetailsReaderImpl extends DefaultDetailsReader<ActiveFileMetaData, 
                         experiment.getBounds(),
                         newArrayList(transform(experiment.getLockMasses(), LOCK_MZ_ITEM_FUNCTION)),
                         msChartsLink,
-                        Transformers.composeExperimentTranslationError(experiment),
-                        experiment.getLastTranslationAttempt(),
                         experiment.getExperiment().is2dLc(),
-                        translationStatus,
                         experimentLabelToExperimentReader.readLabels(experiment.getId()),
                         experiment.getSampleTypesCount(),
                         samplesInOrder,

@@ -64,15 +64,6 @@ public interface StudyManagement extends
     void refuseCopyProjectRequest(long actor, long project);
 
     /**
-     * Marks files, not translated for given experiment in experiment Bill Laboratory, for translation
-     *
-     * @param actor        creator of the experiment
-     * @param experimentId experiment ID
-     * @param chargedLab   laboratory which will pay for translation
-     */
-    void markNotTranslatedFilesToTranslate(long actor, long experimentId, long chargedLab);
-
-    /**
      * Marks file for translation
      *
      * @param actor  current user
@@ -105,21 +96,6 @@ public interface StudyManagement extends
     void retranslateFiles(long actor, @NotNull List<Long> files, boolean metadataOnly);
 
     void runPreCacheViewers(long actor, long experimentId);
-
-    /**
-     * Retranslate all existing experiments. USE WITH CARE.
-     * <p/>
-     * Currently available only to admin user.
-     * <p/>
-     * Deprecated due to per file translation.
-     *
-     * @param actor the ID of user
-     */
-    @Deprecated
-    void retranslateAllExperiments(long actor);
-
-    @Deprecated
-    void retranslateExperiments(long actor, List<Long> experiments);
 
     /**
      * Translates the given experiments.

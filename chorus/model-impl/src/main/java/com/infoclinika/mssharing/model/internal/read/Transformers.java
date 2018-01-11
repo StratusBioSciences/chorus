@@ -2,13 +2,9 @@ package com.infoclinika.mssharing.model.internal.read;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 import com.infoclinika.mssharing.model.PaginationItems;
 import com.infoclinika.mssharing.model.PaginationItems.AdvancedFilterQueryParams.AdvancedFilterPredicateItem;
@@ -28,10 +24,8 @@ import com.infoclinika.mssharing.model.internal.entity.LockMz;
 import com.infoclinika.mssharing.model.internal.entity.NewsItem;
 import com.infoclinika.mssharing.model.internal.entity.PrepToExperimentSample;
 import com.infoclinika.mssharing.model.internal.entity.ProteinDatabase;
-import com.infoclinika.mssharing.model.internal.entity.RawFile;
 import com.infoclinika.mssharing.model.internal.entity.UploadAppConfiguration;
 import com.infoclinika.mssharing.model.internal.entity.User;
-import com.infoclinika.mssharing.model.internal.entity.UserLabFileTranslationData;
 import com.infoclinika.mssharing.model.internal.entity.ViewColumn;
 import com.infoclinika.mssharing.model.internal.entity.payment.AccountChargeableItemData;
 import com.infoclinika.mssharing.model.internal.entity.payment.ChargeableItem;
@@ -57,7 +51,6 @@ import com.infoclinika.mssharing.model.read.AdministrationToolsReader;
 import com.infoclinika.mssharing.model.read.DashboardReader;
 import com.infoclinika.mssharing.model.read.ExperimentLine;
 import com.infoclinika.mssharing.model.read.FileLine;
-import com.infoclinika.mssharing.model.read.FileUserFunctionInfoItem;
 import com.infoclinika.mssharing.model.read.PaymentHistoryReader;
 import com.infoclinika.mssharing.model.read.ProjectLine;
 import com.infoclinika.mssharing.model.read.ProteinDatabaseReader.ProteinDBItem;
@@ -101,17 +94,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
-import static com.google.common.base.Functions.compose;
-import static com.google.common.base.Optional.of;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.newLinkedList;
 import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Sets.newHashSet;
-import static com.infoclinika.mssharing.model.internal.entity.restorable.TranslationStatus.Status.FAILURE;
-import static com.infoclinika.mssharing.model.internal.entity.restorable.TranslationStatus.Status.IN_PROGRESS;
-import static com.infoclinika.mssharing.model.internal.entity.restorable.TranslationStatus.Status.NOT_STARTED;
-import static com.infoclinika.mssharing.model.internal.entity.restorable.TranslationStatus.Status.SUCCESS;
 import static com.infoclinika.mssharing.model.read.PaymentHistoryReader.HistoryItemType.FEATURE;
 import static com.infoclinika.mssharing.model.read.PaymentHistoryReader.HistoryItemType.PAYPAL;
 import static com.infoclinika.mssharing.model.read.PaymentHistoryReader.HistoryItemType.STORE;
@@ -122,42 +109,12 @@ import static com.infoclinika.mssharing.model.read.PaymentHistoryReader.HistoryI
 @Component
 public class Transformers extends DefaultTransformers {
 
-    @Inject
-    private TranslationErrorTransformer translationErrorTransformer;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(Transformers.class);
 
     public static final String CHARTS_HOME_SUFFIX = "/charts/home";
-    public static final Function<UserLabFileTranslationData, Boolean> TRANSLATED_SUCCESSFULLY_FN = new Function<UserLabFileTranslationData, Boolean>() {
-        @Override
-        public Boolean apply(UserLabFileTranslationData input) {
-            return input.getTranslationStatus().getStatus().equals(TranslationStatus.Status.SUCCESS);
-        }
-    };
-    public static final Function<String, String> STRIP_TO_EMPTY_FN = new Function<String, String>() {
-        @Override
-        public String apply(@Nullable String input) {
-            return StringUtils.stripToEmpty(input);
-        }
-    };
-    public static final Function<UserLabFileTranslationData, String> TRANSLATED_ERROR_MESSAGE = new Function<UserLabFileTranslationData, String>() {
-        @Override
-        public String apply(UserLabFileTranslationData input) {
-            final String errorMessage = input.getTranslationError();
-            return errorMessage == null ? "" : errorMessage;
-        }
-    };
-    public static final Function<UserLabFileTranslationData, FileUserFunctionInfoItem> FILE_USER_FUNCTION_INFO_TRANSFORMER = new Function<UserLabFileTranslationData, FileUserFunctionInfoItem>() {
-        @Override
-        public FileUserFunctionInfoItem apply(UserLabFileTranslationData input) {
-            return new FileUserFunctionInfoItem(input.getLab().getId(), input.getUser().getId());
-        }
-    };
-
     public final TimeZone serverTimezone;
     public final SimpleDateFormat historyLineDateFormat = new SimpleDateFormat("MMM dd, yyyy", Locale.ENGLISH);
     public final SimpleDateFormat extendedHistoryDateFormat = new SimpleDateFormat("MMM dd, YYYY hh:mm:ss z", Locale.ENGLISH);
-
 
     public static final Function<ChargeableItem, BillingFeature> BILLING_FEATURE_TRANSFORMER = item -> transformFeature(item.getFeature());
 
@@ -349,64 +306,6 @@ public class Transformers extends DefaultTransformers {
                     );
                 }
             };
-
-    public static final Function<UserLabFileTranslationData, Boolean> TRANSLATION_SUBMITTED_TRANSFORMER = new Function<UserLabFileTranslationData, Boolean>() {
-        @Override
-        public Boolean apply(UserLabFileTranslationData input) {
-            return input.getTranslationStatus().isTranslationSubmitted();
-        }
-    };
-    public static final Function<UserLabFileTranslationData, String> TRANSLATION_ERROR_TRANSFORMER = new Function<UserLabFileTranslationData, String>() {
-        @Override
-        @Nullable
-        public String apply(UserLabFileTranslationData input) {
-            return input.getTranslationStatus().getTranslationError();
-        }
-    };
-    public final Function<ActiveFileMetaData, AdministrationToolsReader.FileTranslationShortItem> perFileTranslationTransformer = new Function<ActiveFileMetaData, AdministrationToolsReader.FileTranslationShortItem>() {
-        @Override
-        public AdministrationToolsReader.FileTranslationShortItem apply(ActiveFileMetaData input) {
-
-            final Instrument instrument = input.getInstrument();
-            final Lab lab = instrument.getLab();
-            final List<RawFile> expFile = experimentFileRepository.findByMetaData(input);
-            final boolean usedInExperiments = !expFile.isEmpty();
-            final Set<UserLabFileTranslationData> usersFunctions = input.getUsersFunctions();
-
-            final Optional<UserLabFileTranslationData> translationData = getFileTranslationData(usersFunctions, newHashSet(lab));
-
-            return new AdministrationToolsReader.FileTranslationShortItem(input.getId(),
-                    input.getName(),
-                    lab.getName(),
-                    input.getOwner().getFullName(),
-                    instrument.getName(),
-                    translationData.transform(TRANSLATION_SUBMITTED_TRANSFORMER).or(false),
-                    translationData.transform(compose(STRIP_TO_EMPTY_FN, TRANSLATION_ERROR_TRANSFORMER)).orNull(),
-                    translationData.isPresent(),
-                    translationData.isPresent()
-                            && input.getMetaInfo() != null
-                            && translationData.get().getTranslationStatus().getStatus() == TranslationStatus.Status.SUCCESS
-                            && input.getMetaInfo().getFileName() != null
-                            && !input.getMetaInfo().getFileName().isEmpty(),
-                    usedInExperiments);
-        }
-    };
-
-    public static Optional<UserLabFileTranslationData> getFileTranslationData(Set<UserLabFileTranslationData> usersFunctions, Iterable<Lab> actorLabs) {
-        final List<Long> actorLabIds = newArrayList(Iterables.transform(actorLabs, new Function<Lab, Long>() {
-            @Override
-            public Long apply(Lab input) {
-                return input.getId();
-            }
-        }));
-
-        for (UserLabFileTranslationData userFunction : usersFunctions) {
-            if (actorLabIds.contains(userFunction.getLab().getId())) {
-                return of(userFunction);
-            }
-        }
-        return Optional.absent();
-    }
 
     public static final Function<LockMz, LockMzItem> LOCK_MZ_ITEM_FUNCTION = new Function<LockMz, LockMzItem>() {
         @Override
@@ -633,13 +532,10 @@ public class Transformers extends DefaultTransformers {
                 record.getLastModification(),
                 Transformers.fromSharingType(record.getProject().getSharing().getType()),
                 getChartsLink(record),
-                translationStatusItem.errorMessage,
-                record.getLastTranslationAttempt(),
                 getDownloadLink(record.getDownloadToken()),
                 actor.equals(record.getCreator().getId()),
                 info.userCanCreateExperimentsInProject > 0,
                 bDownloadAvailable, hasUnArchiveRequest, hasUnArchiveDownloadOnlyRequest,
-                labOpt.isPresent() && info.countFilesWhichCouldBeTranslated == record.getNumberOfFiles() && ruleValidator.isTranslationEnabledForLab(labOpt.get().getId()),
                 canArchive,
                 canUnarchive,
                 record.getAnalyzesCount(),
@@ -647,7 +543,6 @@ public class Transformers extends DefaultTransformers {
                 proteinSearchEnabledErrorMessage,
                 labOpt.map(EntityUtil.ENTITY_TO_ID::apply).orElse(null),
                 record.getCreator().getId(),
-                translationStatusItem.status,
                 transformExperimentColumns(record)
         );
     }
@@ -671,19 +566,17 @@ public class Transformers extends DefaultTransformers {
                     experiment.accessLevel,
                     "",
                     "",
-                    experiment.lastTranslationAttemptDate,
-                    "",
                     experiment.isOwner,
                     false,
-                    false, false, false,
-                    experiment.translationAvailable,
+                    false,false,false,
                     experiment.canArchive,
                     experiment.canUnarchive,
                     experiment.analyzesCount,
                     experiment.proteinSearchEnabled,
                     experiment.proteinSearchEnabledErrorMessage,
                     experiment.billLab,
-                    experiment.owner, DashboardReader.TranslationStatus.NOT_STARTED,
+                    experiment.owner,
+//                    DashboardReader.TranslationStatus.NOT_STARTED,
                     new DashboardReader.ExperimentColumns(experiment.name, experiment.creator, experiment.lab.name,
                             experiment.project, experiment.files, experiment.modified));
         }
@@ -859,79 +752,6 @@ public class Transformers extends DefaultTransformers {
         return accessLevel;
     }
 
-    public static DashboardReader.TranslationStatus getExperimentTranslationStatus(ActiveExperiment experiment, final Set<Long> userLabs) {
-
-        boolean dataIsTranslated = true;
-        boolean dataTranslationInProgress = false;
-        boolean dataTranslationHaveErrors = false;
-        List<? extends ExperimentFileTemplate<?, ?, ?>> data = experiment.getRawFiles().getData();
-        for (ExperimentFileTemplate rawFile : data) {
-            final ActiveFileMetaData fileMetaData = (ActiveFileMetaData) rawFile.getFileMetaData();
-            final List<UserLabFileTranslationData> usersFunctions = from(fileMetaData.getUsersFunctions()).filter(new Predicate<UserLabFileTranslationData>() {
-                @Override
-                public boolean apply(UserLabFileTranslationData input) {
-                    return userLabs.contains(input.getLab().getId());
-                }
-            }).toList();
-            TranslationStatus.Status fileTranslationStatus = NOT_STARTED;
-            for (UserLabFileTranslationData labTranslationData : usersFunctions) {
-                final TranslationStatus.Status fileStatus = labTranslationData.getTranslationStatus().getStatus();
-                if (fileStatus == TranslationStatus.Status.IN_PROGRESS
-                        || fileStatus == TranslationStatus.Status.FAILURE
-                        || fileStatus == TranslationStatus.Status.SUCCESS) {
-                    fileTranslationStatus = fileStatus;
-                    break;
-                } else if (fileStatus == FAILURE) {
-                    fileTranslationStatus = fileStatus;
-                }
-            }
-            dataIsTranslated = dataIsTranslated && (fileTranslationStatus == SUCCESS);
-            dataTranslationInProgress = dataTranslationInProgress || (fileTranslationStatus == IN_PROGRESS);
-            dataTranslationHaveErrors = !dataIsTranslated && !dataTranslationInProgress && (fileTranslationStatus == FAILURE);
-        }
-        if (dataTranslationInProgress) {
-            return DashboardReader.TranslationStatus.IN_PROGRESS;
-        } else if (dataIsTranslated) {
-            return DashboardReader.TranslationStatus.SUCCESS;
-        } else if (dataTranslationHaveErrors) {
-            return DashboardReader.TranslationStatus.FAILURE;
-        }
-        return DashboardReader.TranslationStatus.NOT_STARTED;
-    }
-
-    public static String composeExperimentTranslationError(final ActiveExperiment experiment) {
-        final StringBuilder builder = new StringBuilder();
-        final List<? extends ExperimentFileTemplate<?, ?, ?>> data = experiment.getRawFiles().getData();
-        for (ExperimentFileTemplate rawFile : data) {
-            final AbstractFileMetaData fileMetaData = (AbstractFileMetaData) rawFile.getFileMetaData();
-
-            final Optional<UserLabFileTranslationData> userTranslationData = from(fileMetaData.getUsersFunctions()).firstMatch(filterByBillLab(experiment));
-
-            if (!userTranslationData.isPresent()) return null;
-
-            final String translationError = userTranslationData.get().getTranslationStatus().getTranslationError();
-            if (translationError != null) {
-                builder.append(translationError).append("\n");
-            }
-
-        }
-        final String result = builder.toString();
-        if (result.length() == 0) {
-            return null;
-        } else {
-            return result;
-        }
-    }
-
-    private static Predicate<UserLabFileTranslationData> filterByBillLab(final ActiveExperiment experiment) {
-        return new Predicate<UserLabFileTranslationData>() {
-            @Override
-            public boolean apply(UserLabFileTranslationData input) {
-                return input.getLab().equals(experiment.getLab() == null ? experiment.getBillLaboratory() : experiment.getLab());
-            }
-        };
-    }
-
     public static ChargeableItem.Feature transformFeature(BillingFeature feature) {
         switch (feature) {
             case ANALYSE_STORAGE:
@@ -996,10 +816,6 @@ public class Transformers extends DefaultTransformers {
                 final DashboardReader.FileColumns columns = transformColumns(input);
                 final InstrumentModel model = instrument.getModel();
 
-                final Optional<UserLabFileTranslationData> fileTranslationData = getFileTranslationData(input.getUsersFunctions(), actor.getLabs());
-
-                final ImmutableSet<FileUserFunctionInfoItem> translatedForLabs = from(input.getUsersFunctions()).transform(FILE_USER_FUNCTION_INFO_TRANSFORMER).toSet();
-
                 return new FileLine(input.getId(),
                         input.getName(), instrument.getId(),
                         instrument.getName(),
@@ -1019,16 +835,12 @@ public class Transformers extends DefaultTransformers {
                         input.getLastPingDate(),
                         columns,
                         input.isInvalid(),
-                        determineStatus(input, actor.getLabs()),
-                        translationErrorTransformer.transform(fileTranslationData.transform(TRANSLATED_ERROR_MESSAGE).orNull()),
                         model.getVendor().getName(),
                         Collections2.transform(instrument.getOperators(), EntityUtil.ENTITY_TO_ID),
-                        fileTranslationData.transform(TRANSLATED_SUCCESSFULLY_FN).or(false),
-                        fileTranslationData.transform(TRANSLATION_SUBMITTED_TRANSFORMER).or(false),
                         transformStorageStatus(input.getStorageData().getStorageStatus(), input.getStorageData().isArchivedDownloadOnly()),
                         input.isSizeConsistent(),
                         false,
-                        translatedForLabs, input.isToReplace(), model.getStudyType().getName());
+                        input.isToReplace(), model.getStudyType().getName());
             }
         };
     }
@@ -1049,22 +861,6 @@ public class Transformers extends DefaultTransformers {
 
     public static String toFullInstrumentModel(InstrumentModel model) {
         return Joiner.on(" ").join(new String[]{model.getVendor().getName(), model.getType().getName(), model.getName()});
-    }
-
-    public static DashboardReader.TranslationStatus determineStatus(AbstractFileMetaData file, Iterable<Lab> actorLabs) {
-
-        final Set<UserLabFileTranslationData> usersFunctions = file.getUsersFunctions();
-
-        final Optional<UserLabFileTranslationData> translationData = getFileTranslationData(usersFunctions, actorLabs);
-
-        if (translationData.isPresent()) {
-            final UserLabFileTranslationData userTranslationData = translationData.get();
-            final TranslationStatus status = userTranslationData.getTranslationStatus();
-            return transformToTranslationStatusItem(status);
-        } else {
-            final Optional<UserLabFileTranslationData> fileLabOwnerTranslationData = getFileTranslationData(usersFunctions, newArrayList(file.getInstrument().getLab()));
-            return fileLabOwnerTranslationData.isPresent() ? transformToTranslationStatusItem(fileLabOwnerTranslationData.get().getTranslationStatus()) : DashboardReader.TranslationStatus.NOT_STARTED;
-        }
     }
 
     private static DashboardReader.TranslationStatus transformToTranslationStatusItem(TranslationStatus translationStatus) {
@@ -1149,26 +945,16 @@ public class Transformers extends DefaultTransformers {
         final Instrument instrument = input.getInstrument();
         final DashboardReader.FileColumns columns = Transformers.transformColumns(input);
 
-        final Optional<UserLabFileTranslationData> fileTranslationData = getFileTranslationData(input.getUsersFunctions(),
-                actor.getLabs());
-
-        final ImmutableSet<FileUserFunctionInfoItem> translatedForLabs = from(input.getUsersFunctions())
-                .transform(FILE_USER_FUNCTION_INFO_TRANSFORMER).toSet();
-
         return new FileLine(lineTemplate,
                 input.getArchiveId(),
                 input.getLastPingDate(),
                 input.isArchive(),
-                Transformers.determineStatus(input, actor.getLabs()),
-                translationErrorTransformer.transform(fileTranslationData.transform(TRANSLATED_ERROR_MESSAGE).or("")),
                 Collections2.transform(instrument.getOperators(), EntityUtil.ENTITY_TO_ID),
-                fileTranslationData.transform(TRANSLATED_SUCCESSFULLY_FN).or(false),
-                fileTranslationData.transform(TRANSLATION_SUBMITTED_TRANSFORMER).or(false),
                 getChartsLink(Collections.singletonList(input.getId())),
                 transformStorageStatus(input.getStorageData().getStorageStatus(), input.getStorageData().isArchivedDownloadOnly()),
                 input.isSizeConsistent(), columns,
                 false,
-                translatedForLabs, input.isToReplace(), instrument.getModel().getStudyType().getName());
+                input.isToReplace(), instrument.getModel().getStudyType().getName());
     }
 
 

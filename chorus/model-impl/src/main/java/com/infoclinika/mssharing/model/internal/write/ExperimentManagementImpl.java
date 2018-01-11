@@ -68,17 +68,7 @@ public class ExperimentManagementImpl extends DefaultExperimentManagement<Active
     @Override
     protected ActiveExperiment onCreateExperiment(long actor, ExperimentInfo experimentInfo) {
         ActiveExperiment experiment = experimentManager.createWithoutSaving(actor, experimentInfo);
-        ActiveExperiment createdExperiment = experimentManager.saveExperiment(createSetExperimentPropsFn(experimentInfo).apply(experiment));
-        if (ruleValidator.canTranslateExperimentFiles(actor, experimentInfo.billLab, experimentRepository.findOne(experiment.getId()))) {
-            prepareForTranslation(experimentRepository.findOne(experiment.getId()));
-        }
-        return createdExperiment;
-    }
-
-    private void prepareForTranslation(final ActiveExperiment experiment) {
-        experiment.setLastTranslationAttempt(new Date());
-        experiment.setTranslated(true);
-        experiment.setTranslationError(null);
+        return experimentManager.saveExperiment(createSetExperimentPropsFn(experimentInfo).apply(experiment));
     }
 
     @Override
@@ -236,9 +226,6 @@ public class ExperimentManagementImpl extends DefaultExperimentManagement<Active
 
     @Override
     protected void afterUpdateExperiment(long actor, ExperimentInfo experimentInfo, ActiveExperiment activeExperiment) {
-        if (ruleValidator.canTranslateExperimentFiles(actor, experimentInfo.billLab, experimentRepository.findOne(activeExperiment.getId()))) {
-            prepareForTranslation(experimentRepository.findOne(activeExperiment.getId()));
-        }
         experimentLabelToExperimentManagement.persistExperimentLabels(activeExperiment.getId(), experimentInfo.experimentLabels);
     }
 

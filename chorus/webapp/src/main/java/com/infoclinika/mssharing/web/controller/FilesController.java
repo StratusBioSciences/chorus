@@ -50,7 +50,6 @@ import java.util.Set;
 
 import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.Sets.newHashSet;
-import static com.infoclinika.mssharing.model.read.AdministrationToolsReader.FileTranslationShortItem;
 import static com.infoclinika.mssharing.platform.web.security.RichUser.getUserId;
 
 /**
@@ -263,14 +262,6 @@ public class FilesController extends PagedItemsController {
         final long actor = getUserId(principal);
         LOGGER.debug("File translation request for id's: " + request);
         studyManagement.retranslateFiles(actor, request.files, request.metadataOnly);
-    }
-
-    @RequestMapping(value = "/per-file-translation/statuses", method = RequestMethod.GET)
-    @ResponseBody
-    public PagedItem<FileTranslationShortItem> getFiles(PageRequest pageRequest, Principal principal) {
-
-        return administrationToolsReader.readFileTranslationStatuses(getUserId(principal), createPagedInfo(pageRequest));
-
     }
 
     @RequestMapping(value = "/charts/url", method = RequestMethod.GET)

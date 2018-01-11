@@ -43,45 +43,14 @@ import static com.infoclinika.mssharing.model.internal.read.Transformers.TO_NEWS
 @Service
 public class AdministrationToolsReaderImpl implements AdministrationToolsReader {
 
-    private static final Logger LOG = Logger.getLogger(AdministrationToolsReaderImpl.class);
-
     @Inject
     private NewsRepository newsRepository;
-    @Inject
-    private RuleValidator ruleValidator;
-    @Inject
-    private ExperimentRepository experimentRepository;
-    @PersistenceContext(unitName = "mssharing")
-    private EntityManager em;
-    @Inject
-    private FileMetaDataRepository fileMetaDataRepository;
-    @Inject
-    private Transformers transformers;
-    @Inject
-    private PagedItemsTransformer pagedItemsTransformer;
 
     @Override
     public ImmutableSortedSet<NewsLine> readNewsItems(long actor) {
         return from(newsRepository.findAll())
                 .transform(TO_NEWS_LINE)
                 .toSortedSet(NEWS_BY_DATE);
-    }
-
-    @Override
-    public PagedItem<FileTranslationShortItem> readFileTranslationStatuses(long actor, PagedItemInfo pagedItem) {
-
-        if (!ruleValidator.hasAdminRights(actor)) {
-            throw new AccessDenied("User cannot read file translation statuses");
-        }
-
-        final PageRequest pageRequest = pagedItemsTransformer.toPageRequest(ActiveFileMetaData.class, pagedItem);
-        final Page<ActiveFileMetaData> files = fileMetaDataRepository.findAllWithFilter(toFilterQuery((PaginationItems.PagedItemInfo) pagedItem), pageRequest);
-
-        return new PagedItem<>(
-                files.getTotalPages(),
-                files.getTotalElements(),
-                files.getNumber(),
-                files.getNumberOfElements(), from(files).transform(transformers.perFileTranslationTransformer).toList());
     }
 
 }

@@ -1,19 +1,15 @@
 package com.infoclinika.mssharing.model.internal.write;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Throwables;
 import com.google.common.collect.FluentIterable;
-import com.google.common.collect.ImmutableSet;
 import com.infoclinika.analysis.storage.cloud.CloudStorageFactory;
 import com.infoclinika.analysis.storage.cloud.CloudStorageItemReference;
 import com.infoclinika.analysis.storage.cloud.CloudStorageService;
 import com.infoclinika.mssharing.model.helper.FileArchivingHelper;
 import com.infoclinika.mssharing.model.helper.StoredObjectPaths;
 import com.infoclinika.mssharing.model.internal.RuleValidator;
-import com.infoclinika.mssharing.model.internal.entity.Lab;
-import com.infoclinika.mssharing.model.internal.entity.UserLabFileTranslationData;
 import com.infoclinika.mssharing.model.internal.entity.Util;
 import com.infoclinika.mssharing.model.internal.entity.restorable.ActiveExperiment;
 import com.infoclinika.mssharing.model.internal.entity.restorable.ActiveFileMetaData;
@@ -27,7 +23,6 @@ import com.infoclinika.mssharing.model.write.FileAccessLogService;
 import com.infoclinika.mssharing.model.write.FileMovingManager;
 import com.infoclinika.mssharing.model.write.FileOperationsManager;
 import com.infoclinika.mssharing.platform.entity.ExperimentFileTemplate;
-import com.infoclinika.mssharing.platform.fileserver.model.NodePath;
 import com.infoclinika.mssharing.platform.model.AccessDenied;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,7 +47,6 @@ import java.util.concurrent.Future;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.ImmutableSet.copyOf;
-import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.infoclinika.mssharing.model.internal.entity.Feature.FeatureState.DISABLED;
 import static com.infoclinika.mssharing.model.internal.entity.restorable.StorageData.Status.ARCHIVED;
@@ -127,50 +121,9 @@ public class FileOperationsManagerImpl implements FileOperationsManager {
         metaData.getStorageData().setToArchive(true);
         metaData.getStorageData().setStorageStatus(StorageData.Status.ARCHIVING_REQUESTED);
 
-        for (UserLabFileTranslationData data : metaData.getUsersFunctions()) {
-            data.getTranslationStatus().setToTranslate(false);
-        }
-
-        final Optional<UserLabFileTranslationData> userTranslationDataToDelete = getUserTranslationDataToDelete(actor, experiment, metaData);
-
-        if (userTranslationDataToDelete.isPresent()) {
-            //removeTranslationData(metaData, userTranslationDataToDelete.get());
-        }
-
         fileMetaDataRepository.save(metaData);
         fileAccessLogService.logFileArchiveStart(actor, file);
 
-    }
-
-    private Optional<UserLabFileTranslationData> getUserTranslationDataToDelete(final long actor, Optional<Long> experiment, final ActiveFileMetaData metaData) {
-
-        return experiment.transform(new Function<Long, Optional<UserLabFileTranslationData>>() {
-            @Override
-            public Optional<UserLabFileTranslationData> apply(final Long experiment) {
-                return tryFind(metaData.getUsersFunctions(), isOwnerOfExperimentTranslatedData(experiment, actor));
-            }
-        }).or(tryFind(metaData.getUsersFunctions(), new Predicate<UserLabFileTranslationData>() {
-            @Override
-            public boolean apply(UserLabFileTranslationData input) {
-                return input.getUser().getId().equals(actor);
-            }
-        }));
-    }
-
-    private Predicate<UserLabFileTranslationData> isOwnerOfExperimentTranslatedData(final long experiment, final long actor) {
-        final ActiveExperiment activeExperiment = experimentRepository.findOne(experiment);
-        return new Predicate<UserLabFileTranslationData>() {
-            @Override
-            public boolean apply(UserLabFileTranslationData input) {
-                final boolean isOwnerOfTranslatedData = input.getUser().getId().equals(actor);
-                final boolean availableThroughLab = input.getLab().equals(getBillLab(activeExperiment));
-                return isOwnerOfTranslatedData && availableThroughLab;
-            }
-        };
-    }
-
-    private Lab getBillLab(ActiveExperiment activeExperiment) {
-        return activeExperiment.getLab() == null ? activeExperiment.getBillLaboratory() : activeExperiment.getLab();
     }
 
     @Override
@@ -285,69 +238,6 @@ public class FileOperationsManagerImpl implements FileOperationsManager {
         LOG.info("** Unarchive marked files method completed. **");
     }
 
-    @Override
-    public void moveMarkedFilesToTempAndMarkForTranslate() {
-
-        LOG.info("** Unarchive marked files to temp method called. **");
-        final List<Long> idsMarkedForMoveToTemp = fileMetaDataRepository.findIdsMarkedForMoveToTemp();
-
-        for (final Long file : idsMarkedForMoveToTemp) {
-            transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                @Override
-                protected void doInTransactionWithoutResult(TransactionStatus status) {
-
-                    final ActiveFileMetaData activeFileMetaData = fileMetaDataRepository.findOne(file);
-                    final ImmutableSet<UserLabFileTranslationData> forMovingToTemp = getMakredDataForMovingToTemp(activeFileMetaData);
-
-                    for (UserLabFileTranslationData data : forMovingToTemp) {
-
-                        if (activeFileMetaData.getArchiveId() != null) {
-                            processArchivedFileMoveToTemp(activeFileMetaData, data);
-                        } else {
-                            processNotArchivedFileMoveToTemp(activeFileMetaData, data);
-                        }
-
-                        fileMetaDataRepository.save(activeFileMetaData);
-                    }
-                }
-            });
-        }
-
-    }
-
-    private void processNotArchivedFileMoveToTemp(ActiveFileMetaData activeFileMetaData, UserLabFileTranslationData data) {
-
-        final NodePath nodePath = storedObjectPaths.tempFilePath(data.getUser().getId(), data.getLab().getId(), activeFileMetaData.getArchiveId());
-
-        final String destinationPath = fileArchivingHelper.moveNotArchivedFileToTempStorage(activeFileMetaData.getContentId(), nodePath.getPath());
-
-        data.setToTempFolder(false);
-        data.setTempFileContentId(destinationPath);
-        data.getTranslationStatus().setToTranslate(true);
-    }
-
-    private void processArchivedFileMoveToTemp(ActiveFileMetaData activeFileMetaData, UserLabFileTranslationData data) {
-
-        final NodePath nodePath = storedObjectPaths.tempFilePath(data.getUser().getId(), data.getLab().getId(), activeFileMetaData.getArchiveId());
-
-        if (fileArchivingHelper.isArchiveReadyToRestore(activeFileMetaData.getArchiveId())) {
-            final String destinationPath = fileArchivingHelper.moveArchivedFileToTempStorage(activeFileMetaData.getArchiveId(),
-                    nodePath.getPath());
-
-            data.setToTempFolder(false);
-            data.setTempFileContentId(destinationPath);
-            data.getTranslationStatus().setToTranslate(true);
-        }
-    }
-
-    private ImmutableSet<UserLabFileTranslationData> getMakredDataForMovingToTemp(ActiveFileMetaData activeFileMetaData) {
-        return from(activeFileMetaData.getUsersFunctions()).filter(new Predicate<UserLabFileTranslationData>() {
-            @Override
-            public boolean apply(UserLabFileTranslationData input) {
-                return input.isToTempFolder();
-            }
-        }).toSet();
-    }
     @Override
     public void makeExperimentFilesAvailableForDownload(long actor, long experiment) {
 

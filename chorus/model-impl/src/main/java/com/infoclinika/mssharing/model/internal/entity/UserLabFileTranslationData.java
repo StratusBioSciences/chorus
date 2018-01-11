@@ -39,17 +39,12 @@ public class UserLabFileTranslationData extends AbstractPersistable<Long> {
     @Column(name = "translation_error", insertable = false, updatable = false)
     private String translationError;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "user_translation_data_ms_function")
-    private Set<MSFunctionItem> functions = newHashSet();
-
     @Embedded
     private TranslationStatus translationStatus = new TranslationStatus();
 
-    public UserLabFileTranslationData(User user, Collection<MSFunctionItem> functions, Lab lab) {
+    public UserLabFileTranslationData(User user, Lab lab) {
         this.user = user;
         this.lab = lab;
-        this.functions.addAll(functions);
     }
 
     protected UserLabFileTranslationData() {
@@ -61,15 +56,6 @@ public class UserLabFileTranslationData extends AbstractPersistable<Long> {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public Set<MSFunctionItem> getFunctions() {
-        return functions;
-    }
-
-    public void setFunctions(Set<MSFunctionItem> functions) {
-        this.functions.clear();
-        this.functions.addAll(functions);
     }
 
     public Lab getLab() {

@@ -31,7 +31,6 @@ public class ExperimentDetails {
     public AnalysisBounds bounds;
     public List<LockMzItem> lockMasses;
     public AccessLevel accessLevel;
-    public int numberOfProteinSearches;
     public ExperimentLabelsInfo experimentLabels;
     public int mixedSamplesCount;
     public String labName;
@@ -66,7 +65,6 @@ public class ExperimentDetails {
                 .add("bounds", bounds)
                 .add("lockMasses", lockMasses)
                 .add("accessLevel", accessLevel)
-                .add("numberOfProteinSearches", numberOfProteinSearches)
                 .add("experimentLabels", experimentLabels)
                 .add("mixedSamplesCount", mixedSamplesCount)
                 .add("labName", labName)

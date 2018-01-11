@@ -12,20 +12,17 @@ import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
-import com.infoclinika.mssharing.model.api.MSFunctionType;
 import com.infoclinika.mssharing.model.features.ApplicationFeature;
 import com.infoclinika.mssharing.model.helper.BillingFeaturesHelper;
 import com.infoclinika.mssharing.model.helper.FeaturesHelper;
 import com.infoclinika.mssharing.model.internal.entity.AnnotationAttachment;
 import com.infoclinika.mssharing.model.internal.entity.Instrument;
 import com.infoclinika.mssharing.model.internal.entity.Lab;
-import com.infoclinika.mssharing.model.internal.entity.MSFunctionItem;
 import com.infoclinika.mssharing.model.internal.entity.ProteinDatabase;
 import com.infoclinika.mssharing.model.internal.entity.RawFile;
 import com.infoclinika.mssharing.model.internal.entity.UploadAppConfiguration;
 import com.infoclinika.mssharing.model.internal.entity.User;
 import com.infoclinika.mssharing.model.internal.entity.UserLabFileTranslationData;
-import com.infoclinika.mssharing.model.internal.entity.Util;
 import com.infoclinika.mssharing.model.internal.entity.restorable.AbstractFileMetaData;
 import com.infoclinika.mssharing.model.internal.entity.restorable.AbstractProject;
 import com.infoclinika.mssharing.model.internal.entity.restorable.ActiveExperiment;
@@ -61,7 +58,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -84,7 +80,6 @@ import static com.infoclinika.mssharing.model.internal.entity.restorable.Storage
 import static com.infoclinika.mssharing.model.internal.entity.restorable.StorageData.Status.ARCHIVING_REQUESTED;
 import static com.infoclinika.mssharing.model.internal.entity.restorable.StorageData.Status.UNARCHIVED;
 import static com.infoclinika.mssharing.model.internal.entity.restorable.StorageData.Status.UNARCHIVING_REQUESTED;
-import static com.infoclinika.mssharing.model.internal.read.Transformers.MS_FUNCTIONS_FROM_USER_TRANSLATION_DATA;
 import static com.infoclinika.mssharing.model.internal.read.Transformers.RAW_META_DATA_TRANSFORMER;
 import static com.infoclinika.mssharing.platform.model.impl.ValidatorPreconditions.checkPresence;
 
@@ -130,50 +125,9 @@ public class RuleValidatorImpl extends DefaultRuleValidator<ActiveExperiment, Ac
     private FeaturesRepository featuresRepository;
 
 
-    /**
-     * User can create experiment run in experiment only if this user is it's creator or labhead
-     */
-    @Override
-    public boolean userHasPermissionToCreateSearch(long creator, long experiment) {
-        final ActiveExperiment experimentEntity = checkPresence(experimentRepository.findOne(experiment));
-
-        final User user = Util.USER_FROM_ID.apply(creator);
-        return experimentEntity.getCreator().equals(user) || isExperimentLabHead(experimentEntity, creator);
-    }
-
     @Override
     public Predicate<ActiveFileMetaData> userHasReadPermissionsOnFilePredicate(long userId) {
         return validatorPredicates.userHasReadPermissionsOnFile(userId);
-    }
-
-    /*Checks if files of experiment are suitable for translation*/
-    @Override
-    public boolean isAllFilesInExperimentTranslatedForSearch(long experiment) {
-        final ActiveExperiment experimentEntity = checkPresence(experimentRepository.findOne(experiment));
-        boolean translated = true;
-        for (ExperimentFileTemplate file : experimentEntity.getRawFiles().getData()) {
-            boolean ms = false;
-            for (MSFunctionItem msItem : getMsFunctionItems(experimentEntity, file)) {
-                if (msItem.getFunctionType() == MSFunctionType.MS2) {
-                    ms = true;
-                }
-            }
-            if (!(ms)) {
-                translated = false;
-                break;
-            }
-        }
-        return translated;
-    }
-
-    private Set<MSFunctionItem> getMsFunctionItems(final ActiveExperiment experiment, ExperimentFileTemplate file) {
-
-        return getMetaData(file).getUsersFunctions()
-                .stream()
-                .filter(input -> input.getLab().equals(getExperimentLab(experiment).orElse(null)))
-                .findFirst()
-                .map(MS_FUNCTIONS_FROM_USER_TRANSLATION_DATA::apply)
-                .orElse(Collections.emptySet());
     }
 
     private static AbstractFileMetaData getMetaData(ExperimentFileTemplate file) {

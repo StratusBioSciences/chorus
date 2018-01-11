@@ -661,17 +661,6 @@ public class AbstractTest extends AbstractTestNGSpringContextTests {
         return map;
     }
 
-    protected long createExperimentForRun(long bob) {
-        setProteinSearch(true);
-        long project = uc.createProject(bob);
-        long instrument = createInstrumentAndApproveIfNeeded(bob, uc.getLab3());
-        setProteinSearchFeaturePerLab(uc.getLab3(), true);
-        long fileId = uc.saveFile(bob, instrument);
-        long ex = createExperiment(bob, project, uc.getLab3(), noFactoredFile(fileId));
-        translateFileForRun(bob, fileId, ex);
-        return ex;
-    }
-
 
     protected int getDaysInMonth() {
         return new DateTime(DateTimeZone.forTimeZone(transformers.serverTimezone))
@@ -787,12 +776,6 @@ public class AbstractTest extends AbstractTestNGSpringContextTests {
     protected long createInstrumentByModel(long bob, long lab, long model) {
         return createInstrumentAndApproveIfNeeded(bob, lab, model, instrumentDetails()).get();
     }
-
-    protected long translateFileForRun(long actor, long file, long experiment) {
-        return predefinedDataCreator.translateFileForRun(actor, file, experiment);
-    }
-
-
 
     public long proteinDatabase(long user, String dbName, String specie) {
         final long db = proteinDatabaseManagement.createDatabase(user, dbName, getSpecie(specie), 1024, false, false, PROTEOMICS);

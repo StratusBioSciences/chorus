@@ -22,18 +22,6 @@ import static com.google.common.collect.Lists.newArrayList;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class AbstractExperiment extends ExperimentTemplate<User, Lab, AbstractProject, Instrument, Factor, RawFile> {
 
-    //if this experiment has been sent to translation already
-    @Basic(optional = false)
-    private boolean translated;
-
-    //the date when this experiment has been sent to translation
-    @Basic(optional = true)
-    private Date lastTranslationAttempt;
-
-    //potential errors of experiment translation
-    @Basic(optional = true)
-    private String translationError;
-
     private AnalysisBounds bounds;
 
     @ManyToOne(/*, optional = false*/)
@@ -149,31 +137,6 @@ public class AbstractExperiment extends ExperimentTemplate<User, Lab, AbstractPr
     @Transient
     public void changeProject(ActiveProject newProject) {
         this.setProject(newProject);
-    }
-
-
-    public boolean isTranslated() {
-        return translated;
-    }
-
-    public void setTranslated(boolean translated) {
-        this.translated = translated;
-    }
-
-    public Date getLastTranslationAttempt() {
-        return lastTranslationAttempt;
-    }
-
-    public void setLastTranslationAttempt(Date lastTranslationAttempt) {
-        this.lastTranslationAttempt = lastTranslationAttempt;
-    }
-
-    public String getTranslationError() {
-        return translationError;
-    }
-
-    public void setTranslationError(String translationError) {
-        this.translationError = translationError;
     }
 
     public AnalysisBounds getBounds() {
@@ -298,10 +261,7 @@ public class AbstractExperiment extends ExperimentTemplate<User, Lab, AbstractPr
     @Override
     public String toString() {
         return "AbstractExperiment{" +
-                "translated=" + translated +
-                ", lastTranslationAttempt=" + lastTranslationAttempt +
-                ", translationError='" + translationError + '\'' +
-                ", bounds=" + bounds +
+                "bounds=" + bounds +
                 ", billLaboratory=" + billLaboratory +
                 ", lockMasses=" + lockMasses +
                 ", sampleTypesCount=" + sampleTypesCount +

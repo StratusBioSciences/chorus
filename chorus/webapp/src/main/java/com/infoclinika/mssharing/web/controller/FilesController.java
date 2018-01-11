@@ -248,22 +248,6 @@ public class FilesController extends PagedItemsController {
         }
     }
 
-    @Deprecated
-    @RequestMapping(value = "/translation/selected", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
-    public void reTranslateSelectedFiles(@RequestBody FilesRequest request, Principal principal) {
-        LOGGER.debug("Re-translation for selected files invoked." + request.files);
-        studyManagement.markFilesForTranslation(getUserId(principal), request.lab, newHashSet(request.files));
-    }
-
-    @RequestMapping(value = "/per-file-translation/selected", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
-    public void reTranslateFiles(@RequestBody FilesRequest request, Principal principal) {
-        final long actor = getUserId(principal);
-        LOGGER.debug("File translation request for id's: " + request);
-        studyManagement.retranslateFiles(actor, request.files, request.metadataOnly);
-    }
-
     @RequestMapping(value = "/charts/url", method = RequestMethod.GET)
     @ResponseBody
     public ChartUrlResponse getChartUrlForFiles(@RequestParam(value = "fileIds", required = true) String[] rawIds, Principal principal) {

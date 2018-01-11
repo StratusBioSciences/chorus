@@ -144,9 +144,6 @@ public class ProjectManagementImpl extends DefaultProjectManagement<ActiveProjec
         ActiveExperiment copy = (ActiveExperiment) projectManager.copyExperimentData(project, experiment, copyName);
 
         copy.setBillLaboratory(newBillLab);
-        copy.setTranslationError(experiment.getTranslationError());
-        copy.setLastTranslationAttempt(experiment.getLastTranslationAttempt());
-        copy.setTranslated(experiment.isTranslated());
         copy.setExperimentCategory(experiment.getExperimentCategory());
         return copy;
     }

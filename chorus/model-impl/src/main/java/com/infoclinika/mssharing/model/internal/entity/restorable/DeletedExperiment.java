@@ -23,7 +23,7 @@ public class DeletedExperiment extends AbstractExperiment {
                 e.getLab(),
                 e.getName(),
                 e.getExperiment(),
-                e.getLastTranslationAttempt(),
+                e.getLastModification(),
                 e.getInstrumentRestriction(),
                 e.getExperimentType(),
                 e.getSpecie(),
@@ -41,10 +41,7 @@ public class DeletedExperiment extends AbstractExperiment {
                 e.getExperimentCategory(),
                 e.getNgsRelatedData()
         );
-        this.setTranslationError(e.getTranslationError());
-        this.setLastTranslationAttempt(e.getLastTranslationAttempt());
         this.setDownloadToken(e.getDownloadToken());
-        this.setTranslated(e.isTranslated());
         this.setRawFiles(e.getRawFiles());
         this.setLastModification(new Date());
         this.attachments = e.attachments;

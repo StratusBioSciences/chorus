@@ -465,41 +465,10 @@ public class StudyManagementImpl implements StudyManagement {
     /* Translation methods*/
 
     @Override
-    public void markFileForTranslation(long actor, long lab, long fileId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public ImmutableSet<Long> markFilesForTranslation(final long actor, long lab, @NotNull Set<Long> files) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void runPreCacheViewers(long actor, long experimentId) {
         final ActiveExperiment experiment = experimentRepository.findOne(experimentId);
         precacheFiles(experiment);
     }
-
-    @Override
-    public void retranslateExperimentsFiles(long actor, List<Long> experiments) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void retranslateFiles(long actor, List<Long> files, boolean metadataOnly) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void reTranslateAllNotTranslatedFilesOfExperiments(long actor, boolean metadataOnly) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void translateMarkedFiles() {
-        throw new UnsupportedOperationException();
-    }
-
 
     @Override
     public void setBlogEnabled(long actor, long project, boolean blogEnabled) {
@@ -614,9 +583,6 @@ public class StudyManagementImpl implements StudyManagement {
         );
 
         copy.setBillLaboratory(newBillLab);
-        copy.setTranslationError(experiment.getTranslationError());
-        copy.setLastTranslationAttempt(experiment.getLastTranslationAttempt());
-        copy.setTranslated(experiment.isTranslated());
         List<Attachment<User>> copiedAttach = new ArrayList<>();
         for (Attachment<User> attachment : experiment.attachments) {
             final Attachment<User> att = attachmentRepository.findOne(attachmentManagement.copyAttachment(attachment.getId(),

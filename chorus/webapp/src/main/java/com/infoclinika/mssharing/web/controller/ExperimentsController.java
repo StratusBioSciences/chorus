@@ -325,12 +325,6 @@ public class ExperimentsController extends PagedItemsController {
         studyManagement.runPreCacheViewers(getUserId(principal), id);
     }
 
-    @RequestMapping(value = "/per-experiment-translation/selected", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
-    public void retranslateSelectedExperimentsFiles(@RequestBody RetranslateExperimentsRequest request, Principal principal) {
-        studyManagement.retranslateExperimentsFiles(getUserId(principal), request.experiments);
-    }
-
     @RequestMapping(value = "/moveToStorage", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     public void moveToStorage(@RequestParam Long id, @RequestParam Long actor) {

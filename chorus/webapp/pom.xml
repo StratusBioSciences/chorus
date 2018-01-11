@@ -47,11 +47,6 @@
             <artifactId>uploader-ws-api</artifactId>
             <version>1.0</version>
         </dependency>
-        <dependency>
-            <groupId>com.infoclinika</groupId>
-            <artifactId>rest-dto</artifactId>
-            <version>1.0</version>
-        </dependency>
 
         <!--For Chorus authentication endpoint-->
         <dependency>

@@ -32,16 +32,6 @@
         </dependency>
         <dependency>
             <groupId>com.infoclinika</groupId>
-            <artifactId>analysis-platform-rest</artifactId>
-            <version>${infoclinika.analysis.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.infoclinika</groupId>
-            <artifactId>rest-dto</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.infoclinika</groupId>
             <artifactId>workflow-sdk</artifactId>
             <version>${infoclinika.workflow.version}</version>
             <exclusions>

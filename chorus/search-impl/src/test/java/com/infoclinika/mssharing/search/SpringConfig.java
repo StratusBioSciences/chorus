@@ -8,7 +8,6 @@
  */
 package com.infoclinika.mssharing.search;
 
-import com.infoclinika.analysis.rest.AnalysisPlatformRestService;
 import com.infoclinika.mssharing.model.AdminNotifier;
 import com.infoclinika.mssharing.model.Notifier;
 import com.infoclinika.mssharing.model.Searcher;
@@ -74,12 +73,6 @@ class SpringConfig {
     public BillingService billingService() {
         BillingService billingService = mock(BillingService.class);
         return billingService;
-    }
-
-    @Bean(name = "analysisPlatformRestService")
-    public AnalysisPlatformRestService analysisPlatformRestService() {
-        final AnalysisPlatformRestService analysisPlatformRestService = mock(AnalysisPlatformRestService.class);
-        return analysisPlatformRestService;
     }
 
     @Bean

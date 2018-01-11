@@ -39,17 +39,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>analysis</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                        <configuration>
-                            <pomFile>analysis-platform-rest-1.0.26.pom</pomFile>
-                            <file>analysis-platform-rest-1.0.26.jar</file>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>chorus-integration</id>
                         <phase>install</phase>
                         <goals>

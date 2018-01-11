@@ -145,7 +145,7 @@ public class SearcherImplTest extends AbstractTestNGSpringContextTests {
     @Test(dependsOnMethods = "testSearchBecomeEnable")
     public void testUserCanSearchHisFiles() {
         final Long instrument = labInstrument();
-        final long file = instrumentManagement.createFile(bob, instrument, new FileMetaDataInfo("c15092005_009.RAW", 0, anyStr(), null, anySpecie(), false, false));
+        final long file = instrumentManagement.createFile(bob, instrument, new FileMetaDataInfo("c15092005_009.RAW", 0, anyStr(), null, anySpecie(), false));
         instrumentManagement.setContent(bob, file, mock(StoredObject.class));
         checkCanFindFileWithQuery(file, "2005");
         checkCanFindFileWithQuery(file, "raw");
@@ -336,7 +336,7 @@ public class SearcherImplTest extends AbstractTestNGSpringContextTests {
     public void testSearchHisPagedFiles() {
 
         final Long instrument = labInstrument();
-        final long file = instrumentManagement.createFile(bob, instrument, new FileMetaDataInfo("c15092005_007.RAW", 0, anyStr(), null, anySpecie(), false, false));
+        final long file = instrumentManagement.createFile(bob, instrument, new FileMetaDataInfo("c15092005_007.RAW", 0, anyStr(), null, anySpecie(), false));
 
         instrumentManagement.setContent(bob, file, mock(StoredObject.class));
 
@@ -448,7 +448,7 @@ public class SearcherImplTest extends AbstractTestNGSpringContextTests {
     }
 
     public long saveFile(long instrument, long species) {
-        final long file = instrumentManagement.createFile(bob, instrument, new FileMetaDataInfo(UUID.randomUUID().toString(), 0, "", null, species, false, false));
+        final long file = instrumentManagement.createFile(bob, instrument, new FileMetaDataInfo(UUID.randomUUID().toString(), 0, "", null, species, false));
         instrumentManagement.setContent(bob, file, mock(StoredObject.class));
         return file;
     }

@@ -549,7 +549,7 @@ public class DemoDataCreator {
 
     private void skylineExtractionFiles(long andrey, long ftmsInstrument, long specie) {
 
-        final long fileMetaDataId = instrumentManagement.createFile(andrey, ftmsInstrument, new FileMetaDataInfo("20130311_DIA_Pit01.raw", RAW_FILE_1_SIZE, "", null, specie, false, false));
+        final long fileMetaDataId = instrumentManagement.createFile(andrey, ftmsInstrument, new FileMetaDataInfo("20130311_DIA_Pit01.raw", RAW_FILE_1_SIZE, "", null, specie, false));
         instrumentManagement.setContentID(andrey, fileMetaDataId, SAMPLE_RAW_FILE_1_FN.apply("20130311_DIA_Pit01.raw"));
         if (!testMode) {
             copyFileOnS3IfNeeded(SAMPLE_RAW_FILE_1_FN.apply("20130311_DIA_Pit01.raw"), PERMANENT_SAMPLE_RAW_FILE_S3_1);
@@ -847,7 +847,7 @@ public class DemoDataCreator {
     }
 
     private long attachFile(long user, long instrument, String fileName, int sizeInBytes, long specie, String labels, String contentId, String realFileContent) {
-        final long fileMetaDataId = instrumentManagement.createFile(user, instrument, new FileMetaDataInfo(fileName, sizeInBytes, labels, null, specie, false, false));
+        final long fileMetaDataId = instrumentManagement.createFile(user, instrument, new FileMetaDataInfo(fileName, sizeInBytes, labels, null, specie, false));
         instrumentManagement.setContentID(user, fileMetaDataId, contentId);
 
         if (!testMode) {

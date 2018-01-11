@@ -492,7 +492,7 @@ public class SharingTest extends AbstractSharingTest {
         final long bob = uc.createLab3AndBob();
         final long sharedProject = projectByUser(kate, uc.getLab3());
 
-        final long fileId = instrumentManagement.createFile(kate, createInstrumentAndApproveIfNeeded(kate, uc.getLab2()), new FileMetaDataInfo("ddd", 222, "String", null, anySpecies(), false, false));
+        final long fileId = instrumentManagement.createFile(kate, createInstrumentAndApproveIfNeeded(kate, uc.getLab2()), new FileMetaDataInfo("ddd", 222, "String", null, anySpecies(), false));
         uc.updateFileContent(kate, fileId);
 
         final ExperimentInfo.Builder builder = new ExperimentInfo.Builder().name("Duplicated title").description("area").experimentType(anyExperimentType()).specie(unspecified())
@@ -518,7 +518,7 @@ public class SharingTest extends AbstractSharingTest {
         billingManagement.makeLabAccountEnterprise(uc.createPaul(), uc.getLab3());
         final long sharedProject = projectByUser(kate, uc.getLab3());
 
-        final long fileId = instrumentManagement.createFile(kate, createInstrumentAndApproveIfNeeded(kate, uc.getLab2()), new FileMetaDataInfo("ddd", 222, "String", null, anySpecies(), false, false));
+        final long fileId = instrumentManagement.createFile(kate, createInstrumentAndApproveIfNeeded(kate, uc.getLab2()), new FileMetaDataInfo("ddd", 222, "String", null, anySpecies(), false));
         uc.updateFileContent(kate, fileId);
 
         final ExperimentInfo.Builder builder = new ExperimentInfo.Builder().name("Duplicated title").description("area").experimentType(anyExperimentType()).specie(unspecified())

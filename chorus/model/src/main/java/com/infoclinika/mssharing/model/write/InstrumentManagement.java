@@ -74,15 +74,13 @@ public interface InstrumentManagement extends
         public final long size;
         public final long specie;
         public final boolean archive;
-        public final boolean autotranslate;
 
-        public UploadFileItem(String name, String labels, long size, long specie, boolean archive, boolean autotranslate) {
+        public UploadFileItem(String name, String labels, long size, long specie, boolean archive) {
             this.name = name;
             this.labels = labels;
             this.size = size;
             this.specie = specie;
             this.archive = archive;
-            this.autotranslate = autotranslate;
         }
     }
 

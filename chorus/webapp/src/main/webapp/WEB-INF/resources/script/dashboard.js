@@ -3,7 +3,7 @@ angular.module("dashboard", ["sessionTimeoutHandler","background-upload", "proje
     "groups-front", "filesControllers", "front-end", "anonymous-download", "news-front", "news-back",
     "search-front", "search-back", "upload-front", "breadcrumbs","validators", "user-profile-front", "lab-head-front",
     "general-requests-front", "adminTranslationContollers", "trash-front", "error-catcher", "admin-front",
-    "advert-front", "advert-back", "file-access-log", "preferences-front", "client-token-front", "billing-back",
+    "advert-front", "advert-back", "file-access-log", "client-token-front", "billing-back",
     "current-year", "util", "instrument-models", "enums", "header"])
     .config(function ($routeProvider, LabFeatures) {
         
@@ -146,7 +146,6 @@ angular.module("dashboard", ["sessionTimeoutHandler","background-upload", "proje
             when("/trash", {controller: "trash", templateUrl: "../pages/trash.html"}).
             when("/admin/tools/notification/new", {controller: "broadcast-notification", templateUrl: "../pages/admin/new-broadcast-email.html"}).
             when("/file-access-log", {controller: "file-access-log-controller", templateUrl: "../pages/admin/file-access-log.html"}).
-            when("/preferences", {controller: "user-preferences", templateUrl: "../pages/preferences.html"}).
             when("/client-token", {controller: "client-token", templateUrl: "../pages/client-token.html"}).
             otherwise({redirectTo:"projects/all"});
 

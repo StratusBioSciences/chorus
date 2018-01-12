@@ -118,7 +118,6 @@ public interface DashboardReader extends
         public String userName;
         public String userLabels;
         public String fileCondition;
-        public String translateFlag;
         public String instrumentSerialNumber;
         public String phone;
         public String instrumentName;
@@ -167,10 +166,6 @@ public interface DashboardReader extends
             this.files = files;
             this.modified = modified;
         }
-    }
-
-    enum TranslationStatus {
-        NOT_STARTED, IN_PROGRESS, FAILURE, SUCCESS
     }
 
     enum StorageStatus {

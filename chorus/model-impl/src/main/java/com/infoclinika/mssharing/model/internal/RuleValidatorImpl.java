@@ -420,8 +420,7 @@ public class RuleValidatorImpl extends DefaultRuleValidator<ActiveExperiment, Ac
     @Override
     public boolean canLabUseProteinIdSearch(long lab) {
         return isFeatureEnabledForLab(PROTEIN_ID_SEARCH, lab)
-                && isBillingFeatureEnabledForLab(BillingFeature.PROCESSING, lab)
-                && isBillingFeatureEnabledForLab(BillingFeature.TRANSLATION, lab);
+                && isBillingFeatureEnabledForLab(BillingFeature.PROCESSING, lab);
     }
 
     @Override

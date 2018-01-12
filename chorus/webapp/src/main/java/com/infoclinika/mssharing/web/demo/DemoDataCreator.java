@@ -314,7 +314,6 @@ public class DemoDataCreator {
 
         long archiveStorage = billingManagement.createChargeableItem(10, BillingFeature.ARCHIVE_STORAGE, 1, PER_GB);
         long analyzeStorage = billingManagement.createChargeableItem(90, BillingFeature.ANALYSE_STORAGE, 1, PER_GB);
-        long translation = billingManagement.createChargeableItem(50, BillingFeature.TRANSLATION, 1, PER_GB);
         long download = billingManagement.createChargeableItem(0, BillingFeature.DOWNLOAD, 1, PER_GB);
         long proteinIDSearch = billingManagement.createChargeableItem(50, BillingFeature.PROTEIN_ID_SEARCH, 1, PER_GB);
         long publicDownload = billingManagement.createChargeableItem(0, BillingFeature.PUBLIC_DOWNLOAD, 1, PER_GB);

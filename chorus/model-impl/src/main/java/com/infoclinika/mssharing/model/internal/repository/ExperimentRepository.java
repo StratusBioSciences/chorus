@@ -37,9 +37,6 @@ public interface ExperimentRepository extends ExperimentRepositoryTemplate<Activ
             " e.creator," +
             " count(file.id)," +
             " e.lastModification," +
-            " e.translated, " +
-            " e.translationError," +
-            " e.lastTranslationAttempt," +
             " e.downloadToken," +
             " e.experimentCategory" +
             ") ";
@@ -209,21 +206,7 @@ public interface ExperimentRepository extends ExperimentRepositoryTemplate<Activ
             "from RawFile _f left join _f.experiment _exp left join _f.fileMetaData _fmd " +
             "where _exp.id = e.id " +
             "and _fmd.storageData.storageStatus = " + STORAGE_STATUS_UNARCHIVED + "), " +
-            //[3] canTranslateExperimentFiles (true if the count equals to files count and other conditions...)
-            " (select count(distinct _f.id) " +
-            "from RawFile _f " +
-            "left join _f.experiment _exp " +
-            "left join _f.fileMetaData _fmd " +
-            "left join _fmd.instrument _i " +
-            "left join _i.lab _l " +
-            "left join _l.labMemberships _ms" +
-            " where _exp.id = e.id  " +
-            " and (" +
-            " _fmd.owner.id = :user " +
-            " or (_ms.user.id = :user and _ms.head = true)" +
-            " or _fmd.storageData.storageStatus = " + STORAGE_STATUS_UNARCHIVED +
-            ")), " +
-            //[4] canArchiveExperiment
+            //[3] canArchiveExperiment
             " (select count(distinct _e.id)" +
             " from ActiveExperiment _e " +
             " left join _e.lab _l " +
@@ -235,7 +218,7 @@ public interface ExperimentRepository extends ExperimentRepositoryTemplate<Activ
             "           left join _f.fileMetaData _f_fmd where _exp.id = _e.id and _f_fmd.storageData.storageStatus in (" + STORAGE_STATUS_UNARCHIVED + "," + STORAGE_STATUS_UNARCHIVING + ")" +
             "               and (_f_fmd.owner.id = :user or (_ms.user.id = :user and _ms.head = true))) > 0 " +
             "), " +
-            //[5] canUnarchiveExperiment
+            //[4] canUnarchiveExperiment
             " (select count(distinct _e.id)" +
             "   from ActiveExperiment _e " +
             " left join _e.lab _l " +
@@ -247,7 +230,7 @@ public interface ExperimentRepository extends ExperimentRepositoryTemplate<Activ
             "         where _exp.id = _e.id and (_f_fmd.storageData.storageStatus != " + STORAGE_STATUS_UNARCHIVED +
             "           and (_f_fmd.owner.id = :user or (_ms.user.id = :user and _ms.head = true) ) ) ) > 0 " +
             "), " +
-            //[6] count files archivedDownloadOnly (count archived files of requested for download only)
+            //[5] count files archivedDownloadOnly (count archived files of requested for download only)
             " (select count(distinct _e.id)" +
             "   from ActiveExperiment _e " +
             " left join _e.lab _l " +
@@ -259,7 +242,7 @@ public interface ExperimentRepository extends ExperimentRepositoryTemplate<Activ
             "         where _exp.id = _e.id and (_f_fmd.storageData.archivedDownloadOnly is true " +
             "           and (_f_fmd.owner.id = :user or (_ms.user.id = :user and _ms.head = true) ) ) ) > 0 " +
             "), " +
-            //[7] count files UnArchiveRequest (count archived files of requested for unarchiving)
+            //[6] count files UnArchiveRequest (count archived files of requested for unarchiving)
             " (select count(distinct _e.id)" +
             "   from ActiveExperiment _e " +
             " left join _e.lab _l " +

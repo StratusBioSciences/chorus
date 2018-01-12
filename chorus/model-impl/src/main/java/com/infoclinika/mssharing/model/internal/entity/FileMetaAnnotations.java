@@ -32,7 +32,6 @@ public class FileMetaAnnotations {
 
     private String fileCondition;
 
-    private String translateFlag;
     private String instrumentSerialNumber;
     private String phone;
     private String instrumentName;
@@ -116,14 +115,6 @@ public class FileMetaAnnotations {
         this.fileCondition = fileCondition;
     }
 
-    public String getTranslateFlag() {
-        return translateFlag;
-    }
-
-    public void setTranslateFlag(String translateFlag) {
-        this.translateFlag = translateFlag;
-    }
-
     public String getInstrumentSerialNumber() {
         return instrumentSerialNumber;
     }
@@ -169,7 +160,6 @@ public class FileMetaAnnotations {
         map.put("userName", userName);
         map.put("userLabels", userLabels);
         map.put("fileCondition", fileCondition);
-        map.put("translateFlag", translateFlag);
         map.put("instrumentSerialNumber", instrumentSerialNumber);
         map.put("phone", phone);
         map.put("instrumentName", instrumentName);

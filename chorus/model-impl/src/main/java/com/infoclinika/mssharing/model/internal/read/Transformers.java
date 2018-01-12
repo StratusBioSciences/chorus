@@ -39,7 +39,6 @@ import com.infoclinika.mssharing.model.internal.entity.restorable.ActiveExperime
 import com.infoclinika.mssharing.model.internal.entity.restorable.ActiveFileMetaData;
 import com.infoclinika.mssharing.model.internal.entity.restorable.ActiveProject;
 import com.infoclinika.mssharing.model.internal.entity.restorable.StorageData;
-import com.infoclinika.mssharing.model.internal.entity.restorable.TranslationStatus;
 import com.infoclinika.mssharing.model.internal.entity.view.ExperimentDashboardRecord;
 import com.infoclinika.mssharing.model.internal.entity.view.ProjectDashboardRecord;
 import com.infoclinika.mssharing.model.internal.repository.ExperimentAdditionalInfoRecord;
@@ -496,8 +495,6 @@ public class Transformers extends DefaultTransformers {
     private ExperimentLine getExperimentLine(ExperimentDashboardRecord record, ExperimentAdditionalInfoRecord info, Long actor) {
 
         final java.util.Optional<Lab> labOpt = java.util.Optional.ofNullable(record.getLab() != null ? record.getLab() : record.getBillLab());
-        final TranslationStatusRecordItem translationStatusItem = getTranslationStatus();
-
         final boolean bDownloadAvailable = info.countFilesReadyToDownload == record.getNumberOfFiles();
         final boolean hasUnArchiveRequest = !bDownloadAvailable && info.countArchivedFilesRequestedForUnArchiving > 0;
         final boolean hasUnArchiveDownloadOnlyRequest = !bDownloadAvailable && info.countArchivedFilesRequestedForDownloadOnly > 0;
@@ -514,7 +511,7 @@ public class Transformers extends DefaultTransformers {
             if (!ruleValidator.canLabUseProteinIdSearch(labToUseForSearch)) {
                 proteinSearchEnabled = false;
                 proteinSearchEnabledErrorMessage = "Processing is not enabled for the experiment lab.";
-            } else if (record.getExperimentCategory() == ExperimentCategory.PROTEOMICS && translationStatusItem.status != DashboardReader.TranslationStatus.SUCCESS) {
+            } else if (record.getExperimentCategory() == ExperimentCategory.PROTEOMICS) {
                 proteinSearchEnabled = false;
                 proteinSearchEnabledErrorMessage = "All files of experiment should be translated in order to make processing.";
             } else {
@@ -547,11 +544,6 @@ public class Transformers extends DefaultTransformers {
         );
     }
 
-    private TranslationStatusRecordItem getTranslationStatus() {
-        return new TranslationStatusRecordItem(DashboardReader.TranslationStatus.NOT_STARTED, null);
-    }
-
-
     public final Function<ExperimentLine, ExperimentLine> experimentFolderStructureTransformer = new Function<ExperimentLine, ExperimentLine>() {
         @Override
         public ExperimentLine apply(ExperimentLine experiment) {
@@ -576,7 +568,6 @@ public class Transformers extends DefaultTransformers {
                     experiment.proteinSearchEnabledErrorMessage,
                     experiment.billLab,
                     experiment.owner,
-//                    DashboardReader.TranslationStatus.NOT_STARTED,
                     new DashboardReader.ExperimentColumns(experiment.name, experiment.creator, experiment.lab.name,
                             experiment.project, experiment.files, experiment.modified));
         }
@@ -684,7 +675,6 @@ public class Transformers extends DefaultTransformers {
         fileColumns.fileName = metaInfo.getFileName();
         fileColumns.instrumentSerialNumber = metaInfo.getInstrumentSerialNumber();
         fileColumns.startMz = "";
-        fileColumns.translateFlag = metaInfo.getTranslateFlag();
         fileColumns.userLabels = metaInfo.getUserLabels();
         fileColumns.phone = metaInfo.getPhone();
         fileColumns.seqRowPosition = metaInfo.getSeqRowPosition();
@@ -758,8 +748,6 @@ public class Transformers extends DefaultTransformers {
                 return ChargeableItem.Feature.ANALYSE_STORAGE;
             case ARCHIVE_STORAGE:
                 return ChargeableItem.Feature.ARCHIVE_STORAGE;
-            case TRANSLATION:
-                return ChargeableItem.Feature.TRANSLATION;
             case DOWNLOAD:
                 return ChargeableItem.Feature.DOWNLOAD;
             case PROTEIN_ID_SEARCH:
@@ -783,8 +771,6 @@ public class Transformers extends DefaultTransformers {
                 return BillingFeature.ANALYSE_STORAGE;
             case ARCHIVE_STORAGE:
                 return BillingFeature.ARCHIVE_STORAGE;
-            case TRANSLATION:
-                return BillingFeature.TRANSLATION;
             case DOWNLOAD:
                 return BillingFeature.DOWNLOAD;
             case ANALYSIS:
@@ -861,26 +847,6 @@ public class Transformers extends DefaultTransformers {
 
     public static String toFullInstrumentModel(InstrumentModel model) {
         return Joiner.on(" ").join(new String[]{model.getVendor().getName(), model.getType().getName(), model.getName()});
-    }
-
-    private static DashboardReader.TranslationStatus transformToTranslationStatusItem(TranslationStatus translationStatus) {
-        final TranslationStatus.Status status = translationStatus.getStatus();
-        switch (status) {
-            case SUCCESS:
-                return DashboardReader.TranslationStatus.SUCCESS;
-            case FAILURE:
-                return DashboardReader.TranslationStatus.FAILURE;
-            case IN_PROGRESS:
-                return DashboardReader.TranslationStatus.IN_PROGRESS;
-            case NOT_STARTED:
-                if (translationStatus.isTranslationSubmitted()) {
-                    return DashboardReader.TranslationStatus.IN_PROGRESS;
-                } else {
-                    return DashboardReader.TranslationStatus.NOT_STARTED;
-                }
-            default:
-                throw new IllegalStateException("Unknown translation data status: " + status);
-        }
     }
 
     public final String getChartsLink(ActiveExperiment experiment) {
@@ -1260,19 +1226,4 @@ public class Transformers extends DefaultTransformers {
         }};
     }
 
-    private static class TranslationStatusRecordItem {
-        private final DashboardReader.TranslationStatus status;
-        private final String errorMessage;
-
-        private TranslationStatusRecordItem(DashboardReader.TranslationStatus status, String errorMessage) {
-            this.status = status;
-            this.errorMessage = errorMessage;
-        }
-    }
-
-    private java.util.Optional<Lab> getExperimentLab(AbstractExperiment experiment) {
-        final Lab lab = experiment.getLab();
-        final Lab billLab = experiment.getBillLaboratory();
-        return java.util.Optional.ofNullable(lab != null ? lab : billLab);
-    }
 }

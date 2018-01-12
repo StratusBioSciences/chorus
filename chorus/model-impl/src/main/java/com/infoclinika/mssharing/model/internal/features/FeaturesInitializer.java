@@ -45,7 +45,6 @@ public class FeaturesInitializer {
         addFeatureIfAbsent(GLACIER, DISABLED, existing);
         addFeatureIfAbsent(BILLING, billingFeatureEnabled ? ENABLED : DISABLED, existing);
         addFeatureIfAbsent(MICROARRAYS, DISABLED, existing);
-        addFeatureIfAbsent(TRANSLATION, ENABLED_PER_LAB, existing);
         addFeatureIfAbsent(ISA_TAB_EXPORT, ENABLED, existing);
 
         createSetting(MB_10, ApplicationSettingsRepository.MAX_FILE_SIZE_SETTING);

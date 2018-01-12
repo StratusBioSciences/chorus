@@ -39,7 +39,6 @@ import com.infoclinika.mssharing.model.internal.repository.ProcessingRunPluginAt
 import com.infoclinika.mssharing.model.internal.repository.RawFilesRepository;
 import com.infoclinika.mssharing.model.internal.repository.UserRepository;
 import com.infoclinika.mssharing.model.read.DashboardReader;
-import com.infoclinika.mssharing.model.read.DashboardReader.TranslationStatus;
 import com.infoclinika.mssharing.model.read.DetailsReader;
 import com.infoclinika.mssharing.model.read.ExtendedShortExperimentFileItem;
 import com.infoclinika.mssharing.model.read.ExtendedShortExperimentFileItem.ExperimentShortSampleItem;

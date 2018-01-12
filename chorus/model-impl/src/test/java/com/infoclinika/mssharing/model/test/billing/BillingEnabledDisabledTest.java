@@ -56,13 +56,6 @@ public class BillingEnabledDisabledTest extends AbstractTest {
         assertTrue(billingFeaturesHelper.isFeatureEnabled(lab, BillingFeature.ANALYSE_STORAGE));
     }
 
-    @Test
-    public void testDisableBillingMakeTranslationEnable() {
-        long lab = uc.createLab3();
-        setBilling(false);
-        assertTrue(billingFeaturesHelper.isFeatureEnabled(lab, BillingFeature.TRANSLATION));
-    }
-
     //Invalid case. Now can enable/disable features only through billing plan
     @Test(enabled = false)
     public void testEnableBillingMakeStorageDisable() {

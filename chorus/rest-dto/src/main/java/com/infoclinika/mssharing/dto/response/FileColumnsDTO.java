@@ -27,7 +27,6 @@ public class FileColumnsDTO {
     private String userName;
     private String userLabels;
     private String fileCondition;
-    private String translateFlag;
     private String instrumentSerialNumber;
     private String phone;
     private String instrumentName;
@@ -208,14 +207,6 @@ public class FileColumnsDTO {
         this.fileCondition = fileCondition;
     }
 
-    public String getTranslateFlag() {
-        return translateFlag;
-    }
-
-    public void setTranslateFlag(String translateFlag) {
-        this.translateFlag = translateFlag;
-    }
-
     public String getInstrumentSerialNumber() {
         return instrumentSerialNumber;
     }
@@ -257,7 +248,6 @@ public class FileColumnsDTO {
                 ", userName='" + userName + '\'' +
                 ", userLabels='" + userLabels + '\'' +
                 ", fileCondition='" + fileCondition + '\'' +
-                ", translateFlag='" + translateFlag + '\'' +
                 ", instrumentSerialNumber='" + instrumentSerialNumber + '\'' +
                 ", phone='" + phone + '\'' +
                 ", instrumentName='" + instrumentName + '\'' +

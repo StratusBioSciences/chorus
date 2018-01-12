@@ -273,19 +273,6 @@ public class FilesController extends PagedItemsController {
         fileOperationsManager.markFilesToUnarchive(getUserId(principal), copyOf(request.files));
     }
 
-    private static class RemoveTranslationDataRequest {
-        public List<Long> files;
-        public Long lab;
-
-        @Override
-        public String toString() {
-            return "RemoveTranslationDataRequest{" +
-                    "files=" + files +
-                    ", lab=" + lab +
-                    '}';
-        }
-    }
-
     private static class FilesRequest {
         public List<Long> files;
         public long lab;

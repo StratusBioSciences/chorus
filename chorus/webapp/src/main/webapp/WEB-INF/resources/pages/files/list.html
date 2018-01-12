@@ -86,15 +86,6 @@
                                     <a title="Edit file" class=" " ng-click="popups.showEditPopup(file)"><i
                                             class="icon edit"></i>Edit</a>
                                 </li>
-                                <li ng-hide="haveNGStudyType([file])">
-                                    <a title="Translation" ng-click="popups.showFileTranslationPopup(file)">
-                                        <i class="icon status"></i>
-                                        Translation
-                                        <i ng-show="!isBillingFeatureAvailable(BillingFeatures.TRANSLATION)"
-                                           title="Processing feature is not enalbed for the la"
-                                           class="icon blocked"></i>
-                                    </a>
-                                </li>
                                 <li class="delete-item"
                                     set-if="file.accessLevel == 'PRIVATE' && !file.usedInExperiments">
                                     <a title="Delete File" class="" ng-click="displayConfirmation(file, $event)"><i
@@ -106,8 +97,6 @@
                     <div class="name ellipsize"
                          ng-class="{'no-context': !(file.accessLevel == 'PRIVATE')}">
                             <span>
-                                <a href="/error/404.html"><i ng-hide="haveNGStudyType([file])" class="icon translation-status {{ file.statusObject.class }}"
-                                   title="{{ file.statusObject.title }}"></i></a>
                                 <i set-if="file.accessLevel == 'PUBLIC'" class="icon public" title="Public File"></i>
                                 <i set-if="file.accessLevel == 'PRIVATE'" class="icon private" title="Private File"></i>
                                 <i set-if="file.accessLevel == 'SHARED'" class="icon shared" title="Shared File"></i>
@@ -480,58 +469,6 @@
                 <button type="submit" class="btn btn-primary main-action" ng-click="popups.removeTranslationDataPopup.ok()">
                     Delete
                 </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div id="file-translation-status" class="modal hide" tabindex="-1" role="dialog">
-    <div class="modal-holder">
-        <div class="modal-frame">
-            <div class="modal-header">
-                <h3>Translation Status of the File <span ng-bind="popups.translationStatusPopup.item.name"></span></h3>
-            </div>
-            <div class="modal-body">
-                <div class="dialog-container">
-                    <div class="table">
-                        <div class="control-group clearfix">
-                            <label>Status</label>
-                            <div class="item width370">
-                                <span class="static-value">{{popups.translationStatusPopup.item.statusObject.title}}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <p ng-show="popups.translationStatusPopup.item.statusObject.errorMessage"><b>ERROR:&nbsp;</b>
-                    {{popups.translationStatusPopup.item.statusObject.errorMessage}}
-                </p>
-                <p ng-show="popups.translationStatusPopup.canDelete"><b>NOTE:&nbsp;</b>
-                    The Delete Translation Data operation is available for the selected file.
-                    After performing this operation you won't be able to create searches and view charts of them.
-                </p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn  secondary-action" data-dismiss="modal" aria-hidden="true">Close</button>
-                <button type="submit" class="btn secondary-action"
-                        data-dismiss="modal"
-                        ng-show="popups.translationStatusPopup.canDelete"
-                        ng-click="popups.translationStatusPopup.remove()">
-                    Delete
-                </button>
-                <button type="submit"
-                        ng-show="popups.translationStatusPopup.canTranslate"
-                        ng-bind="popups.translationStatusPopup.status == 'NOT_STARTED' && 'Translate' || 'Re-Translate'"
-                        data-dismiss="modal"
-                        class="btn btn-primary main-action"
-                        ng-click="popups.translationStatusPopup.translate()">
-                    Translate
-                </button>
-                <a class="btn btn-primary main-action" target="_blank"
-                        ng-show="popups.translationStatusPopup.canView"
-                        data-dismiss="modal"
-                        ng-click="openChartWindow(popups.translationStatusPopup.item.msChartsUrl)">
-                    View
-                </a>
             </div>
         </div>
     </div>

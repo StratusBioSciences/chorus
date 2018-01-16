@@ -36,9 +36,6 @@ angular.module("dashboard", ["sessionTimeoutHandler","background-upload", "proje
             when("/projects/:filter/:project", projectDetails).
             when("/projects/:filter/:project/experiments", projectExperiments).
             when("/projects/:filter/:project/experiments/:experiment", experimentDetails).
-            when("/projects/:filter/:project/experiments/:experiment/searches", experimentSearches).
-            when("/projects/:filter/:project/experiments/:experiment/searches/new", experimentSearchWizard).
-            when("/projects/:filter/:project/experiments/:experiment/searches/:run/details", experimentSearchDetails).
             when("/fastadb/new", proteinSearchDbUpload).
             when("/projects/:filter/:project/experiments/:experiment/files", experimentFiles).
             when("/projects/:filter/:project/experiments/:experiment/files/:id", fileDetails).
@@ -48,9 +45,6 @@ angular.module("dashboard", ["sessionTimeoutHandler","background-upload", "proje
             when("/experiments/:filter", {controller:"experiments", templateUrl:"../pages/experiment/list.html"}).
             when("/experiments/:filter/:experiment", experimentDetails).
             when("/experiments/:filter/:experiment/copy", experimentCopy).
-            when("/experiments/:filter/:experiment/searches", experimentSearches).
-            when("/experiments/:filter/:experiment/searches/new", experimentSearchWizard).
-            when("/experiments/:filter/:experiment/searches/:run/details", experimentSearchDetails).
             when("/experiments/:filter/:experiment/files", experimentFiles).
             when("/experiments/:filter/:experiment/files/:id", fileDetails).
             when("/instruments/new", {controller:"new-instrument", templateUrl:"../pages/instrument/new.html", resolve: redirectIfNotLabMember}).
@@ -80,17 +74,12 @@ angular.module("dashboard", ["sessionTimeoutHandler","background-upload", "proje
             when("/lab/:labId/experiments", {controller:"experiments", templateUrl:"../pages/experiment/list.html"}).
             when("/lab/:labId/experiments/:experiment", experimentDetails).
             when("/lab/:labId/experiments/:experiment/copy", experimentCopy).
-            when("/lab/:labId/experiments/:experiment/searches", experimentSearches).
-            when("/lab/:labId/experiments/:experiment/searches/new", experimentSearchWizard).
-            when("/lab/:labId/experiments/:experiment/searches/:run/details", experimentSearchDetails).
             when("/lab/:labId/experiments/:experiment/files", experimentFiles).
             when("/lab/:labId/experiments/:experiment/files/:id", fileDetails).
             when("/lab/:labId/projects", project).
             when("/lab/:labId/projects/:project", projectDetails).
             when("/lab/:labId/projects/:project/experiments", projectExperiments).
             when("/lab/:labId/projects/:project/experiments/:experiment", experimentDetails).
-            when("/lab/:labId/projects/:project/experiments/:experiment/searches", experimentSearches).
-            when("/lab/:labId/projects/:project/experiments/:experiment/searches/new", experimentSearchWizard).
             when("/lab/:labId/projects/:project/experiments/:experiment/files", experimentFiles).
             when("/lab/:labId/projects/:project/experiments/:experiment/files/:id", fileDetails).
             when("/lab/:labId/projects/:project/copy", projectCopy).
@@ -105,14 +94,10 @@ angular.module("dashboard", ["sessionTimeoutHandler","background-upload", "proje
             when("/search/:query/projects/:project", projectDetails).
             when("/search/:query/projects/:project/experiments", projectExperiments).
             when("/search/:query/projects/:project/experiments/:experiment", experimentDetails).
-            when("/search/:query/projects/:project/experiments/:experiment/searches", experimentSearches).
-            when("/search/:query/projects/:project/experiments/:experiment/searches/new", experimentSearchWizard).
             when("/search/:query/projects/:project/experiments/:experiment/files", experimentFiles).
             when("/search/:query/projects/:project/experiments/:experiment/files/:id", fileDetails).
             when("/search/:query/experiments", {controller:"search-experiments", templateUrl:"../pages/experiment/list.html"}).
             when("/search/:query/experiments/:experiment", experimentDetails).
-            when("/search/:query/experiments/:experiment/searches", experimentSearches).
-            when("/search/:query/experiments/:experiment/searches/new", experimentSearchWizard).
             when("/search/:query/experiments/:experiment/files", experimentFiles).
             when("/search/:query/experiments/:experiment/files/:id", fileDetails).
             when("/search/:query/files", {controller:"search-files", templateUrl:"../pages/files/list.html"}).

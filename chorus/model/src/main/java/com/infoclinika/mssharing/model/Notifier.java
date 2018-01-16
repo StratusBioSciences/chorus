@@ -21,17 +21,10 @@ public interface Notifier extends NotifierTemplate {
 
     void setEnabled(boolean enabled);
 
-    void translationErrorOccured(long experiment, @Nullable Long fileMetaDataId);
-
     void sendFileReadyToDownloadNotification(long actor, Collection<Long> files);
 
     void sendCopyProjectRequestNotification(long requester, String senderFullName, String activeProjectName);
 
-    void sendExportFileDownloadLinkEmail(long receiver, long proteinSearch, String proteinSearchName, String exportFileName, boolean inCsvFormat);
-
     void sendFailedEmailsNotification(String email, Set<String> failedEmails, Set<Long> failedRecordsIds);
 
-    void sendMicroArraysImportCompletedNotification(long receiver, long experimentId, String experimentName, long runId);
-
-    void sendMicroArraysImportFailedNotification(long receiver, String packageNumber, String errorMessage);
 }

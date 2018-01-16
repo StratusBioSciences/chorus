@@ -389,12 +389,6 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                                 && $rootScope.isBillingFeatureAvailable(BillingFeatures.TRANSLATION);
                         }
 
-                        validators.canRemoveTranslationData = function (file) {
-                            return !file.usedInProteinSearches
-                                && file.translatedSuccessfully
-                                && getLabIdsAvailableForRemovingTranslationData(file).length > 0;
-                        };
-
                         validators.isAvailableForArchive = function (file) {
                             var userId = $rootScope.getUserId();
                             var labId = file.labId;

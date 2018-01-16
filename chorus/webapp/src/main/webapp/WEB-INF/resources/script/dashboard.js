@@ -17,9 +17,7 @@ angular.module("dashboard", ["sessionTimeoutHandler","background-upload", "proje
         var projectCopy = {controller:"project-copy", templateUrl:"../pages/projects/copy.html"};
         var experimentCopy = {controller:"copyExperiment", templateUrl:"../pages/experiment/wizard.html"};
         var experimentDetails = {controller:"experiment-details", templateUrl:"../pages/experiment/wizard.html"};
-        var experimentSearchWizard = {controller:"experiment-new-search", templateUrl:"../pages/experiment/protein-search/wizard.html"};
-        var experimentSearchDetails = {controller:"experiment-search-details", templateUrl:"../pages/experiment/protein-search/processing-run-details.html"};
-        var experimentSearches = {controller:"experiment-searches", templateUrl:"../pages/experiment/protein-search/list.html"};
+
         var experimentFiles = {controller:"experiment-files", templateUrl:"../pages/files/list.html"};
         var fileDetails = {controller:"fileDetails", templateUrl:"../pages/files/details.html"};
         var projectExperiments = {controller:"project-experiments", templateUrl:"../pages/experiment/list.html"};
@@ -123,7 +121,6 @@ angular.module("dashboard", ["sessionTimeoutHandler","background-upload", "proje
             when("/search/:query/instruments/:id", instrumentDetails).
             when("/profile", {controller:"profile", templateUrl:"../pages/user/profile.html"}).
             when("/profile/:subscriptionResult", {controller:"profile", templateUrl:"../pages/user/profile.html"}).
-            when("/processing-runs/all", {controller:"experiment-searches-all", templateUrl:"../pages/experiment/protein-search/admin-list.html"}).
             when("/protein-search/databases/:show", {
                 controller:"protein-search-databases",
                 templateUrl:"../pages/experiment/protein-search/databases/list.html",

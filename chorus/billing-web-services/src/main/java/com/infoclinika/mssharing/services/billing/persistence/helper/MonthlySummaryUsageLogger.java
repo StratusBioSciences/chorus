@@ -6,7 +6,7 @@ import com.infoclinika.mssharing.model.internal.entity.payment.LabPaymentAccount
 import com.infoclinika.mssharing.model.internal.repository.LabPaymentAccountRepository;
 import com.infoclinika.mssharing.services.billing.persistence.enity.MonthlySummary;
 import com.infoclinika.mssharing.services.billing.persistence.repository.MonthlySummaryRepository;
-import org.apache.commons.math3.util.Pair;
+import javafx.util.Pair;
 import org.apache.log4j.Logger;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;

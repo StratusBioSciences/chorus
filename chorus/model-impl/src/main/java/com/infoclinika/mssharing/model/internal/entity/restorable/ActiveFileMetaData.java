@@ -21,8 +21,6 @@ public class ActiveFileMetaData extends AbstractFileMetaData {
     @Column(table = "file_upload_bucket", name = "bucket")
     private String fileUploadBucket;
 
-    private boolean autotranslate = false;
-
     @Column(name = "billing_last_charging_date")
     private Date chargingDate;
 
@@ -50,14 +48,6 @@ public class ActiveFileMetaData extends AbstractFileMetaData {
 
     public void setFileUploadBucket(String fileUploadBucket) {
         this.fileUploadBucket = fileUploadBucket;
-    }
-
-    public boolean isAutotranslate() {
-        return autotranslate;
-    }
-
-    public void setAutotranslate(boolean autotranslate) {
-        this.autotranslate = autotranslate;
     }
 
     public Date getLastChargingSumDate() {

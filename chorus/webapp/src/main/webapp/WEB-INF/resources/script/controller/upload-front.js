@@ -114,8 +114,7 @@ angular.module("upload-front", ["upload-back", "instruments-back", "experiments-
                     $scope.selectedInstrument.translationAvailable = instrumentTechType != InstrumentStudyType.NG
                         && $rootScope.isFeatureAvailable(LabFeatures.TRANSLATION) 
                         && $rootScope.isBillingFeatureAvailable(BillingFeatures.TRANSLATION);
-                    $scope.selectedInstrument.autotranslate = selectedInstrument.autotranslate;
-                    
+
                     function clearFiles() {
                         dragNDropHelper.setAllFiles([]);
                         $rootScope.filesToUpload = [];
@@ -835,8 +834,7 @@ angular.module("upload-front", ["upload-back", "instruments-back", "experiments-
                         labels: item.labels,
                         size: item.size,
                         specie: item.specie,
-                        archive: item.archive,
-                        autotranslate: !!$scope.selectedInstrument.autotranslateSelected
+                        archive: item.archive
                     };
                 });
 

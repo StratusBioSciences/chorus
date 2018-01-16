@@ -18,10 +18,7 @@ public class ExperimentItem extends DetailsReaderTemplate.ExperimentItemTemplate
     public final AnalysisBounds bounds;
     public final List<LockMzItem> lockMasses;
     public final String msChartsLink;
-    public final String translationErrors;
-    public final Date lastTranslationAttemptDate;
     public final boolean is2dLc;
-    public final DashboardReader.TranslationStatus status;
     public final ExperimentLabelsItem labels;
     public final int sampleTypesCount;
     public final List<String> samplesInOrder;
@@ -42,10 +39,7 @@ public class ExperimentItem extends DetailsReaderTemplate.ExperimentItemTemplate
             AnalysisBounds bounds,
             List<LockMzItem> lockMasses,
             String msChartsLink,
-            String translationErrors,
-            Date lastTranslationAttemptDate,
             boolean is2dLc,
-            DashboardReader.TranslationStatus status,
             ExperimentLabelsItem labels,
             int sampleTypesCount,
             List<String> samplesInOrder,
@@ -65,10 +59,7 @@ public class ExperimentItem extends DetailsReaderTemplate.ExperimentItemTemplate
         this.bounds = bounds;
         this.lockMasses = lockMasses;
         this.msChartsLink = msChartsLink;
-        this.translationErrors = translationErrors;
-        this.lastTranslationAttemptDate = lastTranslationAttemptDate;
         this.is2dLc = is2dLc;
-        this.status = status;
         this.labels = labels;
         this.sampleTypesCount = sampleTypesCount;
         this.samplesInOrder = samplesInOrder;

@@ -8,9 +8,6 @@ public abstract class ChorusQueries extends QueryTemplates {
     public static final String STORAGE_STATUS_ARCHIVED = "com.infoclinika.mssharing.model.internal.entity.restorable.StorageData$Status.ARCHIVED";
     public static final String STORAGE_STATUS_UNARCHIVED = "com.infoclinika.mssharing.model.internal.entity.restorable.StorageData$Status.UNARCHIVED";
     public static final String STORAGE_STATUS_UNARCHIVING = "com.infoclinika.mssharing.model.internal.entity.restorable.StorageData$Status.UNARCHIVING_REQUESTED";
-    public static final String TRANSLATION_STATUS_IN_PROGRESS = "com.infoclinika.mssharing.model.internal.entity.restorable.TranslationStatus$Status.IN_PROGRESS";
-    public static final String TRANSLATION_STATUS_SUCCESS = "com.infoclinika.mssharing.model.internal.entity.restorable.TranslationStatus$Status.SUCCESS";
-    public static final String TRANSLATION_STATUS_FAILED = "com.infoclinika.mssharing.model.internal.entity.restorable.TranslationStatus$Status.FAILURE";
 
     /* Search Experiments */
     public static final String FILTER_EXPERIMENTS_BY_QUERY =

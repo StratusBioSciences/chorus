@@ -25,10 +25,8 @@ public class DeletedFileMetaData extends AbstractFileMetaData {
         this.setInvalid(f.isInvalid());
         this.setLastAccess(f.getLastAccess());
         this.setLastPingDate(f.getLastPingDate());
-        this.setToTranslate(f.isToTranslate());
         this.setMetaInfo(f.getMetaInfo());
         this.setUploadId(f.getUploadId());
-        this.getUsersFunctions().addAll(f.getUsersFunctions());
         this.setStorageData(f.getStorageData());
         setDeleted(true);
     }

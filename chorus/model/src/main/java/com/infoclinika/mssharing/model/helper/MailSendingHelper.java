@@ -26,12 +26,10 @@ public interface MailSendingHelper extends MailSendingHelperTemplate {
     final class ExperimentDetails{
         public final String name;
         public final String authorEmail;
-        public final String errorMessage;
 
-        public ExperimentDetails(String name, String authorEmail, String errorMessage) {
+        public ExperimentDetails(String name, String authorEmail) {
             this.name = name;
             this.authorEmail = authorEmail;
-            this.errorMessage = errorMessage;
         }
     }
 

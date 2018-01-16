@@ -276,7 +276,7 @@ public class AbstractTest extends AbstractTestNGSpringContextTests {
     }
 
     protected InstrumentDetails instrumentDetails() {
-        return new InstrumentDetails(generateString(), generateString(), generateString(), generateString(), lockMasses, true);
+        return new InstrumentDetails(generateString(), generateString(), generateString(), generateString(), lockMasses);
     }
 
     protected long anyInstrumentModelByVendor(long vendor) {

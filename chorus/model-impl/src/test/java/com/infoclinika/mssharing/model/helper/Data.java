@@ -116,5 +116,4 @@ public class Data {
 
 
     public static final String BUCKET = "chorus-unit-tests";
-    public static final String MS_FUNCTION_TRANSLATED_PATH = "translated-per-file/7/2014-02/Pitt00107_LN01_017.raw/FTMS + p NSI Full ms [300.00-2000.00]";
 }

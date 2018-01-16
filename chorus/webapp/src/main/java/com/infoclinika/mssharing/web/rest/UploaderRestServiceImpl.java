@@ -364,7 +364,7 @@ public class UploaderRestServiceImpl implements UploaderRestService {
                 finalFileId = instrumentManagement.createFile(
                         userId,
                         instrumentId,
-                        new FileMetaDataInfo(fileName, file.size, file.labels, path, file.specie, file.archive, false)
+                        new FileMetaDataInfo(fileName, file.size, file.labels, path, file.specie, file.archive)
                 );
             } else {
                 final FileLine fileLine = unfinishedUploads.iterator().next();
@@ -380,8 +380,7 @@ public class UploaderRestServiceImpl implements UploaderRestService {
                                     file.labels,
                                     path,
                                     file.specie,
-                                    file.archive,
-                                    false
+                                    file.archive
                             )
                     );
                 }

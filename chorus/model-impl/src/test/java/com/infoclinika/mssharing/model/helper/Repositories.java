@@ -111,8 +111,6 @@ class Repositories {
     @Inject
     private ProjectSharingRequestRepositoryTemplate<ProjectSharingRequestTemplate> projectSharingRequestRepository;
     @Inject
-    protected UserLabFileTranslationDataRepository userLabFileTranslationDataRepository;
-    @Inject
     private TransactionDetailsRepository transactionDetailsRepository;
     @Inject
     private CopyProjectRequestRepository copyProjectRequestRepository;
@@ -154,7 +152,6 @@ class Repositories {
                 outboxMessageRepository,
                 proteinDescriptionRepository,
                 proteinDatabaseRepository,
-                userLabFileTranslationDataRepository,
                 experimentLabelToExperimentRepository,
                 experimentRepository,
                 deletedExperimentRepository,

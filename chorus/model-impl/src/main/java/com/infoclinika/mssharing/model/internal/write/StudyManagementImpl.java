@@ -9,9 +9,6 @@
 package com.infoclinika.mssharing.model.internal.write;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableSet;
 import com.infoclinika.mssharing.model.Notifier;
 import com.infoclinika.mssharing.model.internal.RuleValidator;
@@ -23,7 +20,6 @@ import com.infoclinika.mssharing.model.internal.entity.Lab;
 import com.infoclinika.mssharing.model.internal.entity.PrepToExperimentSample;
 import com.infoclinika.mssharing.model.internal.entity.RawFile;
 import com.infoclinika.mssharing.model.internal.entity.User;
-import com.infoclinika.mssharing.model.internal.entity.UserLabFileTranslationData;
 import com.infoclinika.mssharing.model.internal.entity.restorable.AbstractExperiment;
 import com.infoclinika.mssharing.model.internal.entity.restorable.AbstractFileMetaData;
 import com.infoclinika.mssharing.model.internal.entity.restorable.AbstractProject;
@@ -33,8 +29,6 @@ import com.infoclinika.mssharing.model.internal.entity.restorable.ActiveProject;
 import com.infoclinika.mssharing.model.internal.entity.restorable.DeletedExperiment;
 import com.infoclinika.mssharing.model.internal.entity.restorable.DeletedFileMetaData;
 import com.infoclinika.mssharing.model.internal.entity.restorable.DeletedProject;
-import com.infoclinika.mssharing.model.internal.entity.restorable.StorageData;
-import com.infoclinika.mssharing.model.internal.entity.restorable.TranslationStatus;
 import com.infoclinika.mssharing.model.internal.repository.CopyProjectRequestRepository;
 import com.infoclinika.mssharing.model.internal.repository.DeletedExperimentRepository;
 import com.infoclinika.mssharing.model.internal.repository.DeletedFileMetaDataRepository;
@@ -70,9 +64,7 @@ import com.infoclinika.mssharing.platform.repository.AttachmentRepositoryTemplat
 import com.infoclinika.mssharing.platform.repository.ProjectSharingRequestRepositoryTemplate;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.inject.Inject;
@@ -92,15 +84,12 @@ import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.and;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.ImmutableList.copyOf;
-import static com.google.common.collect.Iterables.tryFind;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.infoclinika.mssharing.model.internal.entity.Util.PROJECT_FROM_ID;
 import static com.infoclinika.mssharing.model.internal.entity.Util.USER_FROM_ID;
-import static com.infoclinika.mssharing.model.internal.entity.restorable.TranslationStatus.Status.IN_PROGRESS;
-import static com.infoclinika.mssharing.model.internal.entity.restorable.TranslationStatus.Status.SUCCESS;
 
 /**
  * @author Stanislav Kurilin
@@ -476,183 +465,10 @@ public class StudyManagementImpl implements StudyManagement {
     /* Translation methods*/
 
     @Override
-    public void markNotTranslatedFilesToTranslate(long actor, long experimentId, long chargedLab) {
-
-        final ActiveExperiment experiment = experimentRepository.findOne(experimentId);
-        if (!ruleValidator.userHasEditPermissionsOnExperiment(actor, experimentId)
-                || !ruleValidator.canTranslateExperimentFiles(actor, chargedLab, experiment)) {
-            throw new AccessDenied("User isn't permitted to translate this experiment");
-        }
-
-        prepareForTranslation(experiment);
-
-        final Lab lab = experiment.getLab() == null ? experiment.getBillLaboratory() : experiment.getLab();
-
-        final List<? extends ExperimentFileTemplate<?, ?, ?>> data = experiment.getRawFiles().getData();
-
-        for (ExperimentFileTemplate rawFile : data) {
-            handleExperimentFileTranslation(actor, lab, rawFile);
-        }
-    }
-
-    private void handleExperimentFileTranslation(long actor, Lab lab, ExperimentFileTemplate rawFile) {
-
-        final AbstractFileMetaData fileMetaData = (AbstractFileMetaData) rawFile.getFileMetaData();
-        final UserLabFileTranslationData dataForLab = findOrAppendUserLabTranslationData(actor, fileMetaData, lab);
-
-        final ImmutableSet<TranslationStatus.Status> excludedStatuses = ImmutableSet.of(IN_PROGRESS, SUCCESS);
-
-        if (!excludedStatuses.contains(dataForLab.getTranslationStatus().getStatus())) {
-
-            handleFileForTranslation(fileMetaData, dataForLab);
-
-            fileMetaDataRepository.save((ActiveFileMetaData) fileMetaData);
-        }
-    }
-
-    private void handleFileForTranslation(final AbstractFileMetaData fileMetaData, UserLabFileTranslationData dataForLab) {
-        final StorageData storageData = fileMetaData.getStorageData();
-
-        switch (storageData.getStorageStatus()) {
-            case ARCHIVED:
-                transactionTemplate.execute(new TransactionCallbackWithoutResult() {
-                    @Override
-                    protected void doInTransactionWithoutResult(TransactionStatus status) {
-                        fileMovingManager.requestFileUnarchiving(fileMetaData.getId());
-                    }
-                });
-            case ARCHIVING_REQUESTED:
-            case UNARCHIVING_REQUESTED:
-                setTranslationValues(dataForLab);
-                dataForLab.getTranslationStatus().setToTranslationQueue(false);
-                setToTranslate(dataForLab, false);
-                dataForLab.setToTempFolder(true);
-                break;
-            case UNARCHIVED:
-                setTranslationValues(dataForLab);
-                setToTranslate(dataForLab, true);
-                break;
-        }
-    }
-
-    private UserLabFileTranslationData findOrAppendUserLabTranslationData(final long actor, final AbstractFileMetaData fileMetaData, final Lab lab) {
-
-        return getFileTranslationDataForLab(fileMetaData, lab).or(createAndAppendUserLabTranslationData(actor, fileMetaData, lab));
-    }
-
-    private Supplier<UserLabFileTranslationData> createAndAppendUserLabTranslationData(final long actor, final AbstractFileMetaData fileMetaData, final Lab lab) {
-        return new Supplier<UserLabFileTranslationData>() {
-            @Override
-            public UserLabFileTranslationData get() {
-
-                final UserLabFileTranslationData translationData = new UserLabFileTranslationData(USER_FROM_ID.apply(actor), lab);
-                fileMetaData.getUsersFunctions().add(translationData);
-                return translationData;
-            }
-        };
-    }
-
-    private Optional<UserLabFileTranslationData> getFileTranslationDataForLab(AbstractFileMetaData fileMetaData, final Lab lab) {
-
-        return tryFind(fileMetaData.getUsersFunctions(), new Predicate<UserLabFileTranslationData>() {
-            @Override
-            public boolean apply(UserLabFileTranslationData input) {
-
-                return input.getLab().equals(lab);
-
-            }
-        });
-    }
-
-    private void setTranslationValues(UserLabFileTranslationData userTranslationData) {
-        userTranslationData.getTranslationStatus().setLastTranslationAttempt(new Date());
-        userTranslationData.getTranslationStatus().setToTranslationQueue(true);
-        userTranslationData.getTranslationStatus().setTranslationError(null);
-        userTranslationData.getTranslationStatus().setLastTranslationDuration(null);
-        userTranslationData.getTranslationStatus().setLastTranslationEndDate(null);
-        userTranslationData.getTranslationStatus().setTranslationSubmitted(true);
-        userTranslationData.getTranslationStatus().setStatus(IN_PROGRESS);
-    }
-
-    private UserLabFileTranslationData findOrAppendUserTranslationData(final long actor, final AbstractFileMetaData file) {
-
-        return getFileLabTranslationData(file)
-                .or(createAndAppendUserLabTranslationData(actor, file, file.getInstrument().getLab()));
-    }
-
-    private Optional<UserLabFileTranslationData> getFileLabTranslationData(final AbstractFileMetaData file) {
-
-        return getFileTranslationDataForLab(file, file.getInstrument().getLab());
-    }
-
-    @Override
-    public void markFileForTranslation(long actor, long lab, long fileId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public ImmutableSet<Long> markFilesForTranslation(final long actor, long lab, @NotNull Set<Long> files) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void runPreCacheViewers(long actor, long experimentId) {
         final ActiveExperiment experiment = experimentRepository.findOne(experimentId);
         precacheFiles(experiment);
     }
-
-    private void prepareForTranslation(final ActiveExperiment experiment) {
-        experiment.setLastTranslationAttempt(current.get());
-        experiment.setTranslated(true);
-        experiment.setTranslationError(null);
-    }
-
-    @Override
-    public void retranslateAllExperiments(long actor) {
-        if (!ruleValidator.userHasPermissionToRetranslateAllExperiments(actor)) {
-            throw new AccessDenied("User isn't permitted to retranslate all experiments");
-        }
-        LOG.warn("Skipping retranslating all experiments due to per-file translation scheme migration");
-    }
-
-    @Override
-    public void retranslateExperiments(long actor, List<Long> experiments) {
-        if (!ruleValidator.userHasPermissionToRetranslateAllExperiments(actor)) {
-            throw new AccessDenied("User isn't permitted to retranslate selected experiments");
-        }
-        if (experiments.isEmpty()) {
-            throw new IllegalArgumentException("No experiments to retranslate");
-        }
-        LOG.warn("Skipping retranslating specified experiments due to per-file translation scheme migration");
-    }
-
-    @Override
-    public void retranslateExperimentsFiles(long actor, List<Long> experiments) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void retranslateFiles(long actor, List<Long> files, boolean metadataOnly) {
-        throw new UnsupportedOperationException();
-    }
-
-
-    private void setToTranslate(UserLabFileTranslationData userTranslationData, boolean value) {
-        userTranslationData.getTranslationStatus().setToTranslate(value);
-    }
-
-    @Override
-    public void reTranslateAllNotTranslatedFilesOfExperiments(long actor, boolean metadataOnly) {
-        throw new UnsupportedOperationException();
-    }
-
-
-
-    @Override
-    public void translateMarkedFiles() {
-        throw new UnsupportedOperationException();
-    }
-
 
     @Override
     public void setBlogEnabled(long actor, long project, boolean blogEnabled) {
@@ -767,9 +583,6 @@ public class StudyManagementImpl implements StudyManagement {
         );
 
         copy.setBillLaboratory(newBillLab);
-        copy.setTranslationError(experiment.getTranslationError());
-        copy.setLastTranslationAttempt(experiment.getLastTranslationAttempt());
-        copy.setTranslated(experiment.isTranslated());
         List<Attachment<User>> copiedAttach = new ArrayList<>();
         for (Attachment<User> attachment : experiment.attachments) {
             final Attachment<User> att = attachmentRepository.findOne(attachmentManagement.copyAttachment(attachment.getId(),

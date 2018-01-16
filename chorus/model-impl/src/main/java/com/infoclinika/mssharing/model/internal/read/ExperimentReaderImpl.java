@@ -72,18 +72,14 @@ public class ExperimentReaderImpl extends DefaultExperimentReader<ActiveExperime
         return new ExperimentLine(experimentReaderHelper.getDefaultTransformer().apply(activeExperiment),
                 false,
                 transformers.getChartsLink(activeExperiment),
-                Transformers.composeExperimentTranslationError(activeExperiment),
-                activeExperiment.getLastTranslationAttempt(),
                 false,
                 false, false, false,
-                false,
                 false,
                 false,
                 labOpt.isPresent() && ruleValidator.canLabUseProteinIdSearch(labOpt.get().getId()),
                 null,
                 0,
                 labOpt.transform(EntityUtil.ENTITY_TO_ID).orNull(),
-                Transformers.getExperimentTranslationStatus(activeExperiment, Sets.<Long>newHashSet()),
                 new DashboardReader.ExperimentColumns(
                         activeExperiment.getName(),
                         activeExperiment.getCreator().getFullName(),
@@ -112,7 +108,7 @@ public class ExperimentReaderImpl extends DefaultExperimentReader<ActiveExperime
     }
 
     private FluentIterable<ExperimentDashboardRecord> filterExperimentsByProject(User actor, ActiveProject project, Filter filter) {
-        return from(accomplishItems(experimentRepository.findDashboardItemsByProject(project)))
+        return from(experimentRepository.findDashboardItemsByProject(project))
                 .filter(getFilteredExperimentDashboardRecords(project, actor, filter));
     }
 
@@ -136,25 +132,6 @@ public class ExperimentReaderImpl extends DefaultExperimentReader<ActiveExperime
             }
         };
     }
-
-    private Iterable<ExperimentDashboardRecord> accomplishItems(List<ExperimentDashboardRecord> experimentDashboardRecordEntities) {
-        List<TranslatedFileIdInExperiment> translatedFilesWithExperiments = fileMetaDataRepository.findTranslatedFilesWithExperiments();
-
-        LinkedListMultimap<Long, Long> map = LinkedListMultimap.create();
-        for (TranslatedFileIdInExperiment record : translatedFilesWithExperiments) {
-            map.put(record.experimentId, record.fileMetaDataId);
-        }
-        final Map<Long, Collection<Long>> expIdToProcessedIDs = map.asMap();
-
-        for (ExperimentDashboardRecord experimentDashboardRecordEntity : experimentDashboardRecordEntities) {
-            final Collection<Long> ids = expIdToProcessedIDs.get(experimentDashboardRecordEntity.getId());
-            if (ids != null) {
-                experimentDashboardRecordEntity.updateProcessedIds(ids);
-            }
-        }
-        return experimentDashboardRecordEntities;
-    }
-
 
     @Override
     public SortedSet<ExperimentLine> readExperimentsByProject(long actor, long projectId) {

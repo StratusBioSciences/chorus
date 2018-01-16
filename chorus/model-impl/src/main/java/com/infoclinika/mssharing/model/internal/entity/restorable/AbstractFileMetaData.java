@@ -30,16 +30,9 @@ public abstract class AbstractFileMetaData extends FileMetaDataTemplate<User, In
     @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private FileMetaAnnotations metaInfo;
-    //TODO: Remove from entity and production DB
-    @Deprecated
-    private boolean toTranslate = false;
 
     @Embedded
     private StorageData storageData = new StorageData();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "file_id")
-    private Set<UserLabFileTranslationData> usersFunctions = new HashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "bill_lab")
@@ -58,10 +51,6 @@ public abstract class AbstractFileMetaData extends FileMetaDataTemplate<User, In
 
     protected void setStorageData(StorageData storageData) {
         this.storageData = storageData;
-    }
-
-    public Set<UserLabFileTranslationData> getUsersFunctions() {
-        return usersFunctions;
     }
 
     public AbstractFileMetaData() {
@@ -129,19 +118,6 @@ public abstract class AbstractFileMetaData extends FileMetaDataTemplate<User, In
 
     public void setSizeIsConsistent(boolean sizeIsConsistent) {
         this.sizeIsConsistent = sizeIsConsistent;
-    }
-
-    @Deprecated
-    public boolean isToTranslate() {
-        return toTranslate;
-    }
-
-    /**
-     * @see com.infoclinika.mssharing.model.internal.entity.UserLabFileTranslationData#translationStatus#setToTranslate(boolean)
-     */
-    @Deprecated
-    public void setToTranslate(boolean toTranslate) {
-        this.toTranslate = toTranslate;
     }
 
     @Override

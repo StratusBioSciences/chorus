@@ -27,8 +27,7 @@ public class RequestDetailsReaderImpl extends DefaultRequestsDetailsReader<Instr
         return new InstrumentCreationItem(
                 template,
                 instrumentCreationRequest.getHplc(),
-                from(instrumentCreationRequest.getLockMasses()).transform(LOCK_MZ_ITEM_FUNCTION).toList(),
-                instrumentCreationRequest.isAutoTranslate()
+                from(instrumentCreationRequest.getLockMasses()).transform(LOCK_MZ_ITEM_FUNCTION).toList()
         );
 
     }

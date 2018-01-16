@@ -61,14 +61,6 @@ public class ArchiverJobs {
     }
 
     @Scheduled(fixedRate = EVERY_FIVE_MINUTES_RATE)
-    public void moveMarkedFilesToTemp() {
-
-        doIfGlacierEnabled(fileOperationsManager::moveMarkedFilesToTempAndMarkForTranslate,
-                "*** Archive marked files to temp storage job started ***");
-
-    }
-
-    @Scheduled(fixedRate = EVERY_FIVE_MINUTES_RATE)
     public void processExpiredUnarchivedFiles() {
 
         doIfGlacierEnabled(fileMovingManager::moveToArchiveExpiredUnarchivedFiles,

@@ -165,7 +165,6 @@ class NotifierImpl extends DefaultNotifier implements Notifier, BlogNotifier, Ad
         final SimpleDateFormat dateFormatter = new SimpleDateFormat("E, y-M-d 'at' h:m:s a z", Locale.ENGLISH);
         model.put(FORMATTED_DATE, dateFormatter.format(new Date()));
         final MailSendingHelper.ExperimentDetails experimentDetails = mailSendingHelper.experimentDetails(experiment);
-        model.put(ERROR_MESSAGE, experimentDetails.errorMessage);
         model.put(EXPERIMENT_NAME, experimentDetails.name);
         model.put(AUTHOR_EMAIL, experimentDetails.authorEmail);
         for (String email : translationErrorEmails) {

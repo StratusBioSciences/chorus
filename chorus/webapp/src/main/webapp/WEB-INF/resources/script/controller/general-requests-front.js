@@ -343,7 +343,6 @@ angular.module("general-requests-front", ["general-requests", "security-front", 
             details.serialNumber = $scope.instrument.details.serialNumber;
             details.hplc = $scope.instrument.details.hplc;
             details.peripherals = $scope.instrument.details.peripherals;
-            details.autoTranslate = $scope.instrument.details.autoTranslate;
             details.lockMasses = $scope.lockMasses;
 
             return request;
@@ -393,7 +392,6 @@ angular.module("general-requests-front", ["general-requests", "security-front", 
             instr.details.serialNumber = details.serialNumber;
             instr.details.hplc = details.hplc;
             instr.details.peripherals = details.peripherals;
-            instr.details.autoTranslate = details.autoTranslate;
             instr.lab = details.labId;
             instr.labName = details.labName;
             instr.operators = details.operators;

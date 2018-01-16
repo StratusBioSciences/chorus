@@ -38,9 +38,9 @@ public interface StudyManagement extends
 
     void removeProject(long project);
 
-    public long moveProjectToTrash(long actor, long projectId);
+    long moveProjectToTrash(long actor, long projectId);
 
-    public long restoreProject(long actor, long projectId);
+    long restoreProject(long actor, long projectId);
 
     /**
      * For internal use
@@ -63,88 +63,7 @@ public interface StudyManagement extends
 
     void refuseCopyProjectRequest(long actor, long project);
 
-    /**
-     * Marks files, not translated for given experiment in experiment Bill Laboratory, for translation
-     *
-     * @param actor        creator of the experiment
-     * @param experimentId experiment ID
-     * @param chargedLab   laboratory which will pay for translation
-     */
-    void markNotTranslatedFilesToTranslate(long actor, long experimentId, long chargedLab);
-
-    /**
-     * Marks file for translation
-     *
-     * @param actor  current user
-     * @param lab    - lab which will own translated data and thus, charged
-     * @param fileId file ID
-     */
-    void markFileForTranslation(long actor, long lab, long fileId);
-
-    /**
-     * Marks given files for translation.
-     * <p/>
-     * Ignore files not available for translation.
-     *
-     * @param actor current user
-     * @param lab   lab which will own translated data and thus, charged
-     * @param files the set of files to mark
-     * @return the set of files from requested files set that are not available for translation.
-     */
-    ImmutableSet<Long> markFilesForTranslation(long actor, long lab, @NotNull Set<Long> files);
-
-    /**
-     * Translates the given files.
-     * <p/>
-     * Available only for admin.
-     *
-     * @param actor        current user
-     * @param files        files to translate
-     * @param metadataOnly translate only metadata
-     */
-    void retranslateFiles(long actor, @NotNull List<Long> files, boolean metadataOnly);
-
     void runPreCacheViewers(long actor, long experimentId);
-
-    /**
-     * Retranslate all existing experiments. USE WITH CARE.
-     * <p/>
-     * Currently available only to admin user.
-     * <p/>
-     * Deprecated due to per file translation.
-     *
-     * @param actor the ID of user
-     */
-    @Deprecated
-    void retranslateAllExperiments(long actor);
-
-    @Deprecated
-    void retranslateExperiments(long actor, List<Long> experiments);
-
-    /**
-     * Translates the given experiments.
-     * <p>
-     * Available only for admin.
-     *
-     * @param actor       current user
-     * @param experiments experiments to translate
-     */
-    void retranslateExperimentsFiles(long actor, List<Long> experiments);
-
-    /**
-     * For now retranslate only files engaged in the experiments.
-     * <p/>
-     * Available only for admin.
-     *
-     * @param actor        - current user
-     * @param metadataOnly - fetch metadata only, don't convert and upload files
-     */
-    void reTranslateAllNotTranslatedFilesOfExperiments(long actor, boolean metadataOnly);
-
-    /**
-     * Internal method used by the AutomaticFileRetranslator
-     */
-    void translateMarkedFiles();
 
     void setBlogEnabled(long userId, long project, boolean blogEnabled);
 

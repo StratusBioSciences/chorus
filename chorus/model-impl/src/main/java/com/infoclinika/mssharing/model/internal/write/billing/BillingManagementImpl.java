@@ -199,7 +199,6 @@ public class BillingManagementImpl implements BillingManagement {
         }
 
         final AccountChargeableItemData featureUsage = activateFeature(account, ChargeableItem.Feature.PROCESSING);
-        activateFeature(account, ChargeableItem.Feature.TRANSLATION);
         featureUsage.setAutoProlongate(prolongateAutomatically);
         accountChargeableItemDataRepository.save(featureUsage);
 
@@ -216,7 +215,6 @@ public class BillingManagementImpl implements BillingManagement {
     public void disableProcessingForLabAccount(long actor, long lab) {
         final LabPaymentAccount account = labPaymentAccountRepository.findByLab(lab);
         deactivateFeature(account, ChargeableItem.Feature.PROCESSING);
-        deactivateFeature(account, ChargeableItem.Feature.TRANSLATION);
         labPaymentAccountRepository.save(account);
     }
 

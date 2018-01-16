@@ -318,40 +318,11 @@ public class ExperimentsController extends PagedItemsController {
         return detailsReader.readExperimentShortInfo(getUserId(principal), id);
     }
 
-    @RequestMapping(value = "/translateNotTranslated/{id}/{chargedLab}", method = RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.OK)
-    public void translateNotTranslatedExperimentFiles(@PathVariable("id") long id, @PathVariable("chargedLab") long chargedLab, Principal principal) {
-        LOG.debug("Translate experiment call arrived to the controller. Experiment ID = " + id);
-        studyManagement.markNotTranslatedFilesToTranslate(getUserId(principal), id, chargedLab);
-    }
-
     @RequestMapping(value = "/precache/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     public void preCacheViewers(@PathVariable("id") long id, Principal principal) {
         LOG.debug("Pre-cache viewers call arrived to the controller. Experiment ID = " + id);
         studyManagement.runPreCacheViewers(getUserId(principal), id);
-    }
-
-    @RequestMapping(value = "/translation/all", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
-    public void retranslateAllExperiments(Principal principal) {
-        final long actor = getUserId(principal);
-        LOG.debug("Retranslate all experiments called. User ID = " + actor);
-        studyManagement.retranslateAllExperiments(actor);
-    }
-
-    @RequestMapping(value = "/per-experiment-translation/selected", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
-    public void retranslateSelectedExperimentsFiles(@RequestBody RetranslateExperimentsRequest request, Principal principal) {
-        studyManagement.retranslateExperimentsFiles(getUserId(principal), request.experiments);
-    }
-
-    @RequestMapping(value = "/translation/selected", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
-    public void retranslateSelectedExperiments(@RequestBody RetranslateExperimentsRequest request, Principal principal) {
-        final long actor = getUserId(principal);
-        LOG.debug("Retranslate all experiments called. User ID = " + actor);
-        studyManagement.retranslateExperiments(actor, request.experiments);
     }
 
     @RequestMapping(value = "/moveToStorage", method = RequestMethod.GET)

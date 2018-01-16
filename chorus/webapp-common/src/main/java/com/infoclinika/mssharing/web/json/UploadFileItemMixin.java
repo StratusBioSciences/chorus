@@ -13,7 +13,6 @@ public class UploadFileItemMixin {
             @JsonProperty("labels") String labels,
             @JsonProperty("size") long size,
             @JsonProperty("specie") long specie,
-            @JsonProperty("archive") boolean archive,
-            @JsonProperty("autotranslate") boolean autotranslate) {
+            @JsonProperty("archive") boolean archive) {
     }
 }

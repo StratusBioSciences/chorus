@@ -23,8 +23,6 @@ public class FileMetaInfoHelperImpl implements FileMetaInfoHelper {
 
     @Inject
     private FileMetaDataRepository fileMetaDataRepository;
-    @Inject
-    private RuleValidator ruleValidator;
 
     @Override
          public void updateFileMeta(long fileId, MetaInfo metaInfo) {
@@ -55,7 +53,6 @@ public class FileMetaInfoHelperImpl implements FileMetaInfoHelper {
         info.setUserName(metaInfo.userName);
         info.setSampleName(metaInfo.sampleName);
         info.setInstrumentSerialNumber(metaInfo.instrumentSerialNumber);
-        info.setTranslateFlag(metaInfo.translateFlag);
         info.setPhone(metaInfo.phone);
         info.setInstrumentName(metaInfo.instrumentName);
         info.setUserLabels(metaInfo.userLabels);
@@ -74,7 +71,6 @@ public class FileMetaInfoHelperImpl implements FileMetaInfoHelper {
         copy.setUserName(metaInfo.getUserName());
         copy.setSampleName(metaInfo.getSampleName());
         copy.setInstrumentSerialNumber(metaInfo.getInstrumentSerialNumber());
-        copy.setTranslateFlag(metaInfo.getTranslateFlag());
         copy.setPhone(metaInfo.getPhone());
         copy.setInstrumentName(metaInfo.getInstrumentName());
         copy.setUserLabels(metaInfo.getUserLabels());

@@ -204,7 +204,7 @@ public class UseCase {
     }
 
     public Optional<Long> createInstrumentAndApproveIfNeeded(long user, long lab, long model) {
-        return createInstrumentAndApproveIfNeeded(user, lab, model, new InstrumentDetails(anyStr(), anyStr(), anyStr(), anyStr(), Collections.<LockMzItem>emptyList(), true));
+        return createInstrumentAndApproveIfNeeded(user, lab, model, new InstrumentDetails(anyStr(), anyStr(), anyStr(), anyStr(), Collections.<LockMzItem>emptyList()));
     }
 
     private Optional<Long> createInstrumentAndApproveIfNeeded(long user,
@@ -251,19 +251,19 @@ public class UseCase {
     }
 
     public long saveFile(long userId, long instrument) {
-        final long file = ws.instrumentManagement.createFile(userId, instrument, new FileMetaDataInfo(UUID.randomUUID().toString(), 0, "", null, unspecified(), false, false));
+        final long file = ws.instrumentManagement.createFile(userId, instrument, new FileMetaDataInfo(UUID.randomUUID().toString(), 0, "", null, unspecified(), false));
         updateFileContent(userId, file);
         return file;
     }
 
     public long saveFileWithSize(long userId, long instrument, long size) {
-        final long file = ws.instrumentManagement.createFile(userId, instrument, new FileMetaDataInfo(UUID.randomUUID().toString(), size, "", null, unspecified(), false, false));
+        final long file = ws.instrumentManagement.createFile(userId, instrument, new FileMetaDataInfo(UUID.randomUUID().toString(), size, "", null, unspecified(), false));
         updateFileContent(userId, file);
         return file;
     }
 
     public long saveFileWithName(long userId, long instrument, String name) {
-        final long file = ws.instrumentManagement.createFile(userId, instrument, new FileMetaDataInfo(name, 0, "", null, unspecified(), false, false));
+        final long file = ws.instrumentManagement.createFile(userId, instrument, new FileMetaDataInfo(name, 0, "", null, unspecified(), false));
         updateFileContent(userId, file);
         return file;
     }

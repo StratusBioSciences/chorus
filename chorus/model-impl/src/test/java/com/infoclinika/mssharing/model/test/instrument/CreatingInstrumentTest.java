@@ -87,8 +87,7 @@ public class CreatingInstrumentTest extends AbstractInstrumentTest {
                 tempDetails.serialNumber,
                 tempDetails.hplc,
                 tempDetails.peripherals,
-                LOCK_MZ_ITEMS,
-                tempDetails.autoTranslate
+                LOCK_MZ_ITEMS
         );
 
         instrumentManagement.updateNewInstrumentRequest(
@@ -249,7 +248,7 @@ public class CreatingInstrumentTest extends AbstractInstrumentTest {
     }
 
     private Optional<Long> createInstrumentWithConstSN(long bob, long lab) {
-        return createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel(), new InstrumentDetails(generateString(), "SN", generateString(), generateString(), lockMasses, true));
+        return createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel(), new InstrumentDetails(generateString(), "SN", generateString(), generateString(), lockMasses));
     }
 
     //Instrument selection become available on experiment creation
@@ -329,7 +328,7 @@ public class CreatingInstrumentTest extends AbstractInstrumentTest {
         final long bob = uc.createLab3AndBob();
         final Long instrument = createInstrumentAndApproveIfNeeded(bob, uc.getLab3(), anyInstrumentModel(), instrumentDetails()).get();
         final String newName = generateString();
-        instrumentManagement.editInstrument(bob, instrument, new InstrumentDetails(newName, generateString(), generateString(), generateString(), lockMasses, true));
+        instrumentManagement.editInstrument(bob, instrument, new InstrumentDetails(newName, generateString(), generateString(), generateString(), lockMasses));
         final InstrumentItem instrumentItem = detailsReader.readInstrument(bob, instrument);
         assertEquals(instrumentItem.name, newName);
     }
@@ -340,7 +339,7 @@ public class CreatingInstrumentTest extends AbstractInstrumentTest {
         final long kate = uc.createKateAndLab2();
         final Long instrument = createInstrumentAndApproveIfNeeded(bob, uc.getLab3(), anyInstrumentModel(), instrumentDetails()).get();
         final String newName = generateString();
-        instrumentManagement.editInstrument(kate, instrument, new InstrumentDetails(newName, generateString(), generateString(), generateString(), lockMasses, true));
+        instrumentManagement.editInstrument(kate, instrument, new InstrumentDetails(newName, generateString(), generateString(), generateString(), lockMasses));
     }
 
     @Test
@@ -380,42 +379,42 @@ public class CreatingInstrumentTest extends AbstractInstrumentTest {
     public void testCreateInstrumentWithAlreadyUsedSerialNumber() {
         final long bob = uc.createLab3AndBob();
         createInstrumentAndApproveIfNeeded(bob, uc.getLab3(), anyInstrumentModel(),
-                new InstrumentDetails("Instrument1", "123", generateString(), generateString(), lockMasses, true)).get();
+                new InstrumentDetails("Instrument1", "123", generateString(), generateString(), lockMasses)).get();
         createInstrumentAndApproveIfNeeded(bob, uc.getLab3(), anyInstrumentModel(),
-                new InstrumentDetails("Instrument2", "123", generateString(), generateString(), lockMasses, true)).get();
+                new InstrumentDetails("Instrument2", "123", generateString(), generateString(), lockMasses)).get();
     }
 
     @Test
     public void testCanChangeInstrumentName() {
         final long bob = uc.createLab3AndBob();
         final Long instrument = createInstrumentAndApproveIfNeeded(bob, uc.getLab3(), anyInstrumentModel(),
-                new InstrumentDetails("Instrument1", "123", generateString(), generateString(), lockMasses, true)).get();
+                new InstrumentDetails("Instrument1", "123", generateString(), generateString(), lockMasses)).get();
         final Long instrument2 = createInstrumentAndApproveIfNeeded(bob, uc.getLab3(), anyInstrumentModel(),
-                new InstrumentDetails("Instrument2", "1234", generateString(), generateString(), lockMasses, true)).get();
+                new InstrumentDetails("Instrument2", "1234", generateString(), generateString(), lockMasses)).get();
         instrumentManagement.editInstrument(bob, instrument,
-                new InstrumentDetails("Instrument4", "123", generateString(), generateString(), lockMasses, true));
+                new InstrumentDetails("Instrument4", "123", generateString(), generateString(), lockMasses));
         instrumentManagement.editInstrument(bob, instrument,
-                new InstrumentDetails("Instrument3", "12345", generateString(), generateString(), lockMasses, true));
+                new InstrumentDetails("Instrument3", "12345", generateString(), generateString(), lockMasses));
     }
 
     @Test(expectedExceptions = AccessDenied.class)
     public void testCanNotChangeInstrumentNameInLabWithAlreadyUsedName() {
         final long bob = uc.createLab3AndBob();
         final Long instrument = createInstrumentAndApproveIfNeeded(bob, uc.getLab3(), anyInstrumentModel(),
-                new InstrumentDetails("Instrument1", "123", generateString(), generateString(), lockMasses, true)).get();
+                new InstrumentDetails("Instrument1", "123", generateString(), generateString(), lockMasses)).get();
         final Long instrument2 = createInstrumentAndApproveIfNeeded(bob, uc.getLab3(), anyInstrumentModel(),
-                new InstrumentDetails("Instrument2", "1234", generateString(), generateString(), lockMasses, true)).get();
+                new InstrumentDetails("Instrument2", "1234", generateString(), generateString(), lockMasses)).get();
         instrumentManagement.editInstrument(bob, instrument,
-                new InstrumentDetails("Instrument2", "123", generateString(), generateString(), lockMasses, true));
+                new InstrumentDetails("Instrument2", "123", generateString(), generateString(), lockMasses));
     }
 
     @Test(expectedExceptions = AccessDenied.class)
     public void testCanNotCreateInstrumentWithAlreadyUsedNameInLab() {
         final long bob = uc.createLab3AndBob();
         final Long instrument = createInstrumentAndApproveIfNeeded(bob, uc.getLab3(), anyInstrumentModel(),
-                new InstrumentDetails("Instrument1", "123", generateString(), generateString(), lockMasses, true)).get();
+                new InstrumentDetails("Instrument1", "123", generateString(), generateString(), lockMasses)).get();
         final Long instrument2 = createInstrumentAndApproveIfNeeded(bob, uc.getLab3(), anyInstrumentModel(),
-                new InstrumentDetails("Instrument1", "1234", generateString(), generateString(), lockMasses, true)).get();
+                new InstrumentDetails("Instrument1", "1234", generateString(), generateString(), lockMasses)).get();
     }
 
     @Test(expectedExceptions = AccessDenied.class)
@@ -432,27 +431,6 @@ public class CreatingInstrumentTest extends AbstractInstrumentTest {
         detailsReader.readInstrument(bob, instrument);
         instrumentManagement.deleteInstrument(bob, instrument);
         detailsReader.readInstrument(bob, instrument);
-    }
-
-    @Test
-    public void testCanCreateInstrumentWithAutoTranslateOption() {
-        final long bob = uc.createLab3AndBob();
-        final InstrumentDetails details = new InstrumentDetails(
-                generateString(), generateString(), generateString(), generateString(), NO_LOCK_MASSES, true
-        );
-        final Optional<Long> instrument = createInstrumentAndApproveIfNeeded(bob, uc.getLab3(), anyInstrumentModel(), details);
-        assertTrue(detailsReader.readInstrument(bob, instrument.get()).autoTranslate);
-    }
-
-    @Test
-    public void testCanChangeInstrumentAutoTranslateOption() {
-        final long bob = uc.createLab3AndBob();
-        final long instrument = createInstrumentAndApproveIfNeeded(bob, uc.getLab3());
-        final InstrumentDetails details = new InstrumentDetails(
-                generateString(), generateString(), generateString(), generateString(), NO_LOCK_MASSES, true
-        );
-        instrumentManagement.editInstrument(bob, instrument, details);
-        assertTrue(detailsReader.readInstrument(bob, instrument).autoTranslate);
     }
 
     @Test

@@ -2,7 +2,7 @@ angular.module("dashboard", ["sessionTimeoutHandler","background-upload", "proje
     "formatters", "users", "security-front", "experiments-front", "ui.directives", "laboratoriesControllers",
     "groups-front", "filesControllers", "front-end", "anonymous-download", "news-front", "news-back",
     "search-front", "search-back", "upload-front", "breadcrumbs","validators", "user-profile-front", "lab-head-front",
-    "general-requests-front", "adminTranslationContollers", "trash-front", "error-catcher", "admin-front",
+    "general-requests-front", "trash-front", "error-catcher", "admin-front",
     "advert-front", "advert-back", "file-access-log", "client-token-front", "billing-back",
     "current-year", "util", "instrument-models", "enums", "header"])
     .config(function ($routeProvider, LabFeatures) {
@@ -123,8 +123,6 @@ angular.module("dashboard", ["sessionTimeoutHandler","background-upload", "proje
             when("/search/:query/instruments/:id", instrumentDetails).
             when("/profile", {controller:"profile", templateUrl:"../pages/user/profile.html"}).
             when("/profile/:subscriptionResult", {controller:"profile", templateUrl:"../pages/user/profile.html"}).
-            when("/translation", {controller:"translationStatuses", templateUrl:"../pages/translation/list.html"}).
-            when("/translation/per-file", {controller:"perFileTranslationStatuses", templateUrl:"../pages/translation/file-list.html"}).
             when("/processing-runs/all", {controller:"experiment-searches-all", templateUrl:"../pages/experiment/protein-search/admin-list.html"}).
             when("/protein-search/databases/:show", {
                 controller:"protein-search-databases",
@@ -136,7 +134,6 @@ angular.module("dashboard", ["sessionTimeoutHandler","background-upload", "proje
                 templateUrl:"../pages/experiment/protein-search/databases/details.html",
                 resolve: redirectIfNoProteinSearchDBAccess
             }).
-            //when("/metatranslation", {controller: "metaDataTranslationDetails", templateUrl:"../pages/translation/meta-data-details.html"}).
             when("/news", {controller: "news-controller", templateUrl: "../pages/news/list.html"}).
             when("/news/new", {controller: "newNews", templateUrl: "../pages/news/new.html"}).
             when("/news/:id", {controller: "news-details", templateUrl: "../pages/news/details.html"}).

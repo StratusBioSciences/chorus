@@ -43,12 +43,6 @@ public class StoredObjectPaths extends StoredObjectPathsTemplate {
     @Value("${protein.dbs.target.folder}")
     private String proteinDatabasesPrefix;
 
-    @Value("${translated.files.target.folder}")
-    private String translatedRawFilesPrefix;
-
-    @Value("${translated.singleFile.target.folder}")
-    private String translatedSingleFilePrefix;
-
     @Value("${unfinished.chunks.target.folder}")
     private String unfinishedChunksPrefix;
 
@@ -72,10 +66,6 @@ public class StoredObjectPaths extends StoredObjectPathsTemplate {
 
     public NodePath proteinDatabasePath(long user, long proteinDatabaseId, String proteinDbName) {
         return new NodePath(Joiner.on(DELIMITER).join(proteinDatabasesPrefix, user, proteinDatabaseId + "-" + proteinDbName));
-    }
-
-    public NodePath translatedRawFilePath(long user, long instrumentId, String fileName) {
-        return new NodePath(Joiner.on(DELIMITER).join(translatedRawFilesPrefix, user, instrumentId, checkHasNowDelimiter(fileName)));
     }
 
     public NodePath tempFilePath(long user, long lab, String realFileContentId) {
@@ -129,14 +119,6 @@ public class StoredObjectPaths extends StoredObjectPathsTemplate {
 
     public String getArchiveBucket() {
         return archiveBucket;
-    }
-
-    public String getTranslatedSingleFilePrefix() {
-        return translatedSingleFilePrefix;
-    }
-
-    public String getTranslatedRawFilesPrefix() {
-        return translatedRawFilesPrefix;
     }
 
     public String getBillingPrefix() {

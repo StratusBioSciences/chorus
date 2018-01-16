@@ -553,7 +553,6 @@ public class AbstractTest extends AbstractTestNGSpringContextTests {
     private long imageProcessingStepType;
 
     private ImmutableMap<Class, Long> processorToWorkflowStep;
-    private ImmutableMap<ProcessingWorkflowTemplateType, Long> workflowTypeToID;
     private long persistProteinDBStepType;
 
     private long experimentLabelType; //silac
@@ -990,11 +989,5 @@ public class AbstractTest extends AbstractTestNGSpringContextTests {
 
     protected long getExperimentLabelRAminoAcid() {
         return experimentLabelWithRAminoAcid;
-    }
-
-    public static enum ProcessingWorkflowTemplateType {
-        DMS, DMS_WITHOUT_SEARCH,
-        SHOTGUN, SHOTGUN_WITHOUT_IG,
-        PECAN, MAXQUANT, ONE_STEP, MICROARRAYS;
     }
 }

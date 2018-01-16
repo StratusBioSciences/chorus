@@ -186,44 +186,6 @@ class NotifierImpl extends DefaultNotifier implements Notifier, BlogNotifier, Ad
         send(details.email, getTemplateLocation("fileReadyTodownload.vm"), model);
     }
 
-
-    @Override
-    public void sendProteinSearchSuccessNotification(long proteinSearchCreator, long proteinSearchId, String proteinSearchName, String experimentName) {
-        final Map<String, Object> model = new HashMap<>();
-        final MailSendingHelper.UserDetails details = mailSendingHelper.userDetails(proteinSearchCreator);
-
-        StringBuilder analysisUrl = new StringBuilder(baseUrl + "/pages/sequest-search-board.html#/protein-search/" + proteinSearchId + "/results?");
-
-        model.put(USER, details.name);
-        model.put(PROTEIN_SEARCH_ID, proteinSearchId);
-        model.put(PROTEIN_SEARCH_NAME, proteinSearchName);
-        model.put(EXPERIMENT_NAME, experimentName);
-        model.put(ANALYSIS_URL, analysisUrl);
-
-        send(details.email, getTemplateLocation("proteinSearchSuccessNotification.vm"), model);
-
-        inboxNotifier.notify(proteinSearchCreator, proteinSearchCreator, "Protein Search " + proteinSearchName + " has been successfully completed");
-    }
-
-    @Override
-    public void sendProteinSearchFailNotification(long proteinSearchCreator, long proteinSearchId, String proteinSearchName, String experimentName, String failedWorkflowStep, String errorMessage) {
-        final Map<String, Object> model = new HashMap<>();
-        final MailSendingHelper.UserDetails details = mailSendingHelper.userDetails(proteinSearchCreator);
-
-        model.put(USER, details.name);
-        model.put(PROTEIN_SEARCH_ID, proteinSearchId);
-        model.put(PROTEIN_SEARCH_NAME, proteinSearchName);
-        model.put(EXPERIMENT_NAME, experimentName);
-        model.put(ERROR_MESSAGE, errorMessage);
-        model.put(FAILED_WORKFLOW_STEP, failedWorkflowStep);
-
-//        send(details.email, "proteinSearchFailedNotification.vm", model);
-        for (String email : analysisRunEmails) {
-            send(email, getTemplateLocation("proteinSearchFailedNotification.vm"), model);
-        }
-        inboxNotifier.notify(proteinSearchCreator, proteinSearchCreator, "Protein Search " + proteinSearchName + " has failed");
-    }
-
     @Override
     public void sendCopyProjectRequestNotification(long receiver, String senderFullName, String activeProjectName) {
 

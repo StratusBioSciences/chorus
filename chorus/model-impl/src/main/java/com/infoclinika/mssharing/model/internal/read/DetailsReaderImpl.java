@@ -13,7 +13,6 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 import com.infoclinika.mssharing.model.helper.LockMzItem;
 import com.infoclinika.mssharing.model.internal.RuleValidator;
@@ -35,7 +34,6 @@ import com.infoclinika.mssharing.model.internal.entity.restorable.NgsRelatedData
 import com.infoclinika.mssharing.model.internal.repository.AnnotationAttachmentRepository;
 import com.infoclinika.mssharing.model.internal.repository.ExperimentRepository;
 import com.infoclinika.mssharing.model.internal.repository.FileMetaDataRepository;
-import com.infoclinika.mssharing.model.internal.repository.ProcessingRunPluginAttachmentRepository;
 import com.infoclinika.mssharing.model.internal.repository.RawFilesRepository;
 import com.infoclinika.mssharing.model.internal.repository.UserRepository;
 import com.infoclinika.mssharing.model.read.DashboardReader;
@@ -51,8 +49,6 @@ import com.infoclinika.mssharing.model.write.ExperimentCategory;
 import com.infoclinika.mssharing.model.write.NgsRelatedExperimentInfo;
 import com.infoclinika.mssharing.platform.entity.ExperimentFileTemplate;
 import com.infoclinika.mssharing.platform.entity.RawFiles;
-import com.infoclinika.mssharing.platform.entity.UserLabMembership;
-import com.infoclinika.mssharing.platform.entity.UserTemplate;
 import com.infoclinika.mssharing.platform.entity.restorable.FileMetaDataTemplate;
 import com.infoclinika.mssharing.platform.model.AccessDenied;
 import com.infoclinika.mssharing.platform.model.helper.read.SingleResultBuilder;
@@ -107,8 +103,6 @@ public class DetailsReaderImpl extends DefaultDetailsReader<ActiveFileMetaData, 
     private Transformers transformers;
     @Inject
     private AnnotationAttachmentRepository annotationAttachmentRepository;
-    @Inject
-    private ProcessingRunPluginAttachmentRepository processingRunPluginAttachmentRepository;
     @Inject
     private DetailsTransformersTemplate detailsTransformers;
     @Inject

@@ -35,8 +35,6 @@ public interface RuleValidator extends com.infoclinika.mssharing.platform.model.
 
     boolean experimentHasDuplicateNames(long owner, DeletedExperiment experiment);
 
-    boolean canRemoveProteinSearch(long actor, long experimentRunId);
-
     boolean canRestoreFile(long actor, DeletedFileMetaData file);
 
     boolean fileHasDuplicateName(DeletedFileMetaData file);
@@ -45,15 +43,7 @@ public interface RuleValidator extends com.infoclinika.mssharing.platform.model.
 
     Predicate<Instrument> isUserCanReadInstrumentPredicate(long actor);
 
-    boolean isUserCanReadProteinSearches(long actor, long experimentId);
-
-    boolean canUserCreateProteinSearchWithTitle(long actor, long experiment, String title);
-
     boolean hasAdminRights(long actor);
-
-    boolean userHasPermissionToRunProteinIDSearches(long actor, List<Long> experimentSearches);
-
-    boolean userCanReadProteinSearchStatuses(long actor);
 
     boolean canManageNews(long actor);
 
@@ -79,12 +69,6 @@ public interface RuleValidator extends com.infoclinika.mssharing.platform.model.
 
     boolean canUserAccessSearchResults(long actor, long run);
 
-    boolean canLabUseProteinIdSearch(long lab);
-
-    boolean canCreateWorkflow(long actor);
-
-    boolean isUserCanReadWorkflow(long actor);
-
     boolean canModifyAnnotationAttachment(long actor, long annotationAttachment);
 
     /*Defines whether user is able to persist proteins from protein database file(e.g. fasta)*/
@@ -96,20 +80,10 @@ public interface RuleValidator extends com.infoclinika.mssharing.platform.model.
 
     boolean isLabHead(long actor, long lab);
 
-    boolean canCreatePostProcessingPipeline(long actor);
-
     boolean canUserManageLabAccount(long actor, long lab);
 
     boolean canImportMicroArrays(long actor, long lab);
 
     boolean shouldSearchResultsBePersistedInBlibFile(long run);
-
-    boolean canUserReadProteinSearchAttachment(long actor, long attachmentId);
-
-    boolean canUserManageProteinSearchAttachments(long actor);
-
-    boolean canUserManageProteinSearchAttachment(long actor, long attachmentId);
-
-    boolean isProteinSearchOwner(long actor, long proteinSearchId);
 
 }

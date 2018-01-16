@@ -284,23 +284,10 @@ public class DemoDataCreator {
 
         if (isTestDataAlreadyHere()) {
             log.info("It seems demo data is already here. Skipping");
-
-            final SecurityHelper.UserDetails adminUser = securityHelper.getUserDetailsByEmail(adminEmail);
-
-            if (adminUser != null) {
-                //FIXME[Alexander Serebriyan]:
-//                runDemoCreator.createAffinityImageProcessingWorkflowIfNotExists(adminUser.id);
-//                runDemoCreator.createDownloaderFtpWorkflowStepTypeAndStepIfNotExist(adminUser.id);
-//                runDemoCreator.createMicroArraysParserWorkflowStepTypeAndStepIfNotExist(adminUser.id);
-            } else {
-                log.info("Couldn't find admin by email: " + adminEmail + ", skipped creation of external MaqQuant workflow step.");
-            }
-
             return;
         }
 
         final long admin = createAdmin();
-
 
         if (!createDemoData) {
             log.info("Administrator with " + adminEmail + " has been created. Skipping demo data creation.");

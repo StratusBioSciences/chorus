@@ -25,11 +25,7 @@ public interface Notifier extends NotifierTemplate {
 
     void sendFileReadyToDownloadNotification(long actor, Collection<Long> files);
 
-    void sendProteinSearchSuccessNotification(long proteinSearchCreator, long proteinSearchId, String proteinSearchName, String experimentName);
-   
     void sendCopyProjectRequestNotification(long requester, String senderFullName, String activeProjectName);
-
-    void sendProteinSearchFailNotification(long proteinSearchCreator, long proteinSearchId, String proteinSearchName, String experimentName, String failedWorkflowStep, String errorMessage);
 
     void sendExportFileDownloadLinkEmail(long receiver, long proteinSearch, String proteinSearchName, String exportFileName, boolean inCsvFormat);
 

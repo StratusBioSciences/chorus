@@ -16,7 +16,6 @@ import com.infoclinika.mssharing.model.internal.entity.restorable.ActiveExperime
 import com.infoclinika.mssharing.model.internal.repository.AnnotationAttachmentRepository;
 import com.infoclinika.mssharing.model.internal.repository.ApplicationSettingsRepository;
 import com.infoclinika.mssharing.model.internal.repository.ExperimentRepository;
-import com.infoclinika.mssharing.model.internal.repository.ProcessingRunPluginAttachmentRepository;
 import com.infoclinika.mssharing.model.write.AttachmentManagement;
 import com.infoclinika.mssharing.platform.entity.Attachment;
 import com.infoclinika.mssharing.platform.model.AccessDenied;
@@ -42,8 +41,6 @@ public class AttachmentManagementImpl extends DefaultAttachmentManagement<Attach
 
     @Inject
     private ApplicationSettingsRepository applicationSettingsRepository;
-    @Inject
-    private ProcessingRunPluginAttachmentRepository processingRunPluginAttachmentRepository;
 
     @Value("${amazon.active.bucket}")
     private String targetBucket;

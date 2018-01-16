@@ -76,8 +76,6 @@ public class ExperimentReaderImpl extends DefaultExperimentReader<ActiveExperime
                 false, false, false,
                 false,
                 false,
-                labOpt.isPresent() && ruleValidator.canLabUseProteinIdSearch(labOpt.get().getId()),
-                null,
                 0,
                 labOpt.transform(EntityUtil.ENTITY_TO_ID).orNull(),
                 new DashboardReader.ExperimentColumns(

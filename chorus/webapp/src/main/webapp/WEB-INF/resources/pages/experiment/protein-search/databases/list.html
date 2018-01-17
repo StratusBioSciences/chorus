@@ -37,7 +37,7 @@
                                     <search-database-details eid="{{database.id}}"
                                                              text="database.ownerId == loggedInUser.id && 'Edit' || 'View'"></search-database-details>
                                 </li>
-                                <li ng-show="!database.usedInProteinSearches && database.ownerId == loggedInUser.id" class="delete-item">
+                                <li ng-show="database.ownerId == loggedInUser.id" class="delete-item">
                                     <a title="Remove search database" ng-click="displayConfirmation(database)"><i class="icon delete"></i>Delete</a>
                                 </li>
                                 <li>

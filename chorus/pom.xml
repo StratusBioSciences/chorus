@@ -17,7 +17,6 @@
         <module>mssharing-fileserver</module>
         <module>billing-web-services-api</module>
         <module>model</module>
-        <module>workflow-api</module>
         <module>authentication-service-api</module>
         <module>single-signon</module>
         <module>model-impl</module>

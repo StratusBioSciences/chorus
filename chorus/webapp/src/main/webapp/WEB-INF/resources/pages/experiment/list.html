@@ -19,7 +19,6 @@
                  right-click-context-menu
                  data-ng-class="{
                      'active': opened == experiment, 'row-with-details-button': $scope.showDetailsButton,
-                     'with-icon-analyzes' : experiment.proteinSearchEnabled,
                      'archived' : !experiment.downloadAvailable
                  }">
                 <div class="row-holder relative clearfix not-select"
@@ -41,18 +40,6 @@
                             <div class="dropdown-menu context-menu hide">
                                 <span class="arrow"></span>
                                 <ul>
-                                    <li class="menu-option disabled"
-                                        ng-show="isFeatureAvailable(LabFeatures.PROTEIN_ID_SEARCH)"
-                                        ng-click="showAnalysisWizard(experiment)">
-                                        <a title="Create new Processing Run"
-                                            non-clickable="true">
-                                            <i class="icon id-search"></i>
-                                            Process
-                                            <i ng-show="!canProcessExperiment(experiment)"
-                                               title="Feature is disabled"
-                                               class="icon blocked"></i>
-                                        </a>
-                                    </li>
                                     <li ng-show="experiment.isOwner || loggedInUser.id == experiment.lab.labHead">
                                         <experiment-details eid="{{experiment.id}}"
                                                             text="'Edit'"></experiment-details>
@@ -68,11 +55,6 @@
                                             <a title="Share link" ng-switch-when="false" class=" " ng-click="showRequestDownloadPopup(experiment)"><i
                                                   class="icon public"></i>Share link</a>
                                         </span>
-                                    </li>
-
-                                    <li set-if="experiment.proteinSearchEnabled">
-                                        <a title=">Processing Runs"  href="/error/404.html"><i
-                                                class="icon processing-runs"></i>Processing Runs</a>
                                     </li>
 
                                     <li class="menu-option"
@@ -115,9 +97,6 @@
                                 <i ng-switch-default="" class="icon {{iconDetails.getIconStyleClass(experiment)}}"
                                    set-title="iconDetails.getDownloadTitle(experiment)" ng-click="downloadExperiment(experiment)"></i>
                             </span>
-                            <a href="/error/404.html"><i ng-show="experiment.proteinSearchEnabled"
-                               class="icon analyzes" ng-class="{'disabled':experiment.analyzesCount == 0}"
-                               set-title="iconDetails.getAnalyzesTitle(experiment)"></i></a>
                             <experiment-name eid="experiment.id" name="experiment.name"
                                              set-title="experiment.name"></experiment-name>
                         </div>

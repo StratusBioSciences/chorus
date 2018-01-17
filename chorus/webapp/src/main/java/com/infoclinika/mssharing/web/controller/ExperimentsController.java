@@ -343,11 +343,6 @@ public class ExperimentsController extends PagedItemsController {
         fileOperationsManager.markExperimentFilesToUnarchive(getUserId(principal), id);
     }
 
-
-    private static class RetranslateExperimentsRequest {
-        public List<Long> experiments;
-    }
-
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class PagedExperimentRequest {
         public Long labId;

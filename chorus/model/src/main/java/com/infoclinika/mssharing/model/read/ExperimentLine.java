@@ -22,8 +22,6 @@ public class ExperimentLine extends ExperimentReaderTemplate.ExperimentLineTempl
 //    public final boolean translationAvailable;
     public final boolean canUnarchive;
     public final boolean canArchive;
-    public final boolean proteinSearchEnabled;
-    public final String proteinSearchEnabledErrorMessage;
     public final int analyzesCount;
     public final Long billLab;
 //    public final DashboardReader.TranslationStatus translationStatus;
@@ -34,7 +32,7 @@ public class ExperimentLine extends ExperimentReaderTemplate.ExperimentLineTempl
                           String downloadLink,
                           boolean owner, boolean isAvailableForCopying, boolean downloadAvailable, boolean hasUnArchiveRequest, boolean hasUnArchiveDownloadOnlyRequest,
                           boolean canArchive, boolean canUnarchive,
-                          int analyzesCount, boolean proteinSearchEnabled, String proteinSearchEnabledErrorMessage,
+                          int analyzesCount,
                           Long billLab, long ownerId,
                           DashboardReader.ExperimentColumns columns) {
         super(id, name, project, files, modified, lab, downloadLink, creator, accessLevel, ownerId);
@@ -46,8 +44,6 @@ public class ExperimentLine extends ExperimentReaderTemplate.ExperimentLineTempl
         this.hasUnArchiveDownloadOnlyRequest = hasUnArchiveDownloadOnlyRequest;
         this.canArchive = canArchive;
         this.canUnarchive = canUnarchive;
-        this.proteinSearchEnabled = proteinSearchEnabled;
-        this.proteinSearchEnabledErrorMessage = proteinSearchEnabledErrorMessage;
         this.analyzesCount = analyzesCount;
         this.billLab = billLab;
         this.columns = columns;
@@ -57,7 +53,6 @@ public class ExperimentLine extends ExperimentReaderTemplate.ExperimentLineTempl
                           boolean isOwner, String msChartsUrl,
                           boolean isAvailableForCopying, boolean downloadAvailable, boolean hasUnArchiveRequest, boolean hasUnArchiveDownloadOnlyRequest,
                           boolean canUnarchive, boolean canArchive,
-                          boolean proteinSearchEnabled, String proteinSearchEnabledErrorMessage,
                           int analyzesCount, Long billLab,
                           DashboardReader.ExperimentColumns columns) {
         super(other);
@@ -69,15 +64,13 @@ public class ExperimentLine extends ExperimentReaderTemplate.ExperimentLineTempl
         this.hasUnArchiveDownloadOnlyRequest = hasUnArchiveDownloadOnlyRequest;
         this.canUnarchive = canUnarchive;
         this.canArchive = canArchive;
-        this.proteinSearchEnabled = proteinSearchEnabled;
-        this.proteinSearchEnabledErrorMessage = proteinSearchEnabledErrorMessage;
         this.analyzesCount = analyzesCount;
         this.billLab = billLab;
         this.columns = columns;
     }
 
     public ExperimentLine(ExperimentReaderTemplate.ExperimentLineTemplate lineTemplate, long billLab) {
-        this(lineTemplate, false, null, false, false, false, false, false, false, false, null,
+        this(lineTemplate, false, null, false, false, false, false, false, false,
                 0, billLab, null);
     }
 
@@ -97,7 +90,6 @@ public class ExperimentLine extends ExperimentReaderTemplate.ExperimentLineTempl
         if (hasUnArchiveRequest != that.hasUnArchiveRequest) return false;
         if (isAvailableForCopying != that.isAvailableForCopying) return false;
         if (isOwner != that.isOwner) return false;
-        if (proteinSearchEnabled != that.proteinSearchEnabled) return false;
         if (billLab != null ? !billLab.equals(that.billLab) : that.billLab != null) return false;
         if (columns != null ? !columns.equals(that.columns) : that.columns != null) return false;
         if (msChartsUrl != null ? !msChartsUrl.equals(that.msChartsUrl) : that.msChartsUrl != null) return false;
@@ -116,7 +108,6 @@ public class ExperimentLine extends ExperimentReaderTemplate.ExperimentLineTempl
         result = 31 * result + (hasUnArchiveDownloadOnlyRequest ? 1 : 0);
         result = 31 * result + (canUnarchive ? 1 : 0);
         result = 31 * result + (canArchive ? 1 : 0);
-        result = 31 * result + (proteinSearchEnabled ? 1 : 0);
         result = 31 * result + analyzesCount;
         result = 31 * result + (billLab != null ? billLab.hashCode() : 0);
         result = 31 * result + (columns != null ? columns.hashCode() : 0);

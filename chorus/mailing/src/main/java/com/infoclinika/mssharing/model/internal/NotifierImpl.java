@@ -49,8 +49,6 @@ class NotifierImpl extends DefaultNotifier implements Notifier, BlogNotifier, Ad
     private static final String AUTHOR_EMAIL = "authorEmail";
     private static final String USER = "user";
     private static final String DOWNLOAD_URL = "downloadUrl";
-    private static final String PROTEIN_SEARCH_ID = "proteinSearchId";
-    private static final String PROTEIN_SEARCH_NAME = "proteinSearchName";
     private static final String ANALYSIS_URL = "analysisUrl";
     private static final String FAILED_WORKFLOW_STEP = "failedWorkflowStep";
     private static final String PROJECT = "project";
@@ -156,23 +154,6 @@ class NotifierImpl extends DefaultNotifier implements Notifier, BlogNotifier, Ad
     }
 
     @Override
-    public void translationErrorOccured(long experiment, @Nullable Long fileMetaDataId) {
-        Map<String, Object> model = new HashMap<>();
-        if (fileMetaDataId != null) {
-            final String fileName = mailSendingHelper.fileName(fileMetaDataId);
-            model.put(FILE_NAME, fileName);
-        }
-        final SimpleDateFormat dateFormatter = new SimpleDateFormat("E, y-M-d 'at' h:m:s a z", Locale.ENGLISH);
-        model.put(FORMATTED_DATE, dateFormatter.format(new Date()));
-        final MailSendingHelper.ExperimentDetails experimentDetails = mailSendingHelper.experimentDetails(experiment);
-        model.put(EXPERIMENT_NAME, experimentDetails.name);
-        model.put(AUTHOR_EMAIL, experimentDetails.authorEmail);
-        for (String email : translationErrorEmails) {
-            send(email, getTemplateLocation("translationErrorOccured.vm"), model);
-        }
-    }
-
-    @Override
     public void sendFileReadyToDownloadNotification(long actor, Collection<Long> files) {
         Map<String, Object> model = new HashMap<>();
         final MailSendingHelper.UserDetails details = mailSendingHelper.userDetails(actor);
@@ -184,44 +165,6 @@ class NotifierImpl extends DefaultNotifier implements Notifier, BlogNotifier, Ad
         model.put(USER, details.name);
         model.put(DOWNLOAD_URL, downloadUrl.toString());
         send(details.email, getTemplateLocation("fileReadyTodownload.vm"), model);
-    }
-
-
-    @Override
-    public void sendProteinSearchSuccessNotification(long proteinSearchCreator, long proteinSearchId, String proteinSearchName, String experimentName) {
-        final Map<String, Object> model = new HashMap<>();
-        final MailSendingHelper.UserDetails details = mailSendingHelper.userDetails(proteinSearchCreator);
-
-        StringBuilder analysisUrl = new StringBuilder(baseUrl + "/pages/sequest-search-board.html#/protein-search/" + proteinSearchId + "/results?");
-
-        model.put(USER, details.name);
-        model.put(PROTEIN_SEARCH_ID, proteinSearchId);
-        model.put(PROTEIN_SEARCH_NAME, proteinSearchName);
-        model.put(EXPERIMENT_NAME, experimentName);
-        model.put(ANALYSIS_URL, analysisUrl);
-
-        send(details.email, getTemplateLocation("proteinSearchSuccessNotification.vm"), model);
-
-        inboxNotifier.notify(proteinSearchCreator, proteinSearchCreator, "Protein Search " + proteinSearchName + " has been successfully completed");
-    }
-
-    @Override
-    public void sendProteinSearchFailNotification(long proteinSearchCreator, long proteinSearchId, String proteinSearchName, String experimentName, String failedWorkflowStep, String errorMessage) {
-        final Map<String, Object> model = new HashMap<>();
-        final MailSendingHelper.UserDetails details = mailSendingHelper.userDetails(proteinSearchCreator);
-
-        model.put(USER, details.name);
-        model.put(PROTEIN_SEARCH_ID, proteinSearchId);
-        model.put(PROTEIN_SEARCH_NAME, proteinSearchName);
-        model.put(EXPERIMENT_NAME, experimentName);
-        model.put(ERROR_MESSAGE, errorMessage);
-        model.put(FAILED_WORKFLOW_STEP, failedWorkflowStep);
-
-//        send(details.email, "proteinSearchFailedNotification.vm", model);
-        for (String email : analysisRunEmails) {
-            send(email, getTemplateLocation("proteinSearchFailedNotification.vm"), model);
-        }
-        inboxNotifier.notify(proteinSearchCreator, proteinSearchCreator, "Protein Search " + proteinSearchName + " has failed");
     }
 
     @Override
@@ -252,21 +195,6 @@ class NotifierImpl extends DefaultNotifier implements Notifier, BlogNotifier, Ad
     }
 
     @Override
-    public void sendExportFileDownloadLinkEmail(long receiver, long proteinSearch, String proteinSearchName, String exportFileName, boolean inCsvFormat) {
-
-        final MailSendingHelper.UserDetails details = mailSendingHelper.userDetails(receiver);
-
-        final Map<String, Object> model = Maps.newHashMap();
-        model.put(USER, details.name);
-        model.put(PROTEIN_SEARCH_ID, proteinSearch);
-        model.put(PROTEIN_SEARCH_NAME, proteinSearchName);
-        model.put(FILE_DOWNLOAD_LINK, baseUrl + "/sequestSearch/export/datacube/" + (inCsvFormat ? "csv" : "zip") + "/ready?proteinSearch=" + proteinSearch + "&fileName=" + exportFileName);
-
-        send(details.email, getTemplateLocation("exportFileDownloadLink.vm"), model);
-
-    }
-
-    @Override
     public void sendFailedEmailsNotification(String email, Set<String> failedEmails, Set<Long> failedRecordsIds) {
 
         final Map<String, Object> model = Maps.newHashMap();
@@ -278,30 +206,4 @@ class NotifierImpl extends DefaultNotifier implements Notifier, BlogNotifier, Ad
 
     }
 
-    @Override
-    public void sendMicroArraysImportCompletedNotification(long receiver, long experimentId, String experimentName, long runId) {
-        final Map<String, Object> model = new HashMap<>();
-        final MailSendingHelper.UserDetails details = mailSendingHelper.userDetails(receiver);
-        final StringBuilder analysisUrl = new StringBuilder(baseUrl + "/pages/sequest-search-board.html#/protein-search/" + runId + "/results?");
-
-        model.put(USER, details.name);
-        model.put(PROTEIN_SEARCH_ID, runId);
-        model.put(EXPERIMENT_NAME, experimentName);
-        model.put(EXPERIMENT_ID, experimentId);
-        model.put(ANALYSIS_URL, analysisUrl);
-
-        send(details.email, getTemplateLocation("microArraysImportCompletedNotification.vm"), model);
-    }
-
-    @Override
-    public void sendMicroArraysImportFailedNotification(long receiver, String packageNumber, String errorMessage) {
-        final Map<String, Object> model = new HashMap<>();
-        final MailSendingHelper.UserDetails details = mailSendingHelper.userDetails(receiver);
-
-        model.put(USER, details.name);
-        model.put(PACKAGE_NUMBER, packageNumber);
-        model.put(ERROR_MESSAGE, errorMessage);
-
-        send(details.email, getTemplateLocation("microArraysImportFailedNotification.vm"), model);
-    }
 }

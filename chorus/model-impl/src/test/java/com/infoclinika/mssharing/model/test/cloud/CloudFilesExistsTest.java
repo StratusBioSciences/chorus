@@ -16,7 +16,7 @@ import java.util.Scanner;
  */
 
 //@Configuration
-//@ImportResource({"test.cfg.xml", "persistence.cfg.xml", "../../../../../../../../main/resources/mysql.cfg.xml", "workflow.cfg.xml"})
+//@ImportResource({"test.cfg.xml", "persistence.cfg.xml", "../../../../../../../../main/resources/mysql.cfg.xml"})
 //@ComponentScan(basePackages = {"com.infoclinika.mssharing.model", "com.infoclinika.mssharing.platform"}, excludeFilters = {@ComponentScan.Filter(type = FilterType.REGEX, pattern = "com.*DefaultRuleValidator*")})
 
 public class CloudFilesExistsTest extends AbstractTest {

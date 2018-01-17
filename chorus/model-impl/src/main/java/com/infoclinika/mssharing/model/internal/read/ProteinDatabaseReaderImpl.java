@@ -52,7 +52,7 @@ public class ProteinDatabaseReaderImpl implements ProteinDatabaseReader {
         @Override
         public ProteinDBLine apply(ProteinDatabase pd) {
             return new ProteinDBLine(pd.getId(), pd.getName(), pd.getSpecie().getName(), pd.getUploadDate(),
-                    pd.isbPublic(), pd.getUser().getId(), false, pd.isReversed());
+                    pd.isbPublic(), pd.getUser().getId(), pd.isReversed());
         }
     };
 
@@ -96,7 +96,7 @@ public class ProteinDatabaseReaderImpl implements ProteinDatabaseReader {
             throw new AccessDenied("User " + user + " cannot read protein database " + proteinDatabaseId);
         }
         final ProteinDatabase pd = proteinDatabaseRepository.findOne(proteinDatabaseId);
-        return new ProteinDBDetails(pd.getId(), pd.getName(), pd.getSpecie().getId(), pd.getSpecie().getName(), false,
+        return new ProteinDBDetails(pd.getId(), pd.getName(), pd.getSpecie().getId(), pd.getSpecie().getName(),
                 pd.getContentId() != null ? new CloudStorageItemReference(targetBucket, pd.getContentId()) : null,
                 ProteinDBDetails.Status.valueOf(pd.getStatus().name()), pd.getUser().getId().equals(user));
     }

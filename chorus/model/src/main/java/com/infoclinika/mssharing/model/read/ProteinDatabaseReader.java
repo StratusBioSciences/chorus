@@ -56,18 +56,16 @@ public interface ProteinDatabaseReader {
         public final String name;
         public final long typeId;
         public final String typeName;
-        public final boolean usedInProteinSearches;
         public final CloudStorageItemReference remoteProteinDbRef;
         public final Status status;
         public final boolean accessible;
 
-        public ProteinDBDetails(long id, String name, long typeId, String typeName, boolean usedInProteinSearches,
+        public ProteinDBDetails(long id, String name, long typeId, String typeName,
                                 CloudStorageItemReference remoteProteinDbRef, Status status, boolean accessible) {
             this.id = id;
             this.name = name;
             this.typeId = typeId;
             this.typeName = typeName;
-            this.usedInProteinSearches = usedInProteinSearches;
             this.remoteProteinDbRef = remoteProteinDbRef;
             this.status = status;
             this.accessible = accessible;
@@ -86,16 +84,14 @@ public interface ProteinDatabaseReader {
         public final boolean bPublic;
         public final boolean bReversed;
         public final long ownerId;
-        public final boolean usedInProteinSearches;
 
-        public ProteinDBLine(long id, String name, String typeName, Date uploadDate, boolean bPublic, long ownerId, boolean usedInProteinSearches, boolean bReversed) {
+        public ProteinDBLine(long id, String name, String typeName, Date uploadDate, boolean bPublic, long ownerId, boolean bReversed) {
             this.id = id;
             this.name = name;
             this.typeName = typeName;
             this.uploadDate = uploadDate;
             this.bPublic = bPublic;
             this.ownerId = ownerId;
-            this.usedInProteinSearches = usedInProteinSearches;
             this.bReversed = bReversed;
         }
     }

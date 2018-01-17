@@ -44,8 +44,6 @@ public class AdminToolsController extends ErrorHandler {
     private BillingService billingService;
     @Inject
     private RunDemoDataCreator runDemoDataCreator;
-    @Inject
-    private StudyManagement studyManagement;
 
     @RequestMapping(value = "/notification", method = RequestMethod.POST)
     public void broadcastNotification(@RequestBody AdminBroadcastNotificationRequest request, Principal principal) {
@@ -79,17 +77,6 @@ public class AdminToolsController extends ErrorHandler {
     public void checkIsFilesSizeConsistent(Principal principal) {
         final long actor = getUserId(principal);
         fileOperationsManager.checkIsFilesConsistent(actor);
-    }
-
-
-    /**
-     * It removes all post processing template of particular run and then adds the most common post processing template for processing run(ID of run passed through GET parameters)
-     * Use it wisely.
-     */
-    @RequestMapping(value = "/generate-post-processing-datacubes/{runID}", method = RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
-    public void addPostTemplateToExecuteForRun(@PathVariable("runID") long runID, final String postTemplateName) {
-        throw new UnsupportedOperationException();
     }
 
     @RequestMapping(value = "/run-billing-migration", method = RequestMethod.GET)

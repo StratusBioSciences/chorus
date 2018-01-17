@@ -34,8 +34,7 @@ import static org.mockito.Mockito.mock;
 @ImportResource({
         "test.cfg.xml",
         "persistence.cfg.xml",
-        "h2.cfg.xml",
-        "workflow-test.cfg.xml"
+        "h2.cfg.xml"
 })
 @ComponentScan(
         basePackages = {

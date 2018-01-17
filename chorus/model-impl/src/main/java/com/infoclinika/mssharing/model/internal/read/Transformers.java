@@ -502,23 +502,6 @@ public class Transformers extends DefaultTransformers {
         final boolean canUnarchive = labOpt.isPresent() && info.canUnarchiveExperiment > 0 && billingFeaturesHelper.isFeatureEnabled(labOpt.get().getId(), BillingFeature.ANALYSE_STORAGE);
         final Long labToUseForSearch = labOpt.isPresent() ? labOpt.get().getId() : null;
         // define whether Processing is possible for an experiment
-        final boolean proteinSearchEnabled;
-        final String proteinSearchEnabledErrorMessage;
-        if (labToUseForSearch == null) {
-            proteinSearchEnabled = false;
-            proteinSearchEnabledErrorMessage = null;
-        } else {
-            if (!ruleValidator.canLabUseProteinIdSearch(labToUseForSearch)) {
-                proteinSearchEnabled = false;
-                proteinSearchEnabledErrorMessage = "Processing is not enabled for the experiment lab.";
-            } else if (record.getExperimentCategory() == ExperimentCategory.PROTEOMICS) {
-                proteinSearchEnabled = false;
-                proteinSearchEnabledErrorMessage = "All files of experiment should be translated in order to make processing.";
-            } else {
-                proteinSearchEnabled = true;
-                proteinSearchEnabledErrorMessage = null;
-            }
-        }
 
         return new ExperimentLine(record.getId(),
                 DefaultTransformers.labLineTemplateTransformer().apply(record.getLab()),
@@ -536,8 +519,6 @@ public class Transformers extends DefaultTransformers {
                 canArchive,
                 canUnarchive,
                 record.getAnalyzesCount(),
-                proteinSearchEnabled,
-                proteinSearchEnabledErrorMessage,
                 labOpt.map(EntityUtil.ENTITY_TO_ID::apply).orElse(null),
                 record.getCreator().getId(),
                 transformExperimentColumns(record)
@@ -564,8 +545,6 @@ public class Transformers extends DefaultTransformers {
                     experiment.canArchive,
                     experiment.canUnarchive,
                     experiment.analyzesCount,
-                    experiment.proteinSearchEnabled,
-                    experiment.proteinSearchEnabledErrorMessage,
                     experiment.billLab,
                     experiment.owner,
                     new DashboardReader.ExperimentColumns(experiment.name, experiment.creator, experiment.lab.name,
@@ -825,7 +804,6 @@ public class Transformers extends DefaultTransformers {
                         Collections2.transform(instrument.getOperators(), EntityUtil.ENTITY_TO_ID),
                         transformStorageStatus(input.getStorageData().getStorageStatus(), input.getStorageData().isArchivedDownloadOnly()),
                         input.isSizeConsistent(),
-                        false,
                         input.isToReplace(), model.getStudyType().getName());
             }
         };
@@ -919,7 +897,6 @@ public class Transformers extends DefaultTransformers {
                 getChartsLink(Collections.singletonList(input.getId())),
                 transformStorageStatus(input.getStorageData().getStorageStatus(), input.getStorageData().isArchivedDownloadOnly()),
                 input.isSizeConsistent(), columns,
-                false,
                 input.isToReplace(), instrument.getModel().getStudyType().getName());
     }
 

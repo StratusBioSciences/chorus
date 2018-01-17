@@ -231,11 +231,6 @@ public class RuleValidatorImpl extends DefaultRuleValidator<ActiveExperiment, Ac
     }
 
     @Override
-    public boolean canRemoveProteinSearch(long actor, long experimentRunId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public boolean canRestoreFile(long actor, DeletedFileMetaData file) {
         return (file.getOwner().getId().equals(actor) || file.getInstrument().getLab().getHead().getId().equals(actor))
                 && !fileHasDuplicateName(file);
@@ -262,37 +257,7 @@ public class RuleValidatorImpl extends DefaultRuleValidator<ActiveExperiment, Ac
     }
 
     @Override
-    public boolean isUserCanReadProteinSearches(long actor, long experimentId) {
-
-        final ActiveExperiment experiment = checkPresence(experimentRepository.findOne(experimentId));
-        final Optional<Lab> labOpt = getExperimentLab(experiment);
-
-        if(!labOpt.isPresent()) {
-            return false;
-        }
-
-        boolean enabledForLab = isFeatureEnabledForLab(PROTEIN_ID_SEARCH, labOpt.get().getId());
-        return enabledForLab && (validatorPredicates.isUserCanReadExperiment(actor).apply(experiment) || isAdmin(actor));
-    }
-
-
-    @Override
-    public boolean canUserCreateProteinSearchWithTitle(long actor, long experiment, String runName) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public boolean hasAdminRights(long actor) {
-        return isAdmin(actor);
-    }
-
-    @Override
-    public boolean userHasPermissionToRunProteinIDSearches(long actor, List<Long> experimentSearches) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean userCanReadProteinSearchStatuses(long actor) {
         return isAdmin(actor);
     }
 
@@ -418,12 +383,6 @@ public class RuleValidatorImpl extends DefaultRuleValidator<ActiveExperiment, Ac
     }
 
     @Override
-    public boolean canLabUseProteinIdSearch(long lab) {
-        return isFeatureEnabledForLab(PROTEIN_ID_SEARCH, lab)
-                && isBillingFeatureEnabledForLab(BillingFeature.PROCESSING, lab);
-    }
-
-    @Override
     public boolean canRemoveFile(long actor, long file) {
 
         final boolean removeFile = super.canRemoveFile(actor, file);
@@ -458,16 +417,6 @@ public class RuleValidatorImpl extends DefaultRuleValidator<ActiveExperiment, Ac
     }
 
     @Override
-    public boolean canCreateWorkflow(long actor) {
-        return findUser(actor).isAdmin();
-    }
-
-    @Override
-    public boolean isUserCanReadWorkflow(long actor) {
-        return true;
-    }
-
-    @Override
     public boolean canModifyAnnotationAttachment(long actor, long annotationAttachment) {
         final AnnotationAttachment attachment = annotationAttachmentRepository.findOne(annotationAttachment);
         return attachment.getOwner().getId().equals(actor);
@@ -499,46 +448,12 @@ public class RuleValidatorImpl extends DefaultRuleValidator<ActiveExperiment, Ac
     }
 
     @Override
-    public boolean canCreatePostProcessingPipeline(long actor) {
-        return isAdmin(actor);
-    }
-
-    @Override
     public boolean canImportMicroArrays(long actor, long lab) {
         return isFeatureEnabledForLab(MICROARRAYS, lab);
     }
 
     @Override
     public boolean shouldSearchResultsBePersistedInBlibFile(long run) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean canUserReadProteinSearchAttachment(long actor, long attachmentId) {
-        return isAdminOrProteinSearchAttachmentOwner(actor, attachmentId);
-    }
-
-    @Override
-    public boolean canUserManageProteinSearchAttachment(long actor, long attachmentId) {
-        return isAdminOrProteinSearchAttachmentOwner(actor, attachmentId);
-    }
-
-    @Override
-    public boolean canUserManageProteinSearchAttachments(long actor) {
-        return isAdmin(actor) ||
-                userRepository
-                        .findOne(actor)
-                        .getLabs()
-                        .stream()
-                        .anyMatch(l -> canLabUseProteinIdSearch(l.getId()));
-    }
-
-    @Override
-    public boolean isProteinSearchOwner(long actor, long proteinSearchId) {
-        throw new UnsupportedOperationException();
-    }
-
-    private boolean isAdminOrProteinSearchAttachmentOwner(long actor, long attachmentId) {
         throw new UnsupportedOperationException();
     }
 

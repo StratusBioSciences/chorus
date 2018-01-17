@@ -15,7 +15,6 @@
     <bean id="ruleValidator" name="validator, ruleValidator" class="com.infoclinika.mssharing.model.internal.RuleValidatorImpl"/>
 
     <import resource="persistence.cfg.xml"/>
-    <import resource="workflow.cfg.xml"/>
     <import resource="classpath*:platform.cfg.xml"/>
     <import resource="classpath*:fileserver.cfg.xml"/>
 

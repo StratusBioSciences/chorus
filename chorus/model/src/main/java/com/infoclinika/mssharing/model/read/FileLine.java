@@ -14,19 +14,11 @@ public class FileLine extends FileReaderTemplate.FileLineTemplate {
     public final String archiveId;
     public final Date lastPingDate;
     public final boolean isArchive;
-//    public final DashboardReader.TranslationStatus status;
-//    public final String translationErrorMessage;
     public final Collection<Long> operators;
-//    public final boolean translatedSuccessfully;
-//    public final boolean sentForTranslation;
     public final String msChartsUrl;
     public final DashboardReader.StorageStatus storageStatus;
     public final boolean sizeIsConsistent;
-
     public final DashboardReader.FileColumns columns;
-
-    public final boolean usedInProteinSearches;
-//    public final ImmutableSet<FileUserFunctionInfoItem> labsWhereTranslated;
 
     public final boolean toReplace;
     public final String instrumentStudyType;
@@ -56,7 +48,6 @@ public class FileLine extends FileReaderTemplate.FileLineTemplate {
                     Collection<Long> operators,
                     DashboardReader.StorageStatus storageStatus,
                     boolean sizeIsConsistent,
-                    boolean usedInProteinSearches,
                     boolean toReplace,
                     String instrumentStudyType) {
 
@@ -69,7 +60,6 @@ public class FileLine extends FileReaderTemplate.FileLineTemplate {
         this.msChartsUrl = msChartsUrl;
         this.storageStatus = storageStatus;
         this.sizeIsConsistent = sizeIsConsistent;
-        this.usedInProteinSearches = usedInProteinSearches;
         this.toReplace = toReplace;
         this.instrumentStudyType = instrumentStudyType;
     }
@@ -79,7 +69,7 @@ public class FileLine extends FileReaderTemplate.FileLineTemplate {
                     Collection<Long> operators,
                     String msChartsUrl,
                     DashboardReader.StorageStatus storageStatus, boolean sizeIsConsistent,
-                    DashboardReader.FileColumns columns, boolean usedInProteinSearches,
+                    DashboardReader.FileColumns columns,
                      boolean toReplace, String instrumentStudyType) {
         super(other);
         this.archiveId = archiveId;
@@ -90,7 +80,6 @@ public class FileLine extends FileReaderTemplate.FileLineTemplate {
         this.storageStatus = storageStatus;
         this.sizeIsConsistent = sizeIsConsistent;
         this.columns = columns;
-        this.usedInProteinSearches = usedInProteinSearches;
         this.toReplace = toReplace;
         this.instrumentStudyType = instrumentStudyType;
     }

@@ -26,9 +26,9 @@ public interface LabRepositoryTemplate<LAB extends LabTemplate> extends JpaRepos
     @Query("select l from #{#entityName} l ")
     Page<LAB> finaPagedAll(Pageable request);
 
-    @Query("select case when f is not null then sum(f.sizeInBytes) else 0 end " +
+    @Query("select sum(f.sizeInBytes) " +
             "from FileMetaDataTemplate f join f.instrument i join i.lab l where l.id = :labId")
-    long uploadedDataSize(@Param("labId") long labId);
+    Long uploadedDataSize(@Param("labId") long labId);
 
     @Query("select l from #{#entityName} l join l.labMemberships lm where lm.user.id=:user ")
     List<LAB> findForUser(@Param("user") long user);

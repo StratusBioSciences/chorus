@@ -1072,7 +1072,7 @@ public class ExperimentTest extends AbstractStudyTest {
     }
 
     private long createFile(long bob, long species, long model, String name) {
-        final long file = instrumentManagement.createFile(bob, createInstrumentByModel(bob, uc.getLab3(), model), new FileMetaDataInfo(name, 0, "", null, species, false, false));
+        final long file = instrumentManagement.createFile(bob, createInstrumentByModel(bob, uc.getLab3(), model), new FileMetaDataInfo(name, 0, "", null, species, false));
         uc.updateFileContent(bob, file);
         return file;
     }

@@ -118,7 +118,6 @@ public interface DashboardReader extends
         public String userName;
         public String userLabels;
         public String fileCondition;
-        public String translateFlag;
         public String instrumentSerialNumber;
         public String phone;
         public String instrumentName;
@@ -167,10 +166,6 @@ public interface DashboardReader extends
             this.files = files;
             this.modified = modified;
         }
-    }
-
-    enum TranslationStatus {
-        NOT_STARTED, IN_PROGRESS, FAILURE, SUCCESS
     }
 
     enum StorageStatus {
@@ -378,11 +373,10 @@ public interface DashboardReader extends
         public final Date uploadDate;
         public final Date acquisitionDate;
         public final long fileSizeBytes;
-        public final boolean translated;
         public final long ownerId;
 
         public UploadedFile(long id, String name, String instrumentName, String instrumentModel,
-                            Date uploadDate, Date acquisitionDate, long fileSizeBytes, boolean translated, long ownerId) {
+                            Date uploadDate, Date acquisitionDate, long fileSizeBytes, long ownerId) {
             this.id = id;
             this.name = name;
             this.instrumentName = instrumentName;
@@ -390,7 +384,6 @@ public interface DashboardReader extends
             this.uploadDate = uploadDate;
             this.acquisitionDate = acquisitionDate;
             this.fileSizeBytes = fileSizeBytes;
-            this.translated = translated;
             this.ownerId = ownerId;
         }
 
@@ -410,7 +403,6 @@ public interface DashboardReader extends
             if (fileSizeBytes != that.fileSizeBytes) return false;
             if (id != that.id) return false;
             if (ownerId != that.ownerId) return false;
-            if (translated != that.translated) return false;
             if (acquisitionDate != null ? !acquisitionDate.equals(that.acquisitionDate) : that.acquisitionDate != null)
                 return false;
             if (instrumentModel != null ? !instrumentModel.equals(that.instrumentModel) : that.instrumentModel != null)
@@ -432,7 +424,6 @@ public interface DashboardReader extends
             result = 31 * result + (uploadDate != null ? uploadDate.hashCode() : 0);
             result = 31 * result + (acquisitionDate != null ? acquisitionDate.hashCode() : 0);
             result = 31 * result + (int) (fileSizeBytes ^ (fileSizeBytes >>> 32));
-            result = 31 * result + (translated ? 1 : 0);
             result = 31 * result + (int) (ownerId ^ (ownerId >>> 32));
             return result;
         }
@@ -447,7 +438,6 @@ public interface DashboardReader extends
                     ", uploadDate=" + uploadDate +
                     ", acquisitionDate=" + acquisitionDate +
                     ", fileSizeBytes=" + fileSizeBytes +
-                    ", translated=" + translated +
                     ", ownerId=" + ownerId +
                     '}';
         }

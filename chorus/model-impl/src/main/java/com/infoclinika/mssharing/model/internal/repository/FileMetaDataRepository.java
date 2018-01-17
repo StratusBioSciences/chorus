@@ -222,23 +222,10 @@ public interface FileMetaDataRepository extends FileRepositoryTemplate<ActiveFil
     @Query("select f " + SELECT_UNFINISHED_FILE_BY_USER)
     List<ActiveFileMetaData> unfinishedByUser(@Param("user") long actor);
 
-    @Query("select count(*) from  ActiveFileMetaData f join f.usersFunctions uf where uf.functions is not empty")
-    long reTranslatedCount();
-
-    @Query("select count(*) from  ActiveFileMetaData f join f.usersFunctions uf where uf.translationStatus.translationSubmitted = true")
-    long sentForTranslationCount();
-
-    @Query("select new com.infoclinika.mssharing.model.internal.repository.TranslatedFileIdInExperiment(e.id, rawFile.fileMetaData.id) " +
-            "from ActiveExperiment e join e.rawFiles.data rawFile where rawFile.fileMetaData.usersFunctions is not empty")
-    List<TranslatedFileIdInExperiment> findTranslatedFilesWithExperiments();
-
     @Query("select new com.infoclinika.mssharing.model.internal.repository.FileLastAccess(e.id, e.contentId," +
             " e.lastAccess, e.archiveId, lab.id) " +
             "from ActiveFileMetaData e join e.instrument i join i.lab lab")
     List<FileLastAccess> findLastAccessForAll();
-
-    @Query("select f.id from ActiveFileMetaData f join f.usersFunctions uf where uf.translationStatus.toTranslate = true")
-    List<Long> findFileIdsMarkedForTranslation();
 
     @Query(SELECT_CLAUSE + " join f.instrument i join i.lab where f.storageData.storageStatus " +
             " = com.infoclinika.mssharing.model.internal.entity.restorable.StorageData$Status.ARCHIVED ")
@@ -264,9 +251,6 @@ public interface FileMetaDataRepository extends FileRepositoryTemplate<ActiveFil
     @Query("select f.id from ActiveFileMetaData f where f.storageData.toArchive = true ")
     List<Long> findIdsMarkedForArchiving();
 
-    @Query("select f.id from ActiveFileMetaData f join f.usersFunctions uf where uf.toTempFolder = true ")
-    List<Long> findIdsMarkedForMoveToTemp();
-
     @Query(SELECT_CLAUSE + " join fetch f.instrument i join fetch i.lab where f.destinationPath = :path")
     ActiveFileMetaData findByDestinationPath(@Param("path") String path);
 
@@ -277,10 +261,6 @@ public interface FileMetaDataRepository extends FileRepositoryTemplate<ActiveFil
     @Transactional
     @Query("update ActiveFileMetaData f set f.lastChargingSumDate=:date where f.id=:file")
     void updateLastChargingSumDate(@Param("file") long file, @Param("date") Date date);
-
-    @Query(SELECT_CLAUSE + " join f.instrument i join i.lab where f.storageData.storageStatus " +
-            " = com.infoclinika.mssharing.model.internal.entity.restorable.StorageData$Status.ARCHIVED and size(f.usersFunctions) > 0 ")
-    List<ActiveFileMetaData> findAllArchivedWithTranslationData();
 
     @Query("select min(p.sharing.type) from ActiveExperiment e join e.rawFiles.data d join e.project p" +
             " where :file = d.fileMetaData.id")
@@ -293,11 +273,9 @@ public interface FileMetaDataRepository extends FileRepositoryTemplate<ActiveFil
             "left join f.instrument i " +
             "left join i.lab l " +
             "left join f.owner u " +
-            "left join f.usersFunctions uf " +
             "where l.id not in(1,2,8,68,69,90,250) " +
             "and (f.contentId is not null or f.archiveId is not null) " +
-            "and f.sizeIsConsistent = false " +
-            "and (select count(*) from UserLabFileTranslationData td where td in(uf) and size(td.functions) > 0) = 0")
+            "and f.sizeIsConsistent = false ")
     List<Long> getInconsistentFilesIds();
 
     @Query("select f from ActiveFileMetaData f left join f.instrument instrument left join instrument.lab lab left join f.owner own" +

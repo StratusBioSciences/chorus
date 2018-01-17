@@ -48,10 +48,7 @@ public class ExperimentDashboardRecord {
     private long numberOfFiles;
     private int analyzesCount;
     private Date lastModification;
-    private boolean translated;
     private boolean deleted;
-    private String translationError;
-    private Date lastTranslationAttempt;
     private String downloadToken;
     private String labName;
     @Transient
@@ -62,8 +59,7 @@ public class ExperimentDashboardRecord {
 
 
     public ExperimentDashboardRecord(Long id, String name, Lab lab, AbstractProject project, User creator, Long numberOfFiles,
-                                     Date lastModification, Boolean translated, String translationError,
-                                     Date lastTranslationAttempt, String downloadToken, boolean deleted) {
+                                     Date lastModification, String downloadToken, boolean deleted) {
         this.id = id;
         this.name = name;
         this.lab = lab;
@@ -71,16 +67,12 @@ public class ExperimentDashboardRecord {
         this.creator = creator;
         this.numberOfFiles = numberOfFiles;
         this.lastModification = lastModification;
-        this.translated = translated;
-        this.translationError = translationError;
-        this.lastTranslationAttempt = lastTranslationAttempt;
         this.downloadToken = downloadToken;
         this.deleted = deleted;
     }
 
     public ExperimentDashboardRecord(Long id, String name, Lab lab, AbstractProject project, User creator, Long numberOfFiles,
-                                     Date lastModification, Boolean translated, String translationError,
-                                     Date lastTranslationAttempt, String downloadToken,
+                                     Date lastModification, String downloadToken,
                                      ExperimentCategory experimentCategory) {
         this.id = id;
         this.name = name;
@@ -89,9 +81,6 @@ public class ExperimentDashboardRecord {
         this.creator = creator;
         this.numberOfFiles = numberOfFiles;
         this.lastModification = lastModification;
-        this.translated = translated;
-        this.translationError = translationError;
-        this.lastTranslationAttempt = lastTranslationAttempt;
         this.downloadToken = downloadToken;
         this.experimentCategory = experimentCategory;
     }
@@ -143,18 +132,6 @@ public class ExperimentDashboardRecord {
 
     public Date getLastModification() {
         return lastModification;
-    }
-
-    public boolean isTranslated() {
-        return translated;
-    }
-
-    public String getTranslationError() {
-        return translationError;
-    }
-
-    public Date getLastTranslationAttempt() {
-        return lastTranslationAttempt;
     }
 
     public String getDownloadToken() {

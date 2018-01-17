@@ -28,7 +28,7 @@ public class DtoTransformer extends FunctionTransformerAbstract {
         @Override
         public InstrumentManagement.UploadFileItem apply(@Nullable UploadFilesDTORequest.UploadFile item) {
             return new InstrumentManagement.UploadFileItem(item.getName(),
-                    item.getLabels(), item.getSize(), item.getSpecie(), item.isArchive(), false);
+                    item.getLabels(), item.getSize(), item.getSpecie(), item.isArchive());
         }
     };
 

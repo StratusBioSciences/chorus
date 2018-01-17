@@ -166,7 +166,6 @@ public class NoS3StorageLogHelperImpl implements StorageLogHelper {
                     date,
                     ownerFullName, instrumentName,
                     0, fileName);
-            setTranslatedValues(file, entry);
             entry.setDay(paymentCalculations.calculationDaySinceEpoch(date));
             hourlyUsageRepository.save(entry);
 
@@ -187,13 +186,5 @@ public class NoS3StorageLogHelperImpl implements StorageLogHelper {
             throw new RuntimeException("File doesn't have content ID.");
         }
     }
-
-    private void setTranslatedValues(ActiveFileMetaData file, AnalyzableStorageUsage entry) {
-        if (!file.getUsersFunctions().isEmpty() && file.getUsersFunctions().iterator().next().getTranslationStatus().isTranslationSubmitted()) {
-            entry.setTranslatedBytes(536870912);
-            entry.setTranslatedCharge(0);
-        }
-    }
-
 
 }

@@ -26,6 +26,5 @@ public class FileManagementImpl extends DefaultFileManagement<ActiveFileMetaData
         updated.setLastAccess(current);
         updated.setArchive(fileMetaDataInfo.archive);
         updated.setLastPingDate(current);
-        updated.setAutotranslate(fileMetaDataInfo.autotranslate);
     }
 }

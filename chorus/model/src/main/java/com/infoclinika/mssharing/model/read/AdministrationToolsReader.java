@@ -26,42 +26,7 @@ import com.infoclinika.mssharing.platform.model.PagedItemInfo;
 @Transactional(readOnly = true)
 public interface AdministrationToolsReader {
 
-    ImmutableSet<ExperimentTranslationShortItem> readExperimentTranslationStatuses(long actor);
-
-    PagedItem<ExperimentTranslationShortItem> readExperimentTranslationStatuses(long actor, PagedItemInfo pagedItem);
-
     ImmutableSortedSet<NewsLine> readNewsItems(long actor);
-
-    PagedItem<FileTranslationShortItem> readFileTranslationStatuses(long actor, PagedItemInfo pagedItem);
-
-    /**
-     *
-     * @return value from 0..100
-     */
-    float alreadyTranslatedPercent();
-
-    class ExperimentTranslationShortItem {
-        public final long experimentId;
-        public final String experimentName;
-        public final String labName;
-        public final String owner;
-        public final boolean translationSubmitted;
-        public final String chartsUrl;
-        public final String traslationError;
-
-
-        public ExperimentTranslationShortItem(long experimentId, String experimentName, String labName,
-                                              String owner, boolean translationSubmitted, String chartsUrl, String traslationError) {
-            this.experimentId = experimentId;
-            this.experimentName = experimentName;
-            this.labName = labName;
-            this.owner = owner;
-            this.translationSubmitted = translationSubmitted;
-            this.chartsUrl = chartsUrl;
-            this.traslationError = traslationError;
-        }
-    }
-
 
     class NewsLine {
         public final long id;
@@ -77,32 +42,4 @@ public interface AdministrationToolsReader {
         }
     }
 
-    public static class  FileTranslationShortItem  {
-        public final long id;
-        public final String name;
-        public final String labName;
-        public final String owner;
-        public final String instrumentName;
-        public final boolean translationSubmitted;
-        public final String translationError;
-        public final boolean translationResultsAvailable;
-        public final boolean metadataAvailable;
-        public final boolean usedInExperiment;
-
-        public FileTranslationShortItem(long id, String name, String labName, String owner, String instrumentName,
-                                        boolean translationSubmitted, String translationError,
-                                        boolean translationResultsAvailable, boolean metadataAvailable,
-                                        boolean usedInExperiment) {
-            this.id = id;
-            this.name = name;
-            this.labName = labName;
-            this.owner = owner;
-            this.instrumentName = instrumentName;
-            this.translationSubmitted = translationSubmitted;
-            this.translationError = translationError;
-            this.translationResultsAvailable = translationResultsAvailable;
-            this.metadataAvailable = metadataAvailable;
-            this.usedInExperiment = usedInExperiment;
-        }
-    }
 }

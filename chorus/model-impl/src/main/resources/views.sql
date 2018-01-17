@@ -45,17 +45,6 @@ create or replace view project_access_view as select distinct u.id USER_id, p.id
 
 DROP TABLE IF EXISTS billing_user_function_item_view;
 
-CREATE  OR REPLACE  VIEW billing_user_function_item_view
-
-  AS select
-     utd.file_id AS file_id,
-     utd.lab_id AS lab_id,
-     utd.user_id AS user_id,
-     mfi.translatedPath AS path,
-     CONCAT(u.firstName ,' ' ,u.lastName) as user_name
-
-  from user_translation_data utd join user_translation_data_ms_function utdmf on utdmf.user_translation_data_id = utd.id
-    join MSFunctionItem mfi on mfi.id = utdmf.functions_id JOIN USER u on u.id=utd.user_id;
 
 DROP TABLE IF EXISTS billing_file_view;
 

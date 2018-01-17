@@ -153,7 +153,7 @@ public class ManagingFilesTest extends AbstractInstrumentTest {
 
         final long fileSize = 1048576;
         final long file = instrumentManagement.startUploadFile(bob, instrument.get(),
-                new FileMetaDataInfo(UUID.randomUUID().toString(), fileSize, "", null, unspecified(), false, false));
+                new FileMetaDataInfo(UUID.randomUUID().toString(), fileSize, "", null, unspecified(), false));
         instrumentManagement.completeMultipartUpload(bob, file, "raw-files/2/1/c15092005_000.RAW");
 
         final FileLine fileBeforeCheck = fileReader.readFiles(bob, Filter.ALL).iterator().next();

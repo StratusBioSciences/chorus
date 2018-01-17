@@ -19,7 +19,6 @@ import static com.google.common.collect.Sets.newHashSet;
 public class InstrumentCreationRequest extends InstrumentCreationRequestTemplate<User, Lab> {
 
     private String hplc;
-    private boolean autoTranslate = false;
 
     @ElementCollection
     @CollectionTable(
@@ -33,7 +32,7 @@ public class InstrumentCreationRequest extends InstrumentCreationRequestTemplate
 
     public InstrumentCreationRequest(String name, User requester, InstrumentModel model,
                                      String serialNumber, String hplc, String peripherals,
-                                     Lab lab, boolean autoTranslate, Date requestDate) {
+                                     Lab lab, Date requestDate) {
         this.setName(name);
         this.setRequester(requester);
         this.setModel(model);
@@ -41,7 +40,6 @@ public class InstrumentCreationRequest extends InstrumentCreationRequestTemplate
         this.setPeripherals(peripherals);
         this.setLab(lab);
         this.setRequestDate(requestDate);
-        this.autoTranslate = autoTranslate;
         this.hplc = hplc;
     }
 
@@ -51,14 +49,6 @@ public class InstrumentCreationRequest extends InstrumentCreationRequestTemplate
 
     public void setHplc(String hplc) {
         this.hplc = hplc;
-    }
-
-    public boolean isAutoTranslate() {
-        return autoTranslate;
-    }
-
-    public void setAutoTranslate(boolean autoTranslate) {
-        this.autoTranslate = autoTranslate;
     }
 
     public Set<LockMz> getLockMasses() {

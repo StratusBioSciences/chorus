@@ -70,11 +70,6 @@
                                         </span>
                                     </li>
 
-                                    <li set-if="experiment.files > 0">
-                                        <a title="Translation" class=" " ng-click="showViewerStatus(experiment)"><i
-                                                class="icon status"></i>Translation</a>
-                                    </li>
-
                                     <li set-if="experiment.proteinSearchEnabled">
                                         <a title=">Processing Runs"  href="/error/404.html"><i
                                                 class="icon processing-runs"></i>Processing Runs</a>
@@ -108,8 +103,6 @@
                             </div>
                         </div>
                         <div class="name ellipsize">
-                            <a href="/error/404.html"><i class="icon experiment-status translation-status {{ experiment.statusObject.class }}"
-                                                         title="{{ experiment.statusObject.title }}"></i></a>
                             <i ng-show="experiment.accessLevel == 'PUBLIC'" class="icon public"
                                title="Public Experiment"></i>
                             <i ng-show="experiment.accessLevel == 'PRIVATE'" class="icon private"

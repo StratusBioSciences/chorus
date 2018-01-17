@@ -27,22 +27,17 @@ public class InstrumentReaderImpl extends DefaultAccessedInstrumentReader<Instru
 
     @Override
     public InstrumentLine transform(AccessedInstrument<Instrument> accessed) {
-        return new InstrumentLine(
-                instrumentReaderHelper.getDefaultTransformer().apply(accessed),
-                accessed.instrument.isAutoTranslate()
-        );
+        return new InstrumentLine(instrumentReaderHelper.getDefaultTransformer().apply(accessed));
     }
 
     @Override
     public SortedSet<? extends InstrumentItem> readInstrumentItemsWhereUserIsOperator(long actor) {
         //noinspection unchecked
         return instrumentReaderHelper.readOperatedInstruments(actor)
-                .transform(new Function<AccessedInstrument<Instrument>, InstrumentItemImpl>() {
+                .transform(new Function<AccessedInstrument<Instrument>, InstrumentItem>() {
                     @Override
-                    public InstrumentItemImpl apply(AccessedInstrument<Instrument> input) {
-                        final InstrumentItem in = transformers.instrumentItemTransformer().apply(input.instrument);
-                        //        add autotranslate field
-                        return new InstrumentItemImpl(in.id, in.name, in.vendor, in.lab, in.serial, in.creator, input.instrument.isAutoTranslate());
+                    public InstrumentItem apply(AccessedInstrument<Instrument> input) {
+                        return transformers.instrumentItemTransformer().apply(input.instrument);
                     }
                 })
                 .toSortedSet(transformers.instrumentItemComparator());
@@ -53,7 +48,7 @@ public class InstrumentReaderImpl extends DefaultAccessedInstrumentReader<Instru
         final FluentIterable<AccessedInstrument<Instrument>> entities = instrumentReaderHelper.readOperatedInstruments(actor).getEntities();
         return entities
                 .filter(input -> input.instrument.getModel().getId().equals(instrumentModel))
-                .transform(input -> new InstrumentLine(instrumentReaderHelper.getDefaultTransformer().apply(input), input.instrument.isAutoTranslate()))
+                .transform(input -> new InstrumentLine(instrumentReaderHelper.getDefaultTransformer().apply(input)))
                 .toList();
     }
 
@@ -65,16 +60,6 @@ public class InstrumentReaderImpl extends DefaultAccessedInstrumentReader<Instru
         return instruments.size() > 0 ?
                 Optional.of(instruments.get(0)) :
                 Optional.empty();
-
-    }
-
-    public static class InstrumentItemImpl extends InstrumentItem {
-        public final boolean autotranslate;
-
-        public InstrumentItemImpl(long id, String name, VendorItem vendorItem, long lab, String serial, long creator, boolean autotranslate) {
-            super(id, name, vendorItem, lab, serial, creator);
-            this.autotranslate = autotranslate;
-        }
 
     }
 

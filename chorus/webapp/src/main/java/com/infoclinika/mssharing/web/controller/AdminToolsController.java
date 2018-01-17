@@ -113,23 +113,4 @@ public class AdminToolsController extends ErrorHandler {
         runDemoDataCreator.createCdfDatabases(userId);
     }
 
-    @RequestMapping(value = "/retranslate-all-not-translated-files-of-experiments", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
-    public void reTranslateAllNotTranslatedFilesOfExperiments(@RequestBody ReTranslateRequest request, Principal principal) {
-        LOG.debug("File translation request for all files");
-        studyManagement.reTranslateAllNotTranslatedFilesOfExperiments(getUserId(principal), request.metadataOnly);
-    }
-
-    private static class ReTranslateRequest {
-
-        public boolean metadataOnly;
-
-        @Override
-        public String toString() {
-            return "ReTranslateRequest{" +
-                    "metadataOnly=" + metadataOnly +
-                    '}';
-        }
-    }
-
 }

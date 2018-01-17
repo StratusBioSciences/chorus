@@ -1389,7 +1389,7 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
         });
     })
     .controller("experiments", function ($scope, $rootScope, $location, $routeParams, $route, $window, Experiments, ExperimentMoveToStorage,
-                                         ExperimentDetails, removeExperimentConfirmation, experimentViewerStatus, experimentDownloadLink,
+                                         ExperimentDetails, removeExperimentConfirmation, experimentDownloadLink,
                                          AnonymousDownloadEmailer, experimentDisplaySearches, downloadFiles, contentRequestParameters,
                                          experimentsExpandMenu, Users, initFilesOperationsConfirmations, experimentIconDetails, downloadExperiment,
                                          Laboratories, getExperimentColumnsForAdvancedFilter, PaginationPropertiesSettingService, ExperimentColumns,
@@ -1434,7 +1434,6 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
         }
         Experiments.get(pagedRequest, function (experimentsCollection) {
             $scope.experiments = $.map((experimentsCollection.items || experimentsCollection), function (item) {
-                item.statusObject = getStatusObject(item, $scope);
                 return item;
             });
             PaginationPropertiesSettingService.setPaginationProperties($scope, experimentsCollection);
@@ -1468,7 +1467,6 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
             $rootScope.dialogReturnUrl = $location.url();
             $location.path($location.path() + "/" + experiment.id + "/searches/new");
         };
-        $scope.showViewerStatus = experimentViewerStatus($scope);
         $scope.showRuns = experimentDisplaySearches();
         $scope.displayConfirmation = removeExperimentConfirmation($scope);
         $scope.copyExperiment = function (experiment) {
@@ -1954,7 +1952,7 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
     })
     .controller("project-experiments", function ($scope, $rootScope, $location, $routeParams,
                                                  $window, ExperimentsByProject, ProjectDetails, ExperimentDetails,
-                                                 experimentDownloadLink, experimentViewerStatus, AnonymousDownloadEmailer,
+                                                 experimentDownloadLink, AnonymousDownloadEmailer,
                                                  experimentDisplaySearches, contentRequestParameters, experimentsExpandMenu, experimentIconDetails,
                                                  downloadFiles, ExperimentMoveToStorage, removeExperimentConfirmation, Users, initFilesOperationsConfirmations, Laboratories, downloadExperiment, getExperimentColumnsForAdvancedFilter,
                                                  PaginationPropertiesSettingService) {
@@ -2001,7 +1999,6 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
         }, function (experimentsCollection) {
 
             $scope.experiments = $.map((experimentsCollection.items || experimentsCollection), function (item) {
-                item.statusObject = getStatusObject(item, $scope);
                 return item;
             });
 
@@ -2043,8 +2040,6 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
         $scope.copyExperiment = function (experiment) {
             $location.path($location.path() + "/" + experiment.id + "/copy");
         };
-
-        $scope.showViewerStatus = experimentViewerStatus($scope);
 
         $scope.showRuns = experimentDisplaySearches();
 
@@ -2263,35 +2258,6 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
 
             }
         }])
-    .factory("experimentViewerStatus", function ($route, $window, ExperimentTranslation, UserLabProvider) {
-        return function ($scope) {
-            return function (experiment) {
-                ExperimentTranslation.status({id: experiment.id}, function (status) {
-                    var availableLabs = UserLabProvider.getLabsWithTranslationEnabled();
-                    var selectedLab = availableLabs.length > 0 ? availableLabs[0].id : null;
-                    if (experiment.isOwner && experiment.billLab) { // if billing lab specified
-                        // define only one lab, the billing one
-                        var labCandidates = $.grep(availableLabs, function (item) {
-                            return item.id == experiment.billLab;
-                        });
-                        selectedLab = (labCandidates.length > 0) ? experiment.billLab : selectedLab;
-                    }
-                    var billLabs = $.grep(availableLabs, function (item) {
-                        return item.id == experiment.billLab;
-                    });
-                    var bLabHead = experiment.billLab && billLabs.length > 0 && $scope.getUserId() == billLabs[0].labHead;
-                    $scope.experimentViewer = new ExperimentViewer("#experiment-viewer-status", status.msChartsUrl,
-                        status.lastTranslationAttemptDate, status.translationErrors, experiment.id,
-                        experiment.isOwner, ExperimentTranslation, $window, status.archived,
-                        bLabHead, experiment.countOfOwnedFilesTranslationData,
-                        availableLabs, selectedLab, experiment.billLab, status.status, status.usedInSearches
-                    );
-                    $scope.experimentViewer.showPopup();
-                });
-            };
-
-        }
-    })
     .factory("experimentDisplaySearches", function ($route, $rootScope, $location) {
         return function () {
             return function (experiment) {
@@ -2746,72 +2712,6 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
         }
     })
 ;
-
-function getStatusObject(experiment) {
-    var obj;
-    if (experiment.translationStatus == "SUCCESS") {
-        obj = {class: "translation-complete", title: "Translated successfully", action: showTranslationResults};
-    } else if (experiment.translationStatus == "FAILURE") {
-        obj = {
-            class: "translation-error",
-            title: "Translated with errors",
-            action: showExperimentTranslationFinishedWithErrorsConfirm
-        };
-    } else if (experiment.translationStatus == "IN_PROGRESS") {
-        obj = {
-            class: "translation-in-progress",
-            title: "Translation in progress",
-            action: showExperimentTranslationIsInProgressConfirm
-        };
-    } else {
-        obj = {
-            class: "not-translated",
-            title: "Not translated",
-            action: showExperimentTranslationResultsIsNotAvailable
-        };
-    }
-
-
-    function showTranslationResults(experiment) {
-        window.open(experiment.msChartsUrl, "_blank");
-    }
-
-
-    function showExperimentTranslationIsInProgressConfirm() {
-        var confirmOptions = {
-            id: "experimentTranslationIsInProgressConfirm",
-            title: "Translation is in Progress",
-            message: "Translation of experiment content is currently in progress. You will be able to view results after it is finished.",
-            dialogClass: "message-dialog warning"
-        };
-        showConfirm(confirmOptions);
-    }
-
-
-    function showExperimentTranslationFinishedWithErrorsConfirm() {
-        var confirmOptions = {
-            id: "experimentTranslationFinishedWithErrorsConfirm",
-            title: "Translation Failure",
-            message: "Translation of experiment content has been finished with errors.",
-            dialogClass: "message-dialog error"
-        };
-        showConfirm(confirmOptions);
-    }
-
-
-    function showExperimentTranslationResultsIsNotAvailable() {
-        var confirmOptions = {
-            id: "experimentTranslationResultsIsNotAvailableConfirm",
-            title: "Translation Results are not Available",
-            message: "Translation results are not available. You need to run translation in order to be able to view results.",
-            dialogClass: "message-dialog warning"
-        };
-        showConfirm(confirmOptions);
-    }
-
-
-    return obj;
-}
 
 var ExperimentsConstants = {
     FILES_ITEMS_PER_PAGE : 30,

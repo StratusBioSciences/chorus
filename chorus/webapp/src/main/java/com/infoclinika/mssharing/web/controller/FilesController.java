@@ -50,7 +50,6 @@ import java.util.Set;
 
 import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.collect.Sets.newHashSet;
-import static com.infoclinika.mssharing.model.read.AdministrationToolsReader.FileTranslationShortItem;
 import static com.infoclinika.mssharing.platform.web.security.RichUser.getUserId;
 
 /**
@@ -249,40 +248,6 @@ public class FilesController extends PagedItemsController {
         }
     }
 
-    @Deprecated
-    @RequestMapping(value = "/translation/selected", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
-    public void reTranslateSelectedFiles(@RequestBody FilesRequest request, Principal principal) {
-        LOGGER.debug("Re-translation for selected files invoked." + request.files);
-        studyManagement.markFilesForTranslation(getUserId(principal), request.lab, newHashSet(request.files));
-    }
-
-    @RequestMapping(value = "/per-file-translation/selected", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
-    public void reTranslateFiles(@RequestBody FilesRequest request, Principal principal) {
-        final long actor = getUserId(principal);
-        LOGGER.debug("File translation request for id's: " + request);
-        studyManagement.retranslateFiles(actor, request.files, request.metadataOnly);
-    }
-
-    @RequestMapping(value = "/per-file-translation/statuses", method = RequestMethod.GET)
-    @ResponseBody
-    public PagedItem<FileTranslationShortItem> getFiles(PageRequest pageRequest, Principal principal) {
-
-        return administrationToolsReader.readFileTranslationStatuses(getUserId(principal), createPagedInfo(pageRequest));
-
-    }
-
-    @RequestMapping(value = "/per-file-translation/translatedPercent", method = RequestMethod.GET)
-    @ResponseBody
-    public ValueResponse<Float> getReTranslatedPercent() {
-
-        final float translated = administrationToolsReader.alreadyTranslatedPercent();
-
-        return new ValueResponse<Float>(translated);
-    }
-
-
     @RequestMapping(value = "/charts/url", method = RequestMethod.GET)
     @ResponseBody
     public ChartUrlResponse getChartUrlForFiles(@RequestParam(value = "fileIds", required = true) String[] rawIds, Principal principal) {
@@ -306,28 +271,6 @@ public class FilesController extends PagedItemsController {
     public void unarchiveFiles(@RequestBody FilesRequest request, Principal principal) {
         LOGGER.info(USER + getUserId(principal) + " requested Un-archive files: " + request);
         fileOperationsManager.markFilesToUnarchive(getUserId(principal), copyOf(request.files));
-    }
-
-    @RequestMapping(value = "/removeTranslationData", method = RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.OK)
-    public void removeTranslationData(@RequestBody RemoveTranslationDataRequest filesRequest, Principal principal) {
-        final long actor = getUserId(principal);
-        LOGGER.info(USER + actor + " requested removing of files translation data: " + filesRequest);
-        studyManagement.removeTranslationData(actor, filesRequest.files, filesRequest.lab);
-    }
-
-
-    private static class RemoveTranslationDataRequest {
-        public List<Long> files;
-        public Long lab;
-
-        @Override
-        public String toString() {
-            return "RemoveTranslationDataRequest{" +
-                    "files=" + files +
-                    ", lab=" + lab +
-                    '}';
-        }
     }
 
     private static class FilesRequest {

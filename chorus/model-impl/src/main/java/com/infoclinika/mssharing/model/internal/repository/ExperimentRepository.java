@@ -37,9 +37,6 @@ public interface ExperimentRepository extends ExperimentRepositoryTemplate<Activ
             " e.creator," +
             " count(file.id)," +
             " e.lastModification," +
-            " e.translated, " +
-            " e.translationError," +
-            " e.lastTranslationAttempt," +
             " e.downloadToken," +
             " e.experimentCategory" +
             ") ";
@@ -209,21 +206,7 @@ public interface ExperimentRepository extends ExperimentRepositoryTemplate<Activ
             "from RawFile _f left join _f.experiment _exp left join _f.fileMetaData _fmd " +
             "where _exp.id = e.id " +
             "and _fmd.storageData.storageStatus = " + STORAGE_STATUS_UNARCHIVED + "), " +
-            //[3] canTranslateExperimentFiles (true if the count equals to files count and other conditions...)
-            " (select count(distinct _f.id) " +
-            "from RawFile _f " +
-            "left join _f.experiment _exp " +
-            "left join _f.fileMetaData _fmd " +
-            "left join _fmd.instrument _i " +
-            "left join _i.lab _l " +
-            "left join _l.labMemberships _ms" +
-            " where _exp.id = e.id  " +
-            " and (" +
-            " _fmd.owner.id = :user " +
-            " or (_ms.user.id = :user and _ms.head = true)" +
-            " or _fmd.storageData.storageStatus = " + STORAGE_STATUS_UNARCHIVED +
-            ")), " +
-            //[4] canArchiveExperiment
+            //[3] canArchiveExperiment
             " (select count(distinct _e.id)" +
             " from ActiveExperiment _e " +
             " left join _e.lab _l " +
@@ -235,7 +218,7 @@ public interface ExperimentRepository extends ExperimentRepositoryTemplate<Activ
             "           left join _f.fileMetaData _f_fmd where _exp.id = _e.id and _f_fmd.storageData.storageStatus in (" + STORAGE_STATUS_UNARCHIVED + "," + STORAGE_STATUS_UNARCHIVING + ")" +
             "               and (_f_fmd.owner.id = :user or (_ms.user.id = :user and _ms.head = true))) > 0 " +
             "), " +
-            //[5] canUnarchiveExperiment
+            //[4] canUnarchiveExperiment
             " (select count(distinct _e.id)" +
             "   from ActiveExperiment _e " +
             " left join _e.lab _l " +
@@ -247,27 +230,7 @@ public interface ExperimentRepository extends ExperimentRepositoryTemplate<Activ
             "         where _exp.id = _e.id and (_f_fmd.storageData.storageStatus != " + STORAGE_STATUS_UNARCHIVED +
             "           and (_f_fmd.owner.id = :user or (_ms.user.id = :user and _ms.head = true) ) ) ) > 0 " +
             "), " +
-            //[6] translated files count
-            " (select count(distinct _f.id) " +
-            "   from RawFile _f " +
-            " join _f.experiment _exp " +
-            " join _f.fileMetaData _fmd " +
-            " join _fmd.instrument _instrument " +
-            " join _instrument.lab _lab " +
-            " join _fmd.usersFunctions _uf " +
-            " where _exp.id = e.id and _uf.lab.id=_lab.id and _uf.functions is not empty " +
-            "), " +
-            //[7] Count of owned translation data
-            " (select count(distinct _f.id) " +
-            "   from RawFile _f " +
-            " join _f.experiment _exp " +
-            " join _f.fileMetaData _fmd " +
-            " join _fmd.usersFunctions _uf " +
-            " join _uf.lab.labMemberships _ufl " +
-            " where _exp.id = e.id and _uf.lab.id in (:labIds)  " +
-            " and (_uf.user.id = :user or (_ufl.user.id = :user and _ufl.head=true)) " +
-            "), " +
-            //[8] count files archivedDownloadOnly (count archived files of requested for download only)
+            //[5] count files archivedDownloadOnly (count archived files of requested for download only)
             " (select count(distinct _e.id)" +
             "   from ActiveExperiment _e " +
             " left join _e.lab _l " +
@@ -279,7 +242,7 @@ public interface ExperimentRepository extends ExperimentRepositoryTemplate<Activ
             "         where _exp.id = _e.id and (_f_fmd.storageData.archivedDownloadOnly is true " +
             "           and (_f_fmd.owner.id = :user or (_ms.user.id = :user and _ms.head = true) ) ) ) > 0 " +
             "), " +
-            //[9] count files UnArchiveRequest (count archived files of requested for unarchiving)
+            //[6] count files UnArchiveRequest (count archived files of requested for unarchiving)
             " (select count(distinct _e.id)" +
             "   from ActiveExperiment _e " +
             " left join _e.lab _l " +
@@ -290,64 +253,11 @@ public interface ExperimentRepository extends ExperimentRepositoryTemplate<Activ
             "    and (select count(distinct _f.id) from RawFile _f left join _f.experiment _exp left join _f.fileMetaData _f_fmd " +
             "         where _exp.id = _e.id and (_f_fmd.storageData.storageStatus = " + STORAGE_STATUS_UNARCHIVING +
             "           and (_f_fmd.owner.id = :user or (_ms.user.id = :user and _ms.head = true) ) ) ) > 0 " +
-            "), " +
-            //[10] translation in progress - files count
-            " (select count(distinct _f.id) " +
-            "   from RawFile _f " +
-            " join _f.experiment _exp " +
-            " join _f.fileMetaData _fmd " +
-            " join _fmd.instrument _instrument " +
-            " join _instrument.lab _lab " +
-            " join _fmd.usersFunctions _uf " +
-            " where _exp.id = e.id and _uf.lab.id=_lab.id and _uf.translationStatus.status=" + TRANSLATION_STATUS_IN_PROGRESS +
-            "), " +
-            //[11] translation failed -  files count
-            " (select count(distinct _f.id) " +
-            "   from RawFile _f " +
-            " join _f.experiment _exp " +
-            " join _f.fileMetaData _fmd " +
-            " join _fmd.instrument _instrument " +
-            " join _instrument.lab _lab " +
-            " join _fmd.usersFunctions _uf " +
-            " where _exp.id = e.id and _uf.lab.id=_lab.id and _uf.translationStatus.status=" + TRANSLATION_STATUS_FAILED +
-            "), " +
-            // [12]select number of successful translated files with user translation specific data
-            " (select count(distinct _f.id) " +
-            "   from RawFile _f " +
-            " join _f.experiment _exp " +
-            " join _f.fileMetaData _fmd " +
-            " join _fmd.usersFunctions _uf " +
-            " where _exp.id = e.id and _uf.lab.id in (:labIds) and _uf.translationStatus.status=" + TRANSLATION_STATUS_SUCCESS +
-            ")," +
-            // [13]select number of in progress translated files with user translation specific data
-            " (select count(distinct _f.id) " +
-            "   from RawFile _f " +
-            " join _f.experiment _exp " +
-            " join _f.fileMetaData _fmd " +
-            " join _fmd.usersFunctions _uf " +
-            " where _exp.id = e.id and _uf.lab.id in (:labIds) and _uf.translationStatus.status=" + TRANSLATION_STATUS_IN_PROGRESS +
-            ")," +
-            // [14]select number of failed translated files with user translation specific data
-            " (select count(distinct _f.id) " +
-            "   from RawFile _f " +
-            " join _f.experiment _exp " +
-            " join _f.fileMetaData _fmd " +
-            " join _fmd.usersFunctions _uf " +
-            " where _exp.id = e.id and _uf.lab.id in (:labIds) and _uf.translationStatus.status=" + TRANSLATION_STATUS_FAILED +
-            ")," +// [15]select number of successful translated files whether it is private translated data or not
-            " (select count(distinct _f.id) " +
-            "   from RawFile _f " +
-            " join _f.experiment _exp " +
-            " join _f.fileMetaData _fmd " +
-            " join _fmd.instrument _instrument " +
-            " join _instrument.lab _lab " +
-            " join _fmd.usersFunctions _uf " +
-            " where _exp.id = e.id and (_uf.lab.id in (:labIds) or _uf.lab.id=_lab.id)  and _uf.translationStatus.status=" + TRANSLATION_STATUS_SUCCESS +
             ")" +
             ") " +
             " from ActiveExperiment e " +
             " where e.id in(:ids) group by e.id")
-    List<ExperimentAdditionalInfoRecord> getAdditionalInfo(@Param("user") long user, @Param("ids") List<Long> ids, @Param("labIds") List<Long> labIds);
+    List<ExperimentAdditionalInfoRecord> getAdditionalInfo(@Param("user") long user, @Param("ids") List<Long> ids);
 
     @Query("select rf.fileMetaData from ActiveExperiment e join e.rawFiles.data rf where e.id = :experiment and rf.fileMetaData.id " +
             "in (select rf2.fileMetaData.id from ActiveExperiment e2 join e2.rawFiles.data rf2 where e2.id != e.id)")

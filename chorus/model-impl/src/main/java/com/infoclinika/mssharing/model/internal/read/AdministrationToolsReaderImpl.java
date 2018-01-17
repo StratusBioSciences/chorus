@@ -43,81 +43,14 @@ import static com.infoclinika.mssharing.model.internal.read.Transformers.TO_NEWS
 @Service
 public class AdministrationToolsReaderImpl implements AdministrationToolsReader {
 
-    private static final Logger LOG = Logger.getLogger(AdministrationToolsReaderImpl.class);
-
     @Inject
     private NewsRepository newsRepository;
-    @Inject
-    private RuleValidator ruleValidator;
-    @Inject
-    private ExperimentRepository experimentRepository;
-    @PersistenceContext(unitName = "mssharing")
-    private EntityManager em;
-    @Inject
-    private FileMetaDataRepository fileMetaDataRepository;
-    @Inject
-    private Transformers transformers;
-    @Inject
-    private PagedItemsTransformer pagedItemsTransformer;
-
-    @Override
-    public ImmutableSet<ExperimentTranslationShortItem> readExperimentTranslationStatuses(long actor) {
-        if (!ruleValidator.userCanReadExperimentTranslationStatuses(actor)) {
-            throw new AccessDenied("The user cannot read experiment translation statuses. User ID = " + actor);
-        }
-        return from(experimentRepository.findAll(new Sort("name")))
-                .transform(transformers.experimentTranslationItemTransformer())
-                .toSet();
-    }
-
-    @Override
-    public PagedItem<ExperimentTranslationShortItem> readExperimentTranslationStatuses(long actor, PagedItemInfo pagedItem) {
-
-        if (!ruleValidator.userCanReadExperimentTranslationStatuses(actor)) {
-            throw new AccessDenied("The user cannot read experiment translation statuses. User ID = " + actor);
-        }
-
-        final PageRequest pageRequest = pagedItemsTransformer.toPageRequest(ActiveExperiment.class, pagedItem);
-        final Page<ActiveExperiment> experiments = experimentRepository.findAllWithFilter(toFilterQuery((PaginationItems.PagedItemInfo) pagedItem), pageRequest);
-
-        return new PagedItem<>(
-                experiments.getTotalPages(),
-                experiments.getTotalElements(),
-                experiments.getNumber(),
-                experiments.getNumberOfElements(), from(experiments).transform(transformers.experimentTranslationItemTransformer()).toList());
-    }
 
     @Override
     public ImmutableSortedSet<NewsLine> readNewsItems(long actor) {
         return from(newsRepository.findAll())
                 .transform(TO_NEWS_LINE)
                 .toSortedSet(NEWS_BY_DATE);
-    }
-
-    @Override
-    public PagedItem<FileTranslationShortItem> readFileTranslationStatuses(long actor, PagedItemInfo pagedItem) {
-
-        if (!ruleValidator.hasAdminRights(actor)) {
-            throw new AccessDenied("User cannot read file translation statuses");
-        }
-
-        final PageRequest pageRequest = pagedItemsTransformer.toPageRequest(ActiveFileMetaData.class, pagedItem);
-        final Page<ActiveFileMetaData> files = fileMetaDataRepository.findAllWithFilter(toFilterQuery((PaginationItems.PagedItemInfo) pagedItem), pageRequest);
-
-        return new PagedItem<>(
-                files.getTotalPages(),
-                files.getTotalElements(),
-                files.getNumber(),
-                files.getNumberOfElements(), from(files).transform(transformers.perFileTranslationTransformer).toList());
-    }
-
-    @Override
-    public float alreadyTranslatedPercent() {
-        final long reTranslated = fileMetaDataRepository.reTranslatedCount();
-        final long all = fileMetaDataRepository.sentForTranslationCount();
-        final float percentage = (float) reTranslated / (float) all * 100.f;
-        LOG.info("Total retranslated: " + reTranslated + ". Total sent for translation: " + all + ". ++ " + percentage + "%");
-        return percentage;
     }
 
 }

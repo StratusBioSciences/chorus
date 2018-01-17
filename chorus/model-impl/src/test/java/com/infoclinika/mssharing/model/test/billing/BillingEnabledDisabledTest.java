@@ -56,40 +56,6 @@ public class BillingEnabledDisabledTest extends AbstractTest {
         assertTrue(billingFeaturesHelper.isFeatureEnabled(lab, BillingFeature.ANALYSE_STORAGE));
     }
 
-    @Test
-    public void testDisableBillingMakeTranslationEnable() {
-        long lab = uc.createLab3();
-        setBilling(false);
-        assertTrue(billingFeaturesHelper.isFeatureEnabled(lab, BillingFeature.TRANSLATION));
-    }
-
-    @Test
-    public void testNotOwnerOfFileCanTranslateExperimentFilesWithEnabledBilling() {
-        final long bob = uc.createLab3AndBob();
-        final long paul = uc.createPaul();
-        final long paulsFile = uc.saveFile(paul);
-        setFeaturePerLab(ApplicationFeature.TRANSLATION, Lists.newArrayList(uc.getLab3()));
-        billingManagement.enableProcessingForLabAccount(paul, uc.getLab3(), false);
-        setBilling(true);
-        createExperiment(paul, createPublicProject(paul), paulsFile, uc.getLab3()); //Make Paul's file public
-        final long experiment = createExperiment(bob, createPublicProject(bob), paulsFile, uc.getLab3());
-
-        studyManagement.markExperimentFilesForTranslation(bob, experiment, uc.getLab3());
-
-    }
-
-    @Test
-    public void testNotOwnerOfFileCanTranslateExperimentFilesWhenBillingDisabled() {
-        setBilling(false);
-        final long bob = uc.createLab3AndBob();
-        setFeaturePerLab(ApplicationFeature.TRANSLATION, Lists.newArrayList(uc.getLab3()));
-        final long paul = uc.createPaul();
-        final long paulsFile = uc.saveFile(paul);
-        createExperiment(paul, createPublicProject(paul), paulsFile, uc.getLab3()); //Make Paul's file public
-        final long experiment = createExperiment(bob, createPublicProject(bob), paulsFile, uc.getLab3());
-        studyManagement.markExperimentFilesForTranslation(bob, experiment, uc.getLab3());
-    }
-
     //Invalid case. Now can enable/disable features only through billing plan
     @Test(enabled = false)
     public void testEnableBillingMakeStorageDisable() {
@@ -107,33 +73,6 @@ public class BillingEnabledDisabledTest extends AbstractTest {
         //featureManagement.disableFeature(lab, invoice.translationBill.chargeableId, null);
         setBilling(true);
         assertFalse(billingFeaturesHelper.isFeatureEnabled(lab, BillingFeature.TRANSLATION));
-    }
-
-    //Invalid case. Now can enable/disable features only through billing plan
-    @Test(enabled = false)
-    public void testDisableBillingMakeTranslationPossibleForOneFile() {
-        long lab = uc.createLab3();
-        long bob = uc.createLab3AndBob();
-
-        ImmutableSet<DictionaryItem> models = instrumentCreationHelper.models(thermoVendor());
-        long file = uc.saveFile(bob, uc.createInstrumentAndApproveIfNeeded(bob, uc.getLab3(), models.iterator().next().id).get());
-        // featureManagement.disableFeature(lab, invoice.translationBill.chargeableId, null);
-        setBilling(false);
-        studyManagement.markFileForTranslation(bob, uc.getLab3(), file);
-        assertEquals(fileReader.readFiles(bob, Filter.MY).iterator().next().status, DashboardReader.TranslationStatus.IN_PROGRESS);
-    }
-
-    //Invalid case. Now can enable/disable features only through billing plan
-    @Test(enabled = false)
-    public void testEnableBillingMakeTranslationNotPossibleForOneFile() {
-        long lab = uc.createLab3();
-        long bob = uc.createLab3AndBob();
-        ImmutableSet<DictionaryItem> models = instrumentCreationHelper.models(thermoVendor());
-        long file = uc.saveFile(bob, uc.createInstrumentAndApproveIfNeeded(bob, uc.getLab3(), models.iterator().next().id).get());
-        // featureManagement.disableFeature(lab, invoice.translationBill.chargeableId, null);
-        setBilling(true);
-        studyManagement.markFileForTranslation(bob, lab, file);
-        assertEquals(fileReader.readFiles(bob, Filter.MY).iterator().next().status, DashboardReader.TranslationStatus.FAILURE);
     }
 
     //Invalid case. Now can enable/disable features only through billing plan

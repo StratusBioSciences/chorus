@@ -30,5 +30,6 @@ Here's description how to run Chorus.
   just type this command `docker-compose up` in *your-project-folder/docker/*
  * Point your browser to http://localhost:8080
  * Register admin user within Web UI
+ * User name is "demo-user" and password is "pwd".
  * Go to database with your favorite SQL tool and grant this user admin rights
    - UPDATE USER SET admin=1;

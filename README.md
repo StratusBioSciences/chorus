@@ -25,7 +25,7 @@ Here's description how to run Chorus.
    
 ### To run the Chorus Opensourse installation in docker containers:
  * If you use [IntelliJ IDEA](https://www.jetbrains.com/idea/download/), you may download [docker plugin](https://www.jetbrains.com/help/idea/docker.html) for comfort work with Docker integration.
- * Build the application using 'clean install -pl "!selenium-tests" -DskipTests' command
+ * Build the application using 'clean install -DskipTests -Pdocker' command
  * If you use IntelliJ IDEA just run **docker-compose.yml** using IDEA docker plugin. Or you can do it manually in terminal,
   just type this command `docker-compose up` in *your-project-folder/docker/*
  * Point your browser to http://localhost:8080

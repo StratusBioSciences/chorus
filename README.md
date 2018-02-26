@@ -19,7 +19,7 @@ Here's description how to run Chorus.
  * Type in command promt or terminal `docker -version` 
   The output must be like this:
   >Docker version 17.05.0-ce, build 89658be
- * Type in command promt or terminal `docker-compose -version` 
+ * Type in command promt or terminal `docker-compose -version` ;
    The output must be like this:
    >docker-compose version 1.17.0, build ac53b73
    

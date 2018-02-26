@@ -4,8 +4,8 @@ Here's description how to run Chorus.
 
 ### Prerequisites
 
- * [Java SDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html), version 1.8 or higher.
- * [Apache Maven](http://maven.apache.org), version 3.3.9 or higher.
+ * [Java SDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html), version 1.8. The application doesn't support Java 9!
+ * [Apache Maven](http://maven.apache.org), version 3.3.9.
  * Installed [Docker](https://www.docker.com/community-edition#/download) and [docker compose](https://docs.docker.com/compose/install/) on your local machine.
  * [SMTP server credentials](https://docs.aws.amazon.com/ses/latest/DeveloperGuide/smtp-credentials.html) to let the app send emails.
  * [Amazon S3](http://aws.amazon.com/s3/) storage credentials (bucket name, key and secret) to store uploaded files.

@@ -16,8 +16,7 @@ abstract class InstrumentDetailsMixin {
             @JsonProperty("serialNumber") String serialNumber,
             @JsonProperty("hplc") String hplc,
             @JsonProperty("peripherals") String peripherals,
-            @JsonProperty("lockMasses") List<LockMzItem> lockMasses,
-            @JsonProperty("autoTranslate") boolean autoTranslate
+            @JsonProperty("lockMasses") List<LockMzItem> lockMasses
     ) {
     }
 }

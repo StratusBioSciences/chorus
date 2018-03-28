@@ -84,7 +84,6 @@ public class SearcherImplTest extends AbstractTestNGSpringContextTests {
     public void create(){
         billingManagement.createChargeableItem(450, BillingFeature.ARCHIVE_STORAGE, 1, PER_GB);
         billingManagement.createChargeableItem(450, BillingFeature.ANALYSE_STORAGE, 1, PER_GB);
-        billingManagement.createChargeableItem(450, BillingFeature.TRANSLATION, 1, PER_GB);
     }
 
     @Test
@@ -137,7 +136,7 @@ public class SearcherImplTest extends AbstractTestNGSpringContextTests {
     @Test(dependsOnMethods = "testSearchBecomeEnable")
     public void testCountItems() {
         createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel()
-                , new InstrumentDetails("fooo", anyStr(), anyStr(), anyStr(), lockMasses, true)).get();
+                , new InstrumentDetails("fooo", anyStr(), anyStr(), anyStr(), lockMasses)).get();
         final Searcher.Count fooo = searcher.getItemsCount(new PagedItemInfo(25, 0, "", true, "fooo"), bob);
         assertTrue(fooo.instruments == 1);
     }
@@ -145,7 +144,7 @@ public class SearcherImplTest extends AbstractTestNGSpringContextTests {
     @Test(dependsOnMethods = "testSearchBecomeEnable")
     public void testUserCanSearchHisFiles() {
         final Long instrument = labInstrument();
-        final long file = instrumentManagement.createFile(bob, instrument, new FileMetaDataInfo("c15092005_009.RAW", 0, anyStr(), null, anySpecie(), false, false));
+        final long file = instrumentManagement.createFile(bob, instrument, new FileMetaDataInfo("c15092005_009.RAW", 0, anyStr(), null, anySpecie(), false));
         instrumentManagement.setContent(bob, file, mock(StoredObject.class));
         checkCanFindFileWithQuery(file, "2005");
         checkCanFindFileWithQuery(file, "raw");
@@ -154,7 +153,7 @@ public class SearcherImplTest extends AbstractTestNGSpringContextTests {
 
     private Long labInstrument() {
         if(labInstrument.isPresent()) return labInstrument.get();
-        labInstrument = createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel(), new InstrumentDetails(LAB_INSTRUMENT_NAME, anyStr(), anyStr(), anyStr(), lockMasses, true));
+        labInstrument = createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel(), new InstrumentDetails(LAB_INSTRUMENT_NAME, anyStr(), anyStr(), anyStr(), lockMasses));
         return labInstrument.get();
     }
 
@@ -321,7 +320,7 @@ public class SearcherImplTest extends AbstractTestNGSpringContextTests {
     public void testSearchHisPagedInstruments() {
 
         final long instrument = createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel()
-                , new InstrumentDetails("fooooo", anyStr(), anyStr(), anyStr(), lockMasses, true)).get();
+                , new InstrumentDetails("fooooo", anyStr(), anyStr(), anyStr(), lockMasses)).get();
         PagedItem<InstrumentLine> instruments = searcher.pagedInstruments(bob, getPageItem("foo", false));
         assertTrue(any(instruments, new Predicate<InstrumentLine>() {
             @Override
@@ -336,7 +335,7 @@ public class SearcherImplTest extends AbstractTestNGSpringContextTests {
     public void testSearchHisPagedFiles() {
 
         final Long instrument = labInstrument();
-        final long file = instrumentManagement.createFile(bob, instrument, new FileMetaDataInfo("c15092005_007.RAW", 0, anyStr(), null, anySpecie(), false, false));
+        final long file = instrumentManagement.createFile(bob, instrument, new FileMetaDataInfo("c15092005_007.RAW", 0, anyStr(), null, anySpecie(), false));
 
         instrumentManagement.setContent(bob, file, mock(StoredObject.class));
 
@@ -385,7 +384,7 @@ public class SearcherImplTest extends AbstractTestNGSpringContextTests {
         lab = labManagement.createLab(adminId, new LabManagementTemplate.LabInfoTemplate(anyStr(), new UserManagementTemplate.PersonInfo(anyStr(), anyStr(), anyStr()), anyStr()), anyStr());
         bob = userManagement.createPersonAndApproveMembership(new UserManagement.PersonInfo(anyStr(), anyStr(), anyStr()), anyStr(), lab, null);
         kate = userManagement.createPersonAndApproveMembership(new UserManagement.PersonInfo(anyStr(), anyStr(), anyStr()), anyStr(), lab, null);
-        createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel(), new InstrumentDetails(anyStr(), anyStr(), anyStr(), anyStr(), lockMasses, true));
+        createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel(), new InstrumentDetails(anyStr(), anyStr(), anyStr(), anyStr(), lockMasses));
     }
 
     private long experiment(long proj, String name, String description) {
@@ -443,12 +442,12 @@ public class SearcherImplTest extends AbstractTestNGSpringContextTests {
 
     public long saveFile(long species) {
         if (!labInstrument.isPresent())
-            labInstrument = createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel(), new InstrumentDetails(anyStr(), anyStr(), anyStr(), anyStr(), lockMasses, true));
+            labInstrument = createInstrumentAndApproveIfNeeded(bob, lab, anyInstrumentModel(), new InstrumentDetails(anyStr(), anyStr(), anyStr(), anyStr(), lockMasses));
         return saveFile(labInstrument.get(), species);
     }
 
     public long saveFile(long instrument, long species) {
-        final long file = instrumentManagement.createFile(bob, instrument, new FileMetaDataInfo(UUID.randomUUID().toString(), 0, "", null, species, false, false));
+        final long file = instrumentManagement.createFile(bob, instrument, new FileMetaDataInfo(UUID.randomUUID().toString(), 0, "", null, species, false));
         instrumentManagement.setContent(bob, file, mock(StoredObject.class));
         return file;
     }

@@ -1389,7 +1389,7 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
         });
     })
     .controller("experiments", function ($scope, $rootScope, $location, $routeParams, $route, $window, Experiments, ExperimentMoveToStorage,
-                                         ExperimentDetails, removeExperimentConfirmation, experimentViewerStatus, experimentDownloadLink,
+                                         ExperimentDetails, removeExperimentConfirmation, experimentDownloadLink,
                                          AnonymousDownloadEmailer, experimentDisplaySearches, downloadFiles, contentRequestParameters,
                                          experimentsExpandMenu, Users, initFilesOperationsConfirmations, experimentIconDetails, downloadExperiment,
                                          Laboratories, getExperimentColumnsForAdvancedFilter, PaginationPropertiesSettingService, ExperimentColumns,
@@ -1434,7 +1434,6 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
         }
         Experiments.get(pagedRequest, function (experimentsCollection) {
             $scope.experiments = $.map((experimentsCollection.items || experimentsCollection), function (item) {
-                item.statusObject = getStatusObject(item, $scope);
                 return item;
             });
             PaginationPropertiesSettingService.setPaginationProperties($scope, experimentsCollection);
@@ -1468,275 +1467,12 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
             $rootScope.dialogReturnUrl = $location.url();
             $location.path($location.path() + "/" + experiment.id + "/searches/new");
         };
-        $scope.showViewerStatus = experimentViewerStatus($scope);
         $scope.showRuns = experimentDisplaySearches();
         $scope.displayConfirmation = removeExperimentConfirmation($scope);
         $scope.copyExperiment = function (experiment) {
             $location.path($location.path() + "/" + experiment.id + "/copy");
         };
 
-    })
-    .controller("experiment-searches-all", function ($scope, $rootScope, $window, $location, $route, $routeParams, AllProteinSearches, ExperimentSearch,
-                                                     DashboardButtonFactory, DashboardButton, contentRequestParameters, ExperimentSearches, getProcessingRunColumnsForAdvancedFilter,
-                                                     PaginationPropertiesSettingService) {
-        if ($scope.pathError) return;
-        CommonLogger.setTags(["PROTEIN", "PROTEIN-STATUSES-CONTROLLER"]);
-        $scope.page.title = "All Processing Runs";
-
-        $scope.allItemsSelected = false;
-        $scope.page.showPageableFilter = true;
-        $scope.page.filterScope = $scope;
-        $scope.total = 0;
-        $scope.pageNumber = 0;
-        $scope.filter = $routeParams.filter;
-        $scope.page.subtitle = $scope.$eval("filter | filterToString");
-        var pagedRequest = contentRequestParameters.getParameters("processing-runs");
-        $scope.page.advancedFilter = {
-            composedFilter: pagedRequest.advancedFilter ? angular.copy(pagedRequest.advancedFilter) : {},
-            configuration: {
-                pageable: true,
-                fields: getProcessingRunColumnsForAdvancedFilter()
-            }
-        };
-        var isTableEmpty = false;
-
-        function switchButton(enabled) {
-            var button = new DashboardButton(0, "id-search", "Restart Processing Run(s)", "retranslate");
-            button.display = enabled;
-            button.onClickHandler = function () {
-                $scope.restartSelectedProcessingRunsPopup = new RestartSelectedProcessingRunsPopup("#restart-processing-runs", function () {
-                    var processingRuns = {"experimentSearches": []};
-                    angular.forEach($scope.experimentSearches, function (item) {
-                        if (item.selected) this.experimentSearches.push({
-                            id: item.id,
-                            startWithWorkflowStep: null,
-                            runOnlyNotComplete: true
-                        });
-                    }, processingRuns);
-
-                    ExperimentSearch.reSearchSelected(processingRuns, loadData);
-                });
-                $scope.restartSelectedProcessingRunsPopup.showPopup();
-            };
-
-            DashboardButtonFactory.count(enabled);
-            DashboardButtonFactory.origin("researches");
-            DashboardButtonFactory.put(button);
-        }
-
-        function loadData() {
-            AllProteinSearches.get(pagedRequest, function (data) {
-                PaginationPropertiesSettingService.setPaginationProperties($scope, data);
-                isTableEmpty = $scope.total == 0;
-                $scope.experimentSearches = data.items;
-
-                angular.forEach($scope.experimentSearches, function (search) {
-                    search.isDeleting = search.status == "Deleting";
-                });
-
-                CommonLogger.log("Experiment searches initialized.");
-
-                $scope.$watch(function ($scope) {
-                    //watch the number of "selected" items
-                    var selected = $.grep($scope.experimentSearches, function (item) {
-                        return item.selected
-                    });
-                    return selected.length;
-                }, function (newVal) {
-                    switchButton(newVal);
-                    $scope.allItemsSelected = newVal == $scope.experimentSearches.length;
-                });
-            });
-        }
-
-        $scope.isTableEmpty = function () {
-            return isTableEmpty;
-        };
-
-        $scope.getEmptyTableMessage = function () {
-            return "There are no processing runs";
-        };
-
-        loadData();
-
-        $scope.selectAll = function (selectAll, items) {
-            angular.forEach(items, function (item) {
-                item.selected = selectAll;
-            });
-        };
-
-        $scope.changeSelection = function (item) {
-            item.selected = !item.selected;
-        };
-
-        $scope.viewSearchResults = function (search, analysis) {
-            CommonLogger.log("Show search results button pressed");
-            if (search.searchResultLink) {
-                var url = search.searchResultLink;
-                if (analysis) {
-                    url += "?persistedAnalysis=" + analysis.name;
-                } else {
-                    url += "?noCache=true"; // don"t load cached protein search results
-                }
-                $window.open(url, "_blank");
-                $window.focus();
-            }
-        };
-
-        $scope.viewProcessingDetails = function (search) {
-            $rootScope.dialogReturnUrl = $location.url();
-            $location.path("/experiments/all/1101/searches/" + search.id + "/details");
-        };
-
-        $scope.removeSearchConfirmation = function (search) {
-            $scope.confirmation = new Confirmation("#remove-experiment-protein-id-search-confirmation", search,
-                {
-                    success: function () {
-                        ExperimentSearches.delete({run: search.id}, function () {
-                            search.status = "Deleting";
-                            search.isDeleting = true;
-                        })
-                    },
-                    getName: function () {
-                        return search.name;
-                    }
-                }
-            );
-            $scope.confirmation.showPopup();
-        };
-    })
-    .controller("experiment-searches", function ($rootScope, $window, $route, $filter, $scope, $location, $routeParams, ExperimentSearchShortDetails, ExperimentSearches, Security, ExperimentDetails) {
-        if ($scope.pathError) return;
-        CommonLogger.setTags(["EXPERIMENTS", "EXPERIMENT-SEARCHES-CONTROLLER"]);
-        $scope.showDetailsDialog = true;
-        var path = $location.path();
-        var tableEmpty = false;
-        $scope.page.showPageableFilter = false;
-        $scope.page.showFilter = true;
-        $scope.page.filterScope = $scope;
-        $scope.page.filter = "";
-        $scope.page.advancedFilter = {
-            composedFilter: {},
-            configuration: {
-                fields: [
-                    {prop: "id", title: "ID", type: "number"},
-                    {prop: "name", title: "Title", type: "string"},
-                    {prop: "workflowType", title: "Processing Type", type: "string"},
-                    {prop: "status", title: "Status", type: "string"},
-                    {prop: "lastExecuted", title: "Last Executed", type: "date"},
-                    {prop: "created", title: "Creation Date", type: "date"}
-                ]
-            }
-        };
-        $scope.returnUrl = path.substring(0, path.substr(0, path.lastIndexOf("/")).lastIndexOf("/"));
-        $scope.searchNameToDisplay = null;
-        Security.get({path: ""}, function (user) {
-            $scope.loggedInUser = user;
-        });
-
-        ExperimentSearchShortDetails.query({experiment: $routeParams.experiment}, function (searches) {
-            tableEmpty = (searches.length == 0);
-            $scope.runs = searches;
-            angular.forEach($scope.runs, function (run) {
-                run.isDeleting = run.status == "Deleting";
-            });
-        });
-        $scope.$watch("pageFilter", function () {
-            $scope.searchNameToDisplay = null;
-        });
-
-        $scope.getEmptyTableMessage = function () {
-            return "There are no Processing Runs";
-        };
-        $scope.changeAnalyzesVisibility = function ($event) {
-            event.stopPropagation();
-            return false;
-        };
-        $scope.viewSearchResults = function (search, analysis) {
-            CommonLogger.log("Show search results button pressed");
-            if (search.searchResultLink) {
-                var url = search.searchResultLink;
-                if (analysis) {
-                    url += "?persistedAnalysis=" + analysis.name;
-                } else {
-                    url += "?noCache=true"; // don"t load cached protein search results
-                }
-                $window.open(url, "_blank");
-                $window.focus();
-            }
-        };
-
-        $scope.viewProcessingDetails = function (search) {
-            $rootScope.dialogReturnUrl = $location.url();
-            $location.path(path + "/" + search.id + "/details");
-        };
-        $scope.cleanTemporaryFiles = function (search) {
-            $scope.confirmation = new Confirmation("#clean-temporary-files-confirmation", search,
-                {
-                    success: function () {
-                        ExperimentSearches.cleanTempResults({run: search.id}, function () {
-                            console.log("Cleaning temporary results for: " + search.id + " completed.");
-                        })
-                    },
-                    getName: function () {
-                        return search.name;
-                    }
-                }
-            );
-            $scope.confirmation.showPopup();
-        };
-
-        $scope.expandRun = function (searchName) {
-            $scope.searchNameToDisplay = searchName;
-        };
-
-        $scope.isTableEmpty = function () {
-            return tableEmpty;
-        };
-
-        $scope.isFilteredTableEmpty = function () {
-            var res = $filter("filter")($scope.runs, {name: $scope.pageFilter});
-            return !res || res.length == 0;
-        };
-        $scope.page.title = "Processing Runs";
-        ExperimentDetails.get({id: $routeParams.experiment}, function (experiment) {
-            $scope.page.title = $routeParams.experiment + ": " + experiment.details.info.name + ": Processing Runs";
-        });
-        $scope.page.titleClassName = "protein-search-page";
-
-        $scope.removeSearchConfirmation = function (search) {
-            $scope.confirmation = new Confirmation("#remove-experiment-protein-id-search-confirmation", search,
-                {
-                    success: function () {
-                        ExperimentSearches.delete({run: search.id}, function () {
-                            search.status = "Deleting";
-                            search.isDeleting = true;
-                        })
-                    },
-                    getName: function () {
-                        return search.name;
-                    }
-                }
-            );
-            $scope.confirmation.showPopup();
-        };
-
-    })
-    .controller("experiment-new-search", function ($scope, $rootScope, $routeParams, $location, initSearchWizard, Security, ExperimentDetails, ServerValidationErrorSupport) {
-        CommonLogger.setTags(["EXPERIMENTS", "EXPERIMENT-NEW-SEARCH-CONTROLLER"]);
-        $scope.page.title = "Create New Processing Run";
-        $scope.actionCaption = "Create";
-        $scope.closeWizardActionCaption = "Cancel";
-        ServerValidationErrorSupport.init($scope);
-
-
-        var experimentId = $routeParams.experiment;
-        Security.get({path: ""}, function (user) {
-            $scope.loggedInUser = user;
-            ExperimentDetails.get({id: experimentId}, function (response) {
-                initSearchWizard.createMode($scope, response.details, $scope.loggedInUser, true);
-            });
-        });
     })
     .controller("experiment-upload-fasta-db", function ($scope, $rootScope, $routeParams, Security, ExperimentDetails, startNewUpload, ProteinDB, ExperimentSpecies) {
         CommonLogger.setTags(["EXPERIMENTS", "EXPERIMENT-UPLOAD-FASTA-DB-CONTROLLER"]);
@@ -1804,12 +1540,6 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
                 allowAllFileTypes: false
             });
 
-    })
-    .controller("experiment-search-details", function ($scope, $rootScope, $location, $route, $routeParams, Security, ExperimentDetails, ExperimentSearchDetails, ExperimentSearch, ProteinDB) {
-        CommonLogger.setTags(["EXPERIMENTS", "EXPERIMENT-SEARCH-DETAILS-CONTROLLER"]);
-        $scope.page.title = "Processing Details";
-        $scope.closeWizardActionCaption = "Close";
-        $scope.searchId = $routeParams.run;
     })
     .controller("protein-search-databases", function ($scope, $location, $routeParams, $route, ProteinDB) {
         var filter = $routeParams.show;
@@ -1915,7 +1645,7 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
 
         ProteinDB.get({id: $routeParams.id}, function (database) {
             $scope.database = database;
-            $scope.canEditType = database.accessible && !database.usedInProteinSearches;
+            $scope.canEditType = database.accessible;
         });
         ProteinDB.items(function (dbs) {
             $scope.dbs = dbs;
@@ -1954,7 +1684,7 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
     })
     .controller("project-experiments", function ($scope, $rootScope, $location, $routeParams,
                                                  $window, ExperimentsByProject, ProjectDetails, ExperimentDetails,
-                                                 experimentDownloadLink, experimentViewerStatus, AnonymousDownloadEmailer,
+                                                 experimentDownloadLink, AnonymousDownloadEmailer,
                                                  experimentDisplaySearches, contentRequestParameters, experimentsExpandMenu, experimentIconDetails,
                                                  downloadFiles, ExperimentMoveToStorage, removeExperimentConfirmation, Users, initFilesOperationsConfirmations, Laboratories, downloadExperiment, getExperimentColumnsForAdvancedFilter,
                                                  PaginationPropertiesSettingService) {
@@ -2001,7 +1731,6 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
         }, function (experimentsCollection) {
 
             $scope.experiments = $.map((experimentsCollection.items || experimentsCollection), function (item) {
-                item.statusObject = getStatusObject(item, $scope);
                 return item;
             });
 
@@ -2043,8 +1772,6 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
         $scope.copyExperiment = function (experiment) {
             $location.path($location.path() + "/" + experiment.id + "/copy");
         };
-
-        $scope.showViewerStatus = experimentViewerStatus($scope);
 
         $scope.showRuns = experimentDisplaySearches();
 
@@ -2185,7 +1912,6 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
                 $scope.showArchiveExperimentConfirmation = showArchiveExperimentConfirmation;
                 $scope.showUnarchiveExperimentConfirmation = showUnarchiveExperimentConfirmation;
                 $scope.showRemoveTranslatedDataConfirmation = showRemoveTranslatedDataConfirmation;
-                $scope.canProcessExperiment = canProcessExperiment;
                 $scope.canArchiveFiles = canArchiveFiles;
                 $scope.canUnarchiveFiles = canUnarchiveFiles;
                 $scope.archivingAvailable = archivingAvailable;
@@ -2228,10 +1954,6 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
                     $scope.removeTranslatedDataConfirmation.showPopup();
                 }
                 
-                function canProcessExperiment(experiment) {
-                    return experiment.isOwner && experiment.proteinSearchEnabled;
-                }
-                
                 function canArchiveFiles(experiment) {
                     var expLabId = getExperimentLab(experiment);
                     return (!expLabId || $rootScope.isUserLab(expLabId))
@@ -2263,35 +1985,6 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
 
             }
         }])
-    .factory("experimentViewerStatus", function ($route, $window, ExperimentTranslation, UserLabProvider) {
-        return function ($scope) {
-            return function (experiment) {
-                ExperimentTranslation.status({id: experiment.id}, function (status) {
-                    var availableLabs = UserLabProvider.getLabsWithTranslationEnabled();
-                    var selectedLab = availableLabs.length > 0 ? availableLabs[0].id : null;
-                    if (experiment.isOwner && experiment.billLab) { // if billing lab specified
-                        // define only one lab, the billing one
-                        var labCandidates = $.grep(availableLabs, function (item) {
-                            return item.id == experiment.billLab;
-                        });
-                        selectedLab = (labCandidates.length > 0) ? experiment.billLab : selectedLab;
-                    }
-                    var billLabs = $.grep(availableLabs, function (item) {
-                        return item.id == experiment.billLab;
-                    });
-                    var bLabHead = experiment.billLab && billLabs.length > 0 && $scope.getUserId() == billLabs[0].labHead;
-                    $scope.experimentViewer = new ExperimentViewer("#experiment-viewer-status", status.msChartsUrl,
-                        status.lastTranslationAttemptDate, status.translationErrors, experiment.id,
-                        experiment.isOwner, ExperimentTranslation, $window, status.archived,
-                        bLabHead, experiment.countOfOwnedFilesTranslationData,
-                        availableLabs, selectedLab, experiment.billLab, status.status, status.usedInSearches
-                    );
-                    $scope.experimentViewer.showPopup();
-                });
-            };
-
-        }
-    })
     .factory("experimentDisplaySearches", function ($route, $rootScope, $location) {
         return function () {
             return function (experiment) {
@@ -2746,72 +2439,6 @@ angular.module("experiments-front", ["mixins", "experiments-back", "protein-sear
         }
     })
 ;
-
-function getStatusObject(experiment) {
-    var obj;
-    if (experiment.translationStatus == "SUCCESS") {
-        obj = {class: "translation-complete", title: "Translated successfully", action: showTranslationResults};
-    } else if (experiment.translationStatus == "FAILURE") {
-        obj = {
-            class: "translation-error",
-            title: "Translated with errors",
-            action: showExperimentTranslationFinishedWithErrorsConfirm
-        };
-    } else if (experiment.translationStatus == "IN_PROGRESS") {
-        obj = {
-            class: "translation-in-progress",
-            title: "Translation in progress",
-            action: showExperimentTranslationIsInProgressConfirm
-        };
-    } else {
-        obj = {
-            class: "not-translated",
-            title: "Not translated",
-            action: showExperimentTranslationResultsIsNotAvailable
-        };
-    }
-
-
-    function showTranslationResults(experiment) {
-        window.open(experiment.msChartsUrl, "_blank");
-    }
-
-
-    function showExperimentTranslationIsInProgressConfirm() {
-        var confirmOptions = {
-            id: "experimentTranslationIsInProgressConfirm",
-            title: "Translation is in Progress",
-            message: "Translation of experiment content is currently in progress. You will be able to view results after it is finished.",
-            dialogClass: "message-dialog warning"
-        };
-        showConfirm(confirmOptions);
-    }
-
-
-    function showExperimentTranslationFinishedWithErrorsConfirm() {
-        var confirmOptions = {
-            id: "experimentTranslationFinishedWithErrorsConfirm",
-            title: "Translation Failure",
-            message: "Translation of experiment content has been finished with errors.",
-            dialogClass: "message-dialog error"
-        };
-        showConfirm(confirmOptions);
-    }
-
-
-    function showExperimentTranslationResultsIsNotAvailable() {
-        var confirmOptions = {
-            id: "experimentTranslationResultsIsNotAvailableConfirm",
-            title: "Translation Results are not Available",
-            message: "Translation results are not available. You need to run translation in order to be able to view results.",
-            dialogClass: "message-dialog warning"
-        };
-        showConfirm(confirmOptions);
-    }
-
-
-    return obj;
-}
 
 var ExperimentsConstants = {
     FILES_ITEMS_PER_PAGE : 30,

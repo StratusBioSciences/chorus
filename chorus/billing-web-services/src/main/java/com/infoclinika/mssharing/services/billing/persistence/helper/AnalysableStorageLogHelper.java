@@ -114,7 +114,7 @@ public class AnalysableStorageLogHelper extends AbstractStorageLogHelper {
 
         logger.debug("Logging translation data of archived files");
 
-        final List<Future<Iterable<HourlyAnalyzableStorageUsage>>> futures = invokeAll(executorService, buildAllTranslationDataOfArchivedFilesLogTasks(logInterval));
+        final List<Future<Iterable<HourlyAnalyzableStorageUsage>>> futures = invokeAll(executorService, ImmutableSet.of());
         saveUsagesAndPostProcessTasks(hourlyUsageRepository, futures, new Date());
 
         logger.debug("*** Logging ended ***");
@@ -161,18 +161,6 @@ public class AnalysableStorageLogHelper extends AbstractStorageLogHelper {
 
         logger.debug(" Logging ended for files " + counter + " of " + totalFilesSize);
 
-    }
-
-    private ImmutableSet<Callable<Iterable<HourlyAnalyzableStorageUsage>>> buildAllTranslationDataOfArchivedFilesLogTasks(final long logInterval) {
-        final List<BillingFileView> withTranslationData = fileViewRepository.findAllArchivedWithTranslationData();
-        logger.debug("*** Charging archived files with translation data: " + withTranslationData.size());
-
-        final ImmutableSet.Builder<Callable<Iterable<HourlyAnalyzableStorageUsage>>> builder = ImmutableSet.builder();
-
-        for (final BillingFileView metaData : withTranslationData) {
-            builder.add(() -> logTranslationDataOnly(metaData, logInterval));
-        }
-        return builder.build();
     }
 
     private ImmutableSet<HourlyAnalyzableStorageUsage> logTranslationDataOnly(BillingFileView metaData, long logInterval) {

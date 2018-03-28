@@ -9,27 +9,17 @@
 package com.infoclinika.mssharing.model.internal.write;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.Iterables;
 import com.infoclinika.mssharing.model.PredefinedDataCreator;
-import com.infoclinika.mssharing.model.api.MSFunctionType;
-import com.infoclinika.mssharing.model.api.MSResolutionType;
 import com.infoclinika.mssharing.model.helper.ColumnViewHelper;
 import com.infoclinika.mssharing.model.internal.entity.*;
 import com.infoclinika.mssharing.model.internal.entity.payment.BillingProperty;
-import com.infoclinika.mssharing.model.internal.entity.restorable.ActiveExperiment;
-import com.infoclinika.mssharing.model.internal.entity.restorable.ActiveFileMetaData;
 import com.infoclinika.mssharing.model.internal.repository.*;
-import com.infoclinika.mssharing.model.read.DetailsReader;
-import com.infoclinika.mssharing.platform.entity.ExperimentFileTemplate;
 import com.infoclinika.mssharing.platform.entity.Species;
 import com.infoclinika.mssharing.platform.model.impl.DefaultPredefinedDataCreator;
 import com.infoclinika.mssharing.platform.repository.SpeciesRepositoryTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.Date;
@@ -66,12 +56,6 @@ public class PredefinedDataCreatorImpl extends DefaultPredefinedDataCreator impl
     private ExperimentRepository experimentRepository;
 
     @Inject
-    private MSFunctionItemRepository msFunctionItemRepository;
-
-    @Inject
-    private MZGridParamsRepository mzGridParamsRepository;
-
-    @Inject
     private BillingPropertyRepository billingPropertyRepository;
 
     @Inject
@@ -100,68 +84,6 @@ public class PredefinedDataCreatorImpl extends DefaultPredefinedDataCreator impl
     }
 
     @Override
-    public long translateFileForRun(long bob, long file, long experiment) {
-        return translateFileForRun(bob, file, experiment, "FTMS + p NSI Full ms [375.00-2000.00]", "MS2_DDA-ITMS");
-    }
-
-    @Override
-    public long translateFileForRun(final long bob, long file, long experiment, String ms1FunctionName, String ms2FunctionName) {
-        final ActiveFileMetaData fmd = fileMetaDataRepository.findOne(file);
-        final MSFunctionItem ms1 = new MSFunctionItem();
-        ms1.setFunctionName(ms1FunctionName);
-        ms1.setFunctionType(MSFunctionType.MS);
-        ms1.setTranslatedPath(ms1FunctionName);
-        ms1.setResolutionType(MSResolutionType.HIGH);
-
-        final MSFunctionItem ms2 = new MSFunctionItem();
-        ms2.setTranslatedPath(ms2FunctionName);
-        ms2.setFunctionName(ms2FunctionName);
-        ms2.setFunctionType(MSFunctionType.MS2);
-        ms2.setResolutionType(MSResolutionType.HIGH);
-        final ActiveExperiment one = experimentRepository.findOne(experiment);
-        final Optional<UserLabFileTranslationData> userTranslationDataOld = Iterables.tryFind(fmd.getUsersFunctions(), new Predicate<UserLabFileTranslationData>() {
-            @Override
-            public boolean apply(UserLabFileTranslationData input) {
-                return input.getUser().getId() == bob;
-            }
-        });
-        if (userTranslationDataOld.isPresent()) {
-            userTranslationDataOld.get().getFunctions().addAll(of(ms1, ms2));
-        } else {
-            final UserLabFileTranslationData translationData = new UserLabFileTranslationData(new User(bob), of(ms1, ms2), one.getLab());
-            fmd.getUsersFunctions().add(translationData);
-        }
-
-        return fileMetaDataRepository.save(fmd).getId();
-    }
-
-    @Override
-    @Transactional
-    public long translateExperiment(long actor, long experiment) {
-
-        final ActiveExperiment one = experimentRepository.findOne(experiment);
-
-        for (ExperimentFileTemplate file : one.getRawFiles().getData()) {
-
-            RawFile rawFile = (RawFile) file;
-            final UserLabFileTranslationData translationData = from(rawFile.getFileMetaData().getUsersFunctions())
-                    .firstMatch(new Predicate<UserLabFileTranslationData>() {
-                        @Override
-                        public boolean apply(UserLabFileTranslationData input) {
-                            return input.getLab().equals(one.getLab());
-                        }
-                    })
-                    .or(new UserLabFileTranslationData(new User(actor), rawFile.getFileMetaData().getUsersFunctions().iterator().next().getFunctions(), one.getLab()));
-
-            rawFile.getFileMetaData().getUsersFunctions().add(translationData);
-            fileMetaDataRepository.save((ActiveFileMetaData) rawFile.getFileMetaData());
-
-        }
-
-        return one.getId();
-    }
-
-    @Override
     public List<Long> createColumnsDefinitions(List<ColumnViewHelper.Column> info, ColumnViewHelper.ColumnViewType type) {
         List<Long> ids = newArrayList();
         final ColumnsView.Type columnViewType = asColumnViewType(type);
@@ -186,42 +108,6 @@ public class PredefinedDataCreatorImpl extends DefaultPredefinedDataCreator impl
             }
         }).toSet());
         return columnViewRepository.save(columnsView).getId();
-    }
-
-    @Override
-    public void msFunctionItem(String name, String translatedPath) {
-        MSFunctionItem item = new MSFunctionItem();
-        item.setFunctionName(name);
-        item.setTranslatedPath(translatedPath);
-        msFunctionItemRepository.save(item);
-    }
-
-    @Override
-    public void translateFileForMS1FunctionValidation(long actor, long file, long experiment, String ms1FunctionName, DetailsReader.MZGridParamsDetails mzGridParams) {
-        final ActiveFileMetaData fmd = fileMetaDataRepository.findOne(file);
-
-
-        final MZGridParams params = mzGridParams == null ? null :
-                new MZGridParams(mzGridParams.gridType, mzGridParams.mzStart, mzGridParams.mzEnd, mzGridParams.params,
-                        mzGridParams.step);
-        if (params != null) {
-            mzGridParamsRepository.save(params);
-        }
-
-        final MSFunctionItem ms1 = new MSFunctionItem();
-        ms1.setFunctionName(ms1FunctionName);
-        ms1.setFunctionType(MSFunctionType.MS);
-        ms1.setTranslatedPath(ms1FunctionName);
-        ms1.setResolutionType(MSResolutionType.HIGH);
-        ms1.setMzGridParams(params);
-
-        final ActiveExperiment activeExperiment = experimentRepository.findOne(experiment);
-
-        final UserLabFileTranslationData translationData = new UserLabFileTranslationData(new User(actor),
-                of(ms1), activeExperiment.getLab());
-        fmd.getUsersFunctions().add(translationData);
-
-        fileMetaDataRepository.save(fmd);
     }
 
     @Override

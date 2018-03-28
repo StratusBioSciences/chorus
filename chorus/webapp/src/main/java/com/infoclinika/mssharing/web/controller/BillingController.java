@@ -17,6 +17,7 @@ import com.infoclinika.mssharing.web.controller.response.ValueResponse;
 import com.infoclinika.mssharing.web.downloader.BillingHistoryDownloadHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.Principal;
@@ -42,9 +44,10 @@ public class BillingController extends PagedItemsController {
 
     private static final Logger LOG = LoggerFactory.getLogger(BillingController.class);
 
-    @Resource(name = "billingService")
+    @Resource(name = "billingRestService")
     private BillingService billingService;
     @Inject
+    @Qualifier(value = "paymentHistoryReaderImpl")
     private PaymentHistoryReader paymentHistoryReader;
     @Inject
     private BillingHelper billingHelper;

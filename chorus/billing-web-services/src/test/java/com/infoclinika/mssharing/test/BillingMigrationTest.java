@@ -4,20 +4,8 @@ import com.infoclinika.mssharing.helper.AbstractBillingTest;
 import com.infoclinika.mssharing.services.billing.persistence.BillingMigration;
 import com.infoclinika.mssharing.services.billing.persistence.helper.BillingFeatureChargingHelper;
 import com.infoclinika.mssharing.services.billing.persistence.helper.PaymentCalculationsHelper;
-import com.infoclinika.mssharing.services.billing.persistence.read.ChargeableItemUsageReader;
-import com.infoclinika.mssharing.services.billing.rest.api.model.BillingFeature;
-import com.infoclinika.mssharing.workflow.WorkflowRunner;
-import com.infoclinika.mssharing.workflow.steps.proteinsearch.PersistProteinDatabaseStepTypeProcessor;
-import org.testng.annotations.Test;
 
 import javax.inject.Inject;
-
-import java.util.Set;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
 
 /**
  * @author timofei.kasianov 4/28/16

@@ -15,7 +15,6 @@
     <bean class="com.infoclinika.mssharing.model.internal.features.FeaturesReader"/>
     <bean class="com.infoclinika.mssharing.model.internal.helper.FeaturesHelperImpl"/>
     <bean class="com.infoclinika.mssharing.model.internal.read.Transformers"/>
-    <bean class="com.infoclinika.mssharing.model.internal.read.TranslationErrorTransformerImpl"/>
     <bean class="com.infoclinika.mssharing.model.internal.read.BillingInfoReaderImpl"/>
     <bean class="com.infoclinika.mssharing.model.internal.RuleValidatorImpl"/>
     <bean class="com.infoclinika.mssharing.model.helper.StoredObjectPaths"/>

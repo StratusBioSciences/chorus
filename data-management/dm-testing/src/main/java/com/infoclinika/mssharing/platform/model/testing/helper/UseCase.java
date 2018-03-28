@@ -249,11 +249,6 @@ public class UseCase {
         return file;
     }
 
-    public long saveFileAvailableForTranslation(long user) {
-        ImmutableSet<DictionaryItem> models = instrumentCreationHelper.models(thermoVendor());
-        return saveFile(user, createInstrumentAndApproveIfNeeded(user, getLab3(), models.iterator().next().id).get());
-    }
-
     protected long thermoVendor() {
         for (DictionaryItem item : instrumentCreationHelper.vendors()) {
             if (item.name.equals(Data.vendor1)) {

@@ -256,7 +256,7 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
     })
     .factory("FilesControllerCommon",
         function ($rootScope, $route, $location, $routeParams, $timeout, Instruments, FileDownloads, DashboardButtonFactory, DashboardButton,
-                  animatedScroll, downloadFiles, $filter, applyPaging, Files, FilesTranslation, experimentByFiles, Laboratories,
+                  animatedScroll, downloadFiles, $filter, applyPaging, Files, experimentByFiles, Laboratories,
                   OperatedInstruments, ExperimentSpecies, $q, filesExpandMenu, changeableColumnsHelper, FilesCharts, Security,
                   FileColumns, UserLabProvider, InstrumentStudyType, LabFeatures, BillingFeatures, ExperimentRestriction) {
             return function ($scope) {
@@ -389,12 +389,6 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                                 && $rootScope.isBillingFeatureAvailable(BillingFeatures.TRANSLATION);
                         }
 
-                        validators.canRemoveTranslationData = function (file) {
-                            return !file.usedInProteinSearches
-                                && file.translatedSuccessfully
-                                && getLabIdsAvailableForRemovingTranslationData(file).length > 0;
-                        };
-
                         validators.isAvailableForArchive = function (file) {
                             var userId = $rootScope.getUserId();
                             var labId = file.labId;
@@ -510,33 +504,6 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                             $scope.downloadSharedFilesPopup.showPopup();
                         };
 
-                        popups.showRemoveTranslationDataPopup = function (file) {
-                            popups.removeTranslationDataPopup = new Confirmation("#delete-translation-data-confirmation", file, {
-                                success: function (file) {
-                                    var labIdsAvailableForRemovingTranslationData = getLabIdsAvailableForRemovingTranslationData(file);
-                                    $.each(labIdsAvailableForRemovingTranslationData, function (i, lab) {
-                                        Files.deleteTranslationData({files: [file.id], lab: lab.id}, $route.reload);
-                                    }); //TODO: If user has translation data in several labs show popup with choosing laboratory to remove translated data
-                                }
-                            });
-                            popups.removeTranslationDataPopup.showPopup();
-                        };
-
-                        popups.showFileTranslationPopup = function (file) {
-                            popups.translationStatusPopup = new Confirmation("#file-translation-status", file);
-                            popups.translationStatusPopup.translate = function () {
-                                $scope.showTranslateFilePopup(file);
-                            };
-                            popups.translationStatusPopup.remove = function () {
-                                popups.showRemoveTranslationDataPopup(file);
-                            };
-                            popups.translationStatusPopup.canDelete = validators.canRemoveTranslationData(file);
-                            popups.translationStatusPopup.canView = popups.translationStatusPopup.item.status === "SUCCESS";
-                            popups.translationStatusPopup.canTranslate = validators.isAvailableForTranslation(file);
-                            popups.translationStatusPopup.status = file.status;
-                            popups.translationStatusPopup.showPopup();
-                        };
-
                         function reloadWithTimeoutFn(wait) {
                             return function () {
                                 setTimeout(function () {
@@ -552,34 +519,6 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                         var availableInstruments = [];
                         var isTableEmpty = false;
 
-                        $scope.showTranslateFilePopup = function (file) {
-
-                            var availableLaboratories = labsWithTranslationEnabled;
-                            var labCandidateToBeSelected = $.grep(availableLaboratories, function (lab) {
-                                return lab.id == file.labId;
-                            });
-                            var selectedLab = labCandidateToBeSelected.length > 0 ?
-                                labCandidateToBeSelected[0].id :
-                                (availableLaboratories.length > 0 ?
-                                    availableLaboratories[0].id :
-                                    null);
-
-                            var translationPopupItem = {
-                                file: file,
-                                selectedLab: selectedLab,
-                                availableLabs: availableLaboratories
-                            };
-                            $scope.translateFilePopup = new Confirmation("#translate-file-popup", translationPopupItem, {
-                                success: function (item) {
-                                    FilesTranslation.reTranslateSelected(
-                                        {lab: translationPopupItem.selectedLab, files: [file.id]}, function () {
-                                            console.log("File sent for translation");
-                                            $route.reload();
-                                        })
-                                }
-                            });
-                            $scope.translateFilePopup.showPopup();
-                        };
                         OperatedInstruments.query(function (data) {
                             availableInstruments = $.map(data, function (item) {
                                 return item.id;
@@ -618,7 +557,6 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
 
                                 item.translationErrorMessage = processTranslationErrorMessage(item.translationErrorMessage);
 
-                                item.statusObject = getStatusObject(item.status, item.translationErrorMessage);
                                 CommonLogger.log(item);
                                 return item;
 
@@ -761,150 +699,6 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                             DashboardButtonFactory.origin("files");
                             DashboardButtonFactory.filesTotalSize(totalSize);
                             DashboardButtonFactory.put(button);
-                        };
-
-                        var switchRetranslateButton = function (selectedItems) {
-
-                            var button = new DashboardButton(9, "retranslate", "Retranslate Selected Files", "retranslate-selected");
-
-                            function reTranslateData(items, lab) {
-                                CommonLogger.log("Data re-translation of the selected Files has been started = ", items);
-                                var request = {"files": []};
-                                request.lab = lab;
-                                angular.forEach(items, function (item) {
-                                    this.files.push(item.id);
-                                }, request);
-                                FilesTranslation.reTranslateSelected(request, reloadWithTimeoutFn(500));
-                            }
-
-                            var availableForReTranslate = $.grep(selectedItems, validators.isAvailableForTranslation);
-                            var isUserOperatorOfAllFiles = validators.isUserOperatorOfAllFiles(selectedItems);
-
-                            var dataForReTranslatePerLab = [];
-
-                            var USER_IS_NOT_AN_OPERATOR = "user-is-not-an-operator";
-
-                            $.each(availableForReTranslate, function (i, item) {
-                                if (isUserOperatorOfAllFiles) {
-                                    $.each($scope.labs, function (i, lab) {
-                                        if (validators.isFileUploadedToUsersLab(item, lab)) {
-                                            if (!dataForReTranslatePerLab[lab.id]) {
-                                                dataForReTranslatePerLab[lab.id] = [];
-                                            }
-                                            dataForReTranslatePerLab[lab.id].push(item);
-                                        }
-                                    });
-                                    //If the user is not an operator of the instrument the file was uploaded with,
-                                    // then add it to the array with the "user-is-not-an-operator" key
-                                } else {
-                                    if (!dataForReTranslatePerLab[USER_IS_NOT_AN_OPERATOR]) {
-                                        dataForReTranslatePerLab[USER_IS_NOT_AN_OPERATOR] = [];
-                                    }
-                                    dataForReTranslatePerLab[USER_IS_NOT_AN_OPERATOR].push(item);
-                                }
-                            });
-
-                            button.disabledHandler = function () {
-                                return selectedItems.length != availableForReTranslate.length;
-                            };
-                            button.display = selectedItems.length != 0 && selectedItems.length == availableForReTranslate.length;
-
-                            if (button.display && $scope.haveNGStudyType(selectedItems)) {
-                                button.display = false;
-                            }
-
-                            var availableLabs = labsWithTranslationEnabled;
-                            var selectedLab = availableLabs.length > 0 ?
-                                availableLabs[0].id :
-                                null;
-
-                            var popupOptions = {
-                                model: {
-                                    isUserOperatorOfAllFiles: isUserOperatorOfAllFiles,
-                                    availableLabs: availableLabs,
-                                    selectedLab: selectedLab
-                                },
-                                title: "Re-Translate Selected Files",
-                                type: "dialog",
-                                bodyMessageUrl: "../pages/component/operations/bulk-retranslate-files.html",
-                                success: {
-                                    caption: "Re-Translate",
-                                    handler: function () {
-                                        if (!isUserOperatorOfAllFiles) {
-                                            reTranslateData(dataForReTranslatePerLab[USER_IS_NOT_AN_OPERATOR], popupOptions.model.selectedLab);
-                                        } else {
-                                            $.each(Object.keys(dataForReTranslatePerLab), function (i, lab) {
-                                                reTranslateData(dataForReTranslatePerLab[lab], lab);
-                                            })
-                                        }
-                                    }
-                                }
-                            };
-
-                            button.popupOptions = popupOptions;
-                            button.disabledPopupOptions = popupOptions;
-                            button.showPopup = true;
-                            DashboardButtonFactory.put(button);
-                        };
-
-                        var switchRemoveTranslationDataButton = function (selectedItems) {
-                            var button = new DashboardButton(92, "remove-translation-data", "Remove files translation data", "delete-translation");
-
-                            function removeTranslationData(items, lab) {
-                                CommonLogger.log("Removes Translation data of the selected Files start = ", items);
-                                var request = {"files": []};
-                                request.lab = lab;
-                                angular.forEach(items, function (item) {
-                                    this.files.push(item.id);
-                                }, request);
-                                Files.deleteTranslationData(request, reloadWithTimeoutFn(500));
-                            }
-
-                            var availableForRemove = $.grep(selectedItems, validators.canRemoveTranslationData);
-                            var dataForRemovePerLab = {};
-
-                            $.each(availableForRemove, function (i, item) {
-                                $.each($scope.labs, function (i, lab) {
-                                    if (validators.isAvailableForTranslationDataRemovingThroughLab(item, lab)) {
-                                        if (!dataForRemovePerLab[lab.id]) {
-                                            dataForRemovePerLab[lab.id] = [item];
-                                        } else {
-                                            dataForRemovePerLab[lab.id].push(item);
-                                        }
-                                    }
-                                })
-                            });
-
-                            button.disabledHandler = function () {
-                                return selectedItems.length != availableForRemove.length;
-                            };
-                            var isAllAvailableToArchive = selectedItems.length == availableForRemove.length;
-                            button.display = availableForRemove.length != 0;
-
-                            if (button.display && $scope.haveNGStudyType(selectedItems)) {
-                                button.display = false;
-                            }
-
-                            var popupOptions = {
-                                model: {allAvailableToDelete: isAllAvailableToArchive},
-                                title: "Delete Translation Data of the Selected Files",
-                                type: "dialog",
-                                bodyMessageUrl: "../pages/component/operations/bulk-delete-files-translation-data.html",
-                                success: {
-                                    caption: "Delete",
-                                    handler: function () {
-                                        $.each(Object.keys(dataForRemovePerLab), function (i, lab) {
-                                            removeTranslationData(dataForRemovePerLab[lab], lab);
-                                        })
-                                    }
-                                }
-                            };
-
-                            button.popupOptions = popupOptions;
-                            button.disabledPopupOptions = popupOptions;
-                            button.showPopup = true;
-                            DashboardButtonFactory.put(button);
-
                         };
 
                         var switchRemovesButton = function (selectedItems) {
@@ -1193,112 +987,6 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                             DashboardButtonFactory.put(button);
                         };
 
-                        var switchShowChartsButton = function (selectedFiles, billingFeaturesByLab, featuresByLab) {
-
-                            var button = new DashboardButton(5, "E", "View chart", "retranslate-selected");
-                            var labIds = $.map(billingFeaturesByLab, function (item) {
-                                return item.lab;
-                            });
-                            var enabledTranslationLabsFeatures = $.grep(labIds, function (labId) {
-                                var billingFeaturesItem = $.grep(billingFeaturesByLab, function (it) {
-                                    return it.lab == labId
-                                })[0];
-                                var featuresItem = $.grep(featuresByLab, function (it) {
-                                    return it.lab == labId;
-                                })[0];
-
-                                return $.inArray(BillingFeatures.TRANSLATION, billingFeaturesItem.features) >= 0
-                                    && $.inArray(LabFeatures.TRANSLATION, featuresItem.features);
-                            });
-
-                            var allFilesLabsProvideTranslationFeature = enabledTranslationLabsFeatures.length == billingFeaturesByLab.length;
-
-                            var archivedFilesCount = $.grep(selectedFiles, function (item) {
-                                return item.storageStatus !== "UNARCHIVED";
-                            }).length;
-
-                            var allFilesWithoutError = true;
-                            if (selectedFiles.length > 0) {
-                                angular.forEach(selectedFiles, function (file) {
-                                    allFilesWithoutError = allFilesWithoutError && file.translatedSuccessfully;
-                                });
-                            }
-                            var canInitiateTranslation = allFilesWithoutError ||
-                                (!allFilesWithoutError && $.grep(selectedFiles, function (item) {
-                                    return item.labHead == $scope.loggedInUser.id || item.owner == $scope.loggedInUser.id;
-                                }).length == selectedFiles.length);
-                            button.display = selectedFiles.length > 0
-                                && enabledTranslationLabsFeatures.length > 0
-                                && archivedFilesCount != selectedFiles.length
-                                && canInitiateTranslation;
-
-                            if (button.display && $scope.haveNGStudyType(selectedFiles)) {
-                                button.display = false;
-                            }
-
-                            button.disabledHandler = function () {
-                                var allFilesTranslated = true;
-                                if (selectedFiles.length > 0) {
-                                    angular.forEach(selectedFiles, function (file) {
-                                        allFilesTranslated = allFilesTranslated && file.translatedSuccessfully;
-                                    });
-                                }
-                                return !allFilesTranslated || !allFilesLabsProvideTranslationFeature;
-
-                            };
-
-                            var currentUrl = null;
-
-                            var urlRequest = {"fileIds": []};
-                            angular.forEach(selectedFiles, function (file) {
-                                urlRequest.fileIds.push(file.id);
-                            });
-                            if (urlRequest.fileIds.length > 0) {
-                                FilesCharts.getUrl(urlRequest, function (response) {
-                                    currentUrl = response.url;
-                                });
-                            }
-                            var labCandidateToBeSelected = urlRequest.fileIds.length == 0 ? [] : $.grep($scope.laboratories, function (lab) {
-                                return lab.id == selectedFiles[0].labId; // checking which lab should be selected at first - display if user has membership to file"s lab
-                            });
-                            button.disabledPopupOptions = {
-                                title: "View Charts Operation Is Not Available",
-                                bodyMessageUrl: "../pages/component/operations/unsupported-view-charts.html",
-                                type: "dialog",
-                                model: {
-                                    haveArchivedFiles: archivedFilesCount > 0,
-                                    availableLabs: $scope.laboratories,
-                                    selectedLab: labCandidateToBeSelected.length == 0 ? $scope.laboratories[0].id : labCandidateToBeSelected[0].id
-                                },
-                                success: {
-                                    caption: archivedFilesCount === 0 && "Translate" || "Translate Allowed",
-                                    handler: function () {
-                                        var notTranslatedFiles = $.grep(selectedFiles, function (file) {
-                                            return !file.translatedSuccessfully && file.storageStatus === "UNARCHIVED";
-                                        });
-                                        var requestToTranslate = {
-                                            "files": [],
-                                            "lab": button.disabledPopupOptions.model.selectedLab
-                                        };
-                                        angular.forEach(notTranslatedFiles, function (item) {
-                                            this.files.push(item.id);
-                                        }, requestToTranslate);
-                                        FilesTranslation.reTranslateSelected(requestToTranslate, $route.reload);
-                                    }
-                                },
-                                cancel: {
-                                    handler: function () {
-                                        switchEditButton(selectedFiles);
-                                    }
-                                }
-                            };
-
-                            button.onClickHandler = function () {
-                                openChartWindow(currentUrl);
-                            };
-                            DashboardButtonFactory.put(button);
-                        };
-
                         function openChartWindow(currentUrl) {
                             if (currentUrl != null) {
                                 window.open(
@@ -1380,10 +1068,7 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                             switchRemovesButton(selectedItems);
                             switchEditButton(selectedItems);
                             switchExperimentButton(selectedItems);
-                            switchRemoveTranslationDataButton(selectedItems);
                             withFeaturesByLabs(selectedItems, function (items, billingFeatures, labFeatures) {
-                                switchShowChartsButton(items, billingFeatures, labFeatures);
-                                switchRetranslateButton(selectedItems, billingFeatures, labFeatures);
                                 switchDownloadButton(items, billingFeatures);
                                 switchArchiveButton(items, billingFeatures);
                                 switchUnarchiveButton(items, billingFeatures);

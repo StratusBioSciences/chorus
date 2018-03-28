@@ -17,17 +17,6 @@
                 <version>2.3.1</version>
                 <executions>
                     <execution>
-                        <id>workflow</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                        <configuration>
-                            <pomFile>workflow-sdk-1.0-SNAPSHOT.pom</pomFile>
-                            <file>workflow-sdk-1.0-SNAPSHOT.jar</file>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>workfstorage-cloudlow</id>
                         <phase>install</phase>
                         <goals>
@@ -36,17 +25,6 @@
                         <configuration>
                             <pomFile>storage-cloud-1.0-SNAPSHOT.pom</pomFile>
                             <file>storage-cloud-1.0-SNAPSHOT.jar</file>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>analysis</id>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>install-file</goal>
-                        </goals>
-                        <configuration>
-                            <pomFile>analysis-platform-rest-1.0.26.pom</pomFile>
-                            <file>analysis-platform-rest-1.0.26.jar</file>
                         </configuration>
                     </execution>
                     <execution>

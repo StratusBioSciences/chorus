@@ -29,22 +29,8 @@ public class RunDemoDataCreator {
     @Inject
     private RuleValidator ruleValidator;
 
-    @Value("${msexplorer.messaging.hostname}")
-    private String rabbitName;
-    @Value("${msexplorer.messaging.port}")
-    private int rabbitPort;
-    @Value("${msexplorer.username}")
-    private String rabbitUsername;
-    @Value("${msexplorer.password}")
-    private String rabbitPwd;
-    @Value("${msexplorer.messaging.timeout}")
-    private int rabbitTimeout;
     @Value("${protein.dbs.target.folder}")
     private String proteinDatabasesPrefix;
-    @Value("${database.data.rabbit.byonic.username}")
-    private String byonicRabbitUsername;
-    @Value("${database.data.rabbit.byonic.password}")
-    private String byonicRabbitPwd;
 
     public void createProteinDatabases(long admin) {
         initiator.proteinDatabase(admin, "Homo Sapiens", proteinDatabasesPrefix + CLOUD_REFERENCE_URL_SEPARATOR + "HomoSapiens.fasta", "Homo sapiens");

@@ -34,22 +34,11 @@ public interface PredefinedDataCreator {
 
     long cdfDatabase(long user, String dbName, String contentUrl, String specie);
 
-    /*Protein ID search requires all files should be translated in experiment*/
-    long translateFileForRun(long actor, long instrument, long experiment);
-
-    long translateFileForRun(long actor, long instrument, long experiment, String ms1FunctionName, String ms2FunctionName);
-
-    long translateExperiment(long actor, long experiment);
-
     List<Long> createColumnsDefinitions(List<ColumnViewHelper.Column> info, ColumnViewHelper.ColumnViewType type);
 
     long defaultColumnsView(Set<ColumnViewHelper.ColumnInfo> view, ColumnViewHelper.ColumnViewType type);
 
     void allUsersGroup();
-
-    void msFunctionItem(String name, String translatedPath);
-
-    void translateFileForMS1FunctionValidation(long actor, long file, long experiment, String ms1FunctionName, DetailsReader.MZGridParamsDetails mzGridParams);
 
     long createExperimentLabelType(String name, int maxSamples);
 

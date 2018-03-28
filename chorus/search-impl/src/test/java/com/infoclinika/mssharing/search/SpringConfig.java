@@ -8,7 +8,6 @@
  */
 package com.infoclinika.mssharing.search;
 
-import com.infoclinika.analysis.rest.AnalysisPlatformRestService;
 import com.infoclinika.mssharing.model.AdminNotifier;
 import com.infoclinika.mssharing.model.Notifier;
 import com.infoclinika.mssharing.model.Searcher;
@@ -35,8 +34,7 @@ import static org.mockito.Mockito.mock;
 @ImportResource({
         "test.cfg.xml",
         "persistence.cfg.xml",
-        "h2.cfg.xml",
-        "workflow-test.cfg.xml"
+        "h2.cfg.xml"
 })
 @ComponentScan(
         basePackages = {
@@ -74,12 +72,6 @@ class SpringConfig {
     public BillingService billingService() {
         BillingService billingService = mock(BillingService.class);
         return billingService;
-    }
-
-    @Bean(name = "analysisPlatformRestService")
-    public AnalysisPlatformRestService analysisPlatformRestService() {
-        final AnalysisPlatformRestService analysisPlatformRestService = mock(AnalysisPlatformRestService.class);
-        return analysisPlatformRestService;
     }
 
     @Bean

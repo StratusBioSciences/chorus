@@ -9,6 +9,7 @@ import com.infoclinika.mssharing.web.controller.request.AdminBroadcastNotificati
 import com.infoclinika.mssharing.web.demo.RunDemoDataCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,8 +45,6 @@ public class AdminToolsController extends ErrorHandler {
     private BillingService billingService;
     @Inject
     private RunDemoDataCreator runDemoDataCreator;
-    @Inject
-    private StudyManagement studyManagement;
 
     @RequestMapping(value = "/notification", method = RequestMethod.POST)
     public void broadcastNotification(@RequestBody AdminBroadcastNotificationRequest request, Principal principal) {
@@ -81,17 +80,6 @@ public class AdminToolsController extends ErrorHandler {
         fileOperationsManager.checkIsFilesConsistent(actor);
     }
 
-
-    /**
-     * It removes all post processing template of particular run and then adds the most common post processing template for processing run(ID of run passed through GET parameters)
-     * Use it wisely.
-     */
-    @RequestMapping(value = "/generate-post-processing-datacubes/{runID}", method = RequestMethod.GET)
-    @ResponseStatus(HttpStatus.OK)
-    public void addPostTemplateToExecuteForRun(@PathVariable("runID") long runID, final String postTemplateName) {
-        throw new UnsupportedOperationException();
-    }
-
     @RequestMapping(value = "/run-billing-migration", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     public void runBillingMigration(Principal principal) {
@@ -111,25 +99,6 @@ public class AdminToolsController extends ErrorHandler {
     public void generateDemoCdfDatabases(Principal principal) {
         final long userId = getUserId(principal);
         runDemoDataCreator.createCdfDatabases(userId);
-    }
-
-    @RequestMapping(value = "/retranslate-all-not-translated-files-of-experiments", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
-    public void reTranslateAllNotTranslatedFilesOfExperiments(@RequestBody ReTranslateRequest request, Principal principal) {
-        LOG.debug("File translation request for all files");
-        studyManagement.reTranslateAllNotTranslatedFilesOfExperiments(getUserId(principal), request.metadataOnly);
-    }
-
-    private static class ReTranslateRequest {
-
-        public boolean metadataOnly;
-
-        @Override
-        public String toString() {
-            return "ReTranslateRequest{" +
-                    "metadataOnly=" + metadataOnly +
-                    '}';
-        }
     }
 
 }

@@ -29,8 +29,6 @@ public class Instrument extends InstrumentTemplate<User, Lab> {
     @Fetch(FetchMode.SELECT)
     private List<LockMz> lockMasses = newArrayList();
 
-    private boolean autoTranslate = false;
-
     public Instrument() {
     }
 
@@ -68,13 +66,5 @@ public class Instrument extends InstrumentTemplate<User, Lab> {
 
     public List<LockMz> getLockMasses() {
         return lockMasses;
-    }
-
-    public boolean isAutoTranslate() {
-        return autoTranslate;
-    }
-
-    public void setAutoTranslate(boolean autoTranslate) {
-        this.autoTranslate = autoTranslate;
     }
 }

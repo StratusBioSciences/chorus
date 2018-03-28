@@ -135,12 +135,10 @@ public class DashboardReaderImpl implements DashboardReader {
         final Instrument instrument = data.getInstrument();
         final FileMetaAnnotations metaInfo = data.getMetaInfo();
         final Date acquisitionDate = metaInfo == null ? null : metaInfo.getCreationDate();
-        final Set<UserLabFileTranslationData> usersFunctions = data.getUsersFunctions();
 
         return new UploadedFile(data.getId(), data.getName(), instrument.getName(),
                 Transformers.toFullInstrumentModel(instrument.getModel()),
                 data.getUploadDate(), acquisitionDate, data.getSizeInBytes(),
-                !usersFunctions.isEmpty() && !usersFunctions.iterator().next().getFunctions().isEmpty(),
                 data.getOwner().getId());
     }
 

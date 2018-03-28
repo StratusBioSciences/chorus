@@ -111,8 +111,6 @@ class Repositories {
     @Inject
     private ProjectSharingRequestRepositoryTemplate<ProjectSharingRequestTemplate> projectSharingRequestRepository;
     @Inject
-    protected UserLabFileTranslationDataRepository userLabFileTranslationDataRepository;
-    @Inject
     private TransactionDetailsRepository transactionDetailsRepository;
     @Inject
     private CopyProjectRequestRepository copyProjectRequestRepository;
@@ -141,10 +139,6 @@ class Repositories {
     @Inject
     FailedEmailsNotifierRepository failedEmailsNotifierRepository;
     @Inject
-    private MSFunctionItemRepository msFunctionItemRepository;
-    @Inject
-    private MZGridParamsRepository mzGridParamsRepository;
-    @Inject
     private BillingPropertyRepository billingPropertyRepository;
 
     public List<CrudRepository> get() {
@@ -158,7 +152,6 @@ class Repositories {
                 outboxMessageRepository,
                 proteinDescriptionRepository,
                 proteinDatabaseRepository,
-                userLabFileTranslationDataRepository,
                 experimentLabelToExperimentRepository,
                 experimentRepository,
                 deletedExperimentRepository,
@@ -202,7 +195,6 @@ class Repositories {
                 advertisementRepository,
                 experimentLabelRepository,
                 experimentLabelTypeRepository,
-                msFunctionItemRepository,
                 billingPropertyRepository
         );
     }

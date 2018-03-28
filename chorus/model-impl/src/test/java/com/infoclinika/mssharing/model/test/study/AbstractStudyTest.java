@@ -77,7 +77,7 @@ abstract class AbstractStudyTest extends AbstractTest {
     }
 
     protected void createFileWithInstrument(long bob, long instrument, long specie) {
-        long file = instrumentManagement.createFile(bob, instrument, new FileMetaDataInfo(UUID.randomUUID().toString(), 0, "", null, specie, false, false));
+        long file = instrumentManagement.createFile(bob, instrument, new FileMetaDataInfo(UUID.randomUUID().toString(), 0, "", null, specie, false));
         instrumentManagement.setContent(bob, file, mock(StoredObject.class));
     }
 

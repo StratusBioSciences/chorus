@@ -17,21 +17,19 @@
         <module>mssharing-fileserver</module>
         <module>billing-web-services-api</module>
         <module>model</module>
-        <module>workflow-api</module>
         <module>authentication-service-api</module>
         <module>single-signon</module>
         <module>model-impl</module>
         <module>billing-web-services</module>
         <module>mailing</module>
         <module>search-impl</module>
-        <module>selenium-tests</module>
+        <!--<module>selenium-tests</module>-->
         <module>blog</module>
         <module>rest-dto</module>
         <module>background-services</module>
         <module>webapp-common</module>
         <module>webapp</module>
         <module>uploader-ws-api</module>
-        <module>skyline-webapp</module>
         <!--<module>viewers-webapp</module>-->
     </modules>
 

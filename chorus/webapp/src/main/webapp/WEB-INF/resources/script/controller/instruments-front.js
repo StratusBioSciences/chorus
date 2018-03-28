@@ -58,7 +58,6 @@ angular.module("instruments-front", ["modals", "instruments-back", "ui", "genera
         $scope.instrument = {details: {}, operators: []};
         $scope.model = {};
         $scope.excludeEmails = [];
-        $scope.autoTranslateAvailable = true;
         instrumentLockMassesCommons($scope);
 
 
@@ -91,13 +90,6 @@ angular.module("instruments-front", ["modals", "instruments-back", "ui", "genera
                     $scope.model.vendor = getDefaultOptionValue($scope.vendors)
                 });
 
-                const studyTypeName = $.grep($scope.studyTypes, function (st) {
-                    return st.id == techType;
-                })[0].name;
-
-                const studyTypeIsMS = studyTypeName == InstrumentStudyType.MS;
-                $scope.autoTranslateAvailable = studyTypeIsMS;
-                $scope.instrument.details.autoTranslate = studyTypeIsMS;
             } else {
                 $scope.vendors = [
                     {name: "Select study first"}
@@ -232,7 +224,6 @@ angular.module("instruments-front", ["modals", "instruments-back", "ui", "genera
         $scope.instrument = {};
         $scope.userDescription = {};
         $scope.viewMode = true;
-        $scope.autoTranslateAvailable = true;
         var instrumentsByLab = [];
         $scope.users = [];
 
@@ -260,7 +251,6 @@ angular.module("instruments-front", ["modals", "instruments-back", "ui", "genera
                 });
                 $scope.viewMode = (!loggedUserIsOperator);
                 $scope.instrument = instrument;
-                $scope.autoTranslateAvailable = instrument.studyType == InstrumentStudyType.MS;
                 instrumentLockMassesCommons($scope, instrument.lockMasses);
                 $scope.users = AvailableOperators.query({lab: $scope.instrument.lab.id});
             });
@@ -293,8 +283,7 @@ angular.module("instruments-front", ["modals", "instruments-back", "ui", "genera
                 serialNumber: $scope.instrument.serialNumber,
                 hplc: $scope.instrument.hplc || "",
                 peripherals: $scope.instrument.peripherals || "",
-                lockMasses: $scope.lockMasses,
-                autoTranslate: $scope.instrument.autoTranslate
+                lockMasses: $scope.lockMasses
             };
             instrument.operators = $.map($scope.instrument.operators, function (operator) {
                 return parseInt([

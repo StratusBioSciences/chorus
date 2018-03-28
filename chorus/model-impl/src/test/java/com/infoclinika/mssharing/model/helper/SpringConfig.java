@@ -8,10 +8,10 @@
 */
 package com.infoclinika.mssharing.model.helper;
 
-import com.infoclinika.analysis.rest.AnalysisPlatformRestService;
 import com.infoclinika.mssharing.model.AdminNotifier;
 import com.infoclinika.mssharing.model.Notifier;
 import com.infoclinika.mssharing.model.internal.RuleValidatorImpl;
+import com.infoclinika.mssharing.model.internal.read.PaymentHistoryReaderImpl;
 import com.infoclinika.mssharing.platform.fileserver.StorageService;
 import com.infoclinika.mssharing.platform.fileserver.StoredObject;
 import com.infoclinika.mssharing.platform.fileserver.impl.InMemoryStorageService;
@@ -19,10 +19,12 @@ import com.infoclinika.mssharing.platform.fileserver.model.NodePath;
 import com.infoclinika.mssharing.platform.model.RuleValidator;
 import com.infoclinika.mssharing.platform.model.impl.write.DefaultFileUploadManagement;
 import com.infoclinika.mssharing.services.billing.rest.api.BillingService;
+import org.apache.log4j.Logger;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -51,8 +53,7 @@ import static org.mockito.Mockito.when;
 @ImportResource({
         "test.cfg.xml",
         "persistence.cfg.xml",
-        "h2.cfg.xml",
-        "workflow-test.cfg.xml"
+        "h2.cfg.xml"
 })
 @ComponentScan(
         basePackages = {
@@ -63,6 +64,8 @@ import static org.mockito.Mockito.when;
                 @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = DefaultFileUploadManagement.class)})
 public class SpringConfig {
 
+    private static final Logger LOG = Logger.getLogger(SpringConfig.class);
+
     public static final String ARCHIVE_ID = "archiveId";
 
     @Bean()
@@ -71,6 +74,7 @@ public class SpringConfig {
         doCallRealMethod().when(mock).put(Matchers.<NodePath>anyObject(), Matchers.<StoredObject>anyObject());
         doCallRealMethod().when(mock).get(Matchers.<NodePath>anyObject());
         doCallRealMethod().when(mock).delete(Matchers.<NodePath>anyObject());
+        LOG.info("Storage Service initialized");
         return mock;
     }
 
@@ -113,18 +117,10 @@ public class SpringConfig {
     }
 
 
-    @Bean(name = "billingService")
+    @Bean(name = "billingRestService")
     public BillingService billingService() {
         BillingService billingService = mock(BillingService.class);
         return billingService;
-    }
-
-
-
-    @Bean(name = "analysisPlatformRestService")
-    public AnalysisPlatformRestService analysisPlatformRestService() {
-        final AnalysisPlatformRestService analysisPlatformRestService = mock(AnalysisPlatformRestService.class);
-        return analysisPlatformRestService;
     }
 
     @Bean

@@ -26,14 +26,11 @@ import com.infoclinika.mssharing.platform.model.common.items.NamedItem;
 import com.infoclinika.mssharing.platform.model.helper.ExperimentCreationHelperTemplate.ExperimentTypeItem;
 import com.infoclinika.mssharing.platform.model.read.DetailsReaderTemplate.ExperimentShortInfo;
 import com.infoclinika.mssharing.platform.model.read.Filter;
-import com.infoclinika.mssharing.platform.model.write.ExperimentManagementTemplate;
 import com.infoclinika.mssharing.platform.model.write.ExperimentManagementTemplate.Restriction;
 import com.infoclinika.mssharing.web.controller.request.ExperimentDetails;
-import com.infoclinika.mssharing.web.controller.request.PageRequest;
 import com.infoclinika.mssharing.web.controller.request.SameSpeciesCheckRequest;
 import com.infoclinika.mssharing.web.controller.response.DetailsResponse;
 import com.infoclinika.mssharing.web.controller.response.ExperimentIdResponse;
-import com.infoclinika.mssharing.web.controller.response.ExperimentTranslationStatusResponse;
 import com.infoclinika.mssharing.web.controller.response.ValueResponse;
 import org.apache.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -46,7 +43,6 @@ import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.infoclinika.mssharing.model.PaginationItems.AdvancedFilterQueryParams.AdvancedFilterPredicateItem.AdvancedFilterOperator.*;
-import static com.infoclinika.mssharing.model.read.DashboardReader.StorageStatus.*;
 import static com.infoclinika.mssharing.platform.model.read.DetailsReaderTemplate.ShortExperimentFileItem;
 import static com.infoclinika.mssharing.platform.web.security.RichUser.getUserId;
 import static com.infoclinika.mssharing.web.transform.ExperimentTransformer.TO_EXPERIMENT_DETAILS;
@@ -322,81 +318,11 @@ public class ExperimentsController extends PagedItemsController {
         return detailsReader.readExperimentShortInfo(getUserId(principal), id);
     }
 
-    @RequestMapping(value = "/translate/{id}/{chargedLab}", method = RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.OK)
-    public void translateExperiment(@PathVariable("id") long id, @PathVariable("chargedLab") long chargedLab, Principal principal) {
-        LOG.debug("Translate experiment call arrived to the controller. Experiment ID = " + id + ", Charged Lab: " + chargedLab);
-        studyManagement.markExperimentFilesForTranslation(getUserId(principal), id, chargedLab);
-    }
-
-    @RequestMapping(value = "/translateNotTranslated/{id}/{chargedLab}", method = RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.OK)
-    public void translateNotTranslatedExperimentFiles(@PathVariable("id") long id, @PathVariable("chargedLab") long chargedLab, Principal principal) {
-        LOG.debug("Translate experiment call arrived to the controller. Experiment ID = " + id);
-        studyManagement.markNotTranslatedFilesToTranslate(getUserId(principal), id, chargedLab);
-    }
-
-    @RequestMapping(value = "/translationstatus/{id}", method = RequestMethod.GET)
-    @ResponseBody
-    public ExperimentTranslationStatusResponse getExperimentTranslationStatus(@PathVariable("id") long id, Principal principal) {
-        final long userId = getUserId(principal);
-        ExperimentItem details = detailsReader.readExperiment(userId, id);
-
-        return new ExperimentTranslationStatusResponse(details.msChartsLink,
-                details.translationErrors,
-                details.lastTranslationAttemptDate,
-                details.proteinIDSearchAllowed,
-                details.files.stream().anyMatch(input -> {
-                    final com.infoclinika.mssharing.model.read.dto.details.FileItem fileItem = (com.infoclinika.mssharing.model.read.dto.details.FileItem) input;
-
-                    return EnumSet.of(ARCHIVED, ARCHIVING_IN_PROCESS, UN_ARCHIVING_IN_PROCESS, UN_ARCHIVING_FOR_DOWNLOAD_IN_PROCESS)
-                            .contains(fileItem.storageStatus);
-                }),
-                details.status, details.numberOfProteinSearches > 0
-        );
-    }
-
     @RequestMapping(value = "/precache/{id}", method = RequestMethod.GET)
     @ResponseStatus(HttpStatus.OK)
     public void preCacheViewers(@PathVariable("id") long id, Principal principal) {
         LOG.debug("Pre-cache viewers call arrived to the controller. Experiment ID = " + id);
         studyManagement.runPreCacheViewers(getUserId(principal), id);
-    }
-
-    @RequestMapping(value = "/translation/all", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
-    public void retranslateAllExperiments(Principal principal) {
-        final long actor = getUserId(principal);
-        LOG.debug("Retranslate all experiments called. User ID = " + actor);
-        studyManagement.retranslateAllExperiments(actor);
-    }
-
-    @RequestMapping(value = "/per-experiment-translation/selected", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
-    public void retranslateSelectedExperimentsFiles(@RequestBody RetranslateExperimentsRequest request, Principal principal) {
-        studyManagement.retranslateExperimentsFiles(getUserId(principal), request.experiments);
-    }
-
-    @RequestMapping(value = "/translation/selected", method = RequestMethod.POST)
-    @ResponseStatus(HttpStatus.OK)
-    public void retranslateSelectedExperiments(@RequestBody RetranslateExperimentsRequest request, Principal principal) {
-        final long actor = getUserId(principal);
-        LOG.debug("Retranslate all experiments called. User ID = " + actor);
-        studyManagement.retranslateExperiments(actor, request.experiments);
-    }
-
-    @RequestMapping(value = "/translation/all", method = RequestMethod.GET)
-    @ResponseBody
-    public ImmutableSet<AdministrationToolsReader.ExperimentTranslationShortItem> getAllExperimentsTranslationStatuses(Principal principal) {
-        final long actor = getUserId(principal);
-        return administrationToolsReader.readExperimentTranslationStatuses(actor);
-    }
-
-    @RequestMapping(value = "/translation", method = RequestMethod.GET)
-    @ResponseBody
-    public PagedItem<AdministrationToolsReader.ExperimentTranslationShortItem> getPagedExperimentsTranslationStatuses(PageRequest pageRequest, Principal principal) {
-        final long actor = getUserId(principal);
-        return administrationToolsReader.readExperimentTranslationStatuses(actor, createPagedInfo(pageRequest));
     }
 
     @RequestMapping(value = "/moveToStorage", method = RequestMethod.GET)
@@ -415,17 +341,6 @@ public class ExperimentsController extends PagedItemsController {
     @ResponseStatus(HttpStatus.OK)
     public void unarchive(@PathVariable long id, Principal principal) {
         fileOperationsManager.markExperimentFilesToUnarchive(getUserId(principal), id);
-    }
-
-    @RequestMapping(value = "/deleteTranslationData/{id}", method = DELETE)
-    @ResponseStatus(HttpStatus.OK)
-    public void deleteTranslationData(@PathVariable long id, Principal principal) {
-        studyManagement.removeTranslationDataOfExperimentFiles(getUserId(principal), id);
-    }
-
-
-    private static class RetranslateExperimentsRequest {
-        public List<Long> experiments;
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)

@@ -10,17 +10,10 @@ package com.infoclinika.mssharing.model.internal.read;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
-import com.google.common.collect.Sets;
-import com.infoclinika.mssharing.model.api.MSFunctionMassAnalyzerType;
-import com.infoclinika.mssharing.model.api.MSFunctionType;
-import com.infoclinika.mssharing.model.api.MSResolutionType;
 import com.infoclinika.mssharing.model.helper.LockMzItem;
 import com.infoclinika.mssharing.model.internal.RuleValidator;
 import com.infoclinika.mssharing.model.internal.entity.AnnotationAttachment;
@@ -29,13 +22,9 @@ import com.infoclinika.mssharing.model.internal.entity.Factor;
 import com.infoclinika.mssharing.model.internal.entity.Group;
 import com.infoclinika.mssharing.model.internal.entity.Instrument;
 import com.infoclinika.mssharing.model.internal.entity.Lab;
-import com.infoclinika.mssharing.model.internal.entity.MSFunctionItem;
-import com.infoclinika.mssharing.model.internal.entity.MZGridParams;
 import com.infoclinika.mssharing.model.internal.entity.PrepToExperimentSample;
-import com.infoclinika.mssharing.model.internal.entity.ProcessingRunPluginAttachment;
 import com.infoclinika.mssharing.model.internal.entity.RawFile;
 import com.infoclinika.mssharing.model.internal.entity.SampleCondition;
-import com.infoclinika.mssharing.model.internal.entity.UserLabFileTranslationData;
 import com.infoclinika.mssharing.model.internal.entity.Util;
 import com.infoclinika.mssharing.model.internal.entity.restorable.AbstractFileMetaData;
 import com.infoclinika.mssharing.model.internal.entity.restorable.ActiveExperiment;
@@ -45,10 +34,9 @@ import com.infoclinika.mssharing.model.internal.entity.restorable.NgsRelatedData
 import com.infoclinika.mssharing.model.internal.repository.AnnotationAttachmentRepository;
 import com.infoclinika.mssharing.model.internal.repository.ExperimentRepository;
 import com.infoclinika.mssharing.model.internal.repository.FileMetaDataRepository;
-import com.infoclinika.mssharing.model.internal.repository.ProcessingRunPluginAttachmentRepository;
 import com.infoclinika.mssharing.model.internal.repository.RawFilesRepository;
 import com.infoclinika.mssharing.model.internal.repository.UserRepository;
-import com.infoclinika.mssharing.model.read.DashboardReader.TranslationStatus;
+import com.infoclinika.mssharing.model.read.DashboardReader;
 import com.infoclinika.mssharing.model.read.DetailsReader;
 import com.infoclinika.mssharing.model.read.ExtendedShortExperimentFileItem;
 import com.infoclinika.mssharing.model.read.ExtendedShortExperimentFileItem.ExperimentShortSampleItem;
@@ -61,11 +49,8 @@ import com.infoclinika.mssharing.model.write.ExperimentCategory;
 import com.infoclinika.mssharing.model.write.NgsRelatedExperimentInfo;
 import com.infoclinika.mssharing.platform.entity.ExperimentFileTemplate;
 import com.infoclinika.mssharing.platform.entity.RawFiles;
-import com.infoclinika.mssharing.platform.entity.UserLabMembership;
-import com.infoclinika.mssharing.platform.entity.UserTemplate;
 import com.infoclinika.mssharing.platform.entity.restorable.FileMetaDataTemplate;
 import com.infoclinika.mssharing.platform.model.AccessDenied;
-import com.infoclinika.mssharing.platform.model.ObjectNotFoundException;
 import com.infoclinika.mssharing.platform.model.helper.read.SingleResultBuilder;
 import com.infoclinika.mssharing.platform.model.helper.read.details.DetailsTransformersTemplate;
 import com.infoclinika.mssharing.platform.model.impl.read.DefaultDetailsReader;
@@ -73,7 +58,6 @@ import com.infoclinika.mssharing.platform.model.read.AttachmentsReaderTemplate;
 import com.infoclinika.mssharing.platform.model.read.DetailsReaderTemplate;
 import com.infoclinika.mssharing.platform.model.read.RequestsDetailsReaderTemplate;
 import com.infoclinika.mssharing.platform.repository.InstrumentRepositoryTemplate;
-import com.infoclinika.tasks.api.workflow.model.MSExperimentResolutionType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -81,7 +65,6 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -92,12 +75,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Lists.transform;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.collect.Sets.newTreeSet;
-import static com.infoclinika.mssharing.model.api.MSFunctionMassAnalyzerType.FTMS;
-import static com.infoclinika.mssharing.model.api.MSFunctionType.MS;
-import static com.infoclinika.mssharing.model.api.MSFunctionType.MS2;
 import static com.infoclinika.mssharing.model.internal.read.Transformers.LOCK_MZ_ITEM_FUNCTION;
-import static com.infoclinika.mssharing.model.internal.read.Transformers.MS_FUNCTIONS_FROM_USER_TRANSLATION_DATA;
-import static com.infoclinika.mssharing.model.internal.read.Transformers.getExperimentTranslationStatus;
 import static com.infoclinika.mssharing.model.internal.read.Transformers.transformStorageStatus;
 import static com.infoclinika.mssharing.platform.entity.EntityUtil.ENTITY_TO_ID;
 import static com.infoclinika.mssharing.platform.model.impl.ValidatorPreconditions.checkAccess;
@@ -126,8 +104,6 @@ public class DetailsReaderImpl extends DefaultDetailsReader<ActiveFileMetaData, 
     @Inject
     private AnnotationAttachmentRepository annotationAttachmentRepository;
     @Inject
-    private ProcessingRunPluginAttachmentRepository processingRunPluginAttachmentRepository;
-    @Inject
     private DetailsTransformersTemplate detailsTransformers;
     @Inject
     private RawFilesRepository filesRepository;
@@ -154,13 +130,6 @@ public class DetailsReaderImpl extends DefaultDetailsReader<ActiveFileMetaData, 
 
                 final ExperimentItemTemplate byDefault = experimentHelper.getDefaultTransformer().apply(experiment);
                 final String msChartsLink = transformers.getChartsLink(experiment);
-                final ImmutableSet<Long> userLabs = from(userRepository.findOne(actor).getLabMemberships()).transform(new Function<UserLabMembership<? extends UserTemplate<?>, Lab>, Long>() {
-                    @Override
-                    public Long apply(UserLabMembership<? extends UserTemplate<?>, Lab> labMembership) {
-                        return labMembership.getLab().getId();
-                    }
-                }).toSet();
-                final TranslationStatus translationStatus = getExperimentTranslationStatus(experiment, userLabs);
                 final Set<ExperimentSample> samples = newTreeSet(new Ordering<ExperimentSample>() {
                     @Override
                     public int compare(ExperimentSample o1, ExperimentSample o2) {
@@ -201,12 +170,7 @@ public class DetailsReaderImpl extends DefaultDetailsReader<ActiveFileMetaData, 
                         experiment.getBounds(),
                         newArrayList(transform(experiment.getLockMasses(), LOCK_MZ_ITEM_FUNCTION)),
                         msChartsLink,
-                        ruleValidator.userHasPermissionToCreateSearch(actor, experiment.getId()) && ruleValidator.isAllFilesInExperimentTranslatedForSearch(experiment.getId()),
-                        Transformers.composeExperimentTranslationError(experiment),
-                        experiment.getLastTranslationAttempt(),
-                        0,
                         experiment.getExperiment().is2dLc(),
-                        translationStatus,
                         experimentLabelToExperimentReader.readLabels(experiment.getId()),
                         experiment.getSampleTypesCount(),
                         samplesInOrder,
@@ -282,168 +246,6 @@ public class DetailsReaderImpl extends DefaultDetailsReader<ActiveFileMetaData, 
     }
 
     @Override
-    public MSFunctions readFunctionsForFile(long actor, long fileId) {
-
-        //todo[tymchenko]: disabled until notice from Skyline team
-//        checkAccess(ruleValidator.userHasReadPermissionsOnFilePredicate(actor).apply(Util.FILE_FROM_ID.apply(fileId)),
-//                "User has no permissions to read file");
-
-
-        final ActiveFileMetaData file = fileMetaDataRepository.findOne(fileId);
-        final MSFunctions result = new MSFunctions();
-        final FluentIterable<MSFunctionItem> functions = getMsFunctionItems(file);
-        for (MSFunctionItem function : functions) {
-            final MZGridParams mzGridParams = function.getMzGridParams();
-            final MZGridParamsDetails mzGridParamsDetails = mzGridParams == null ? null :
-                    new MZGridParamsDetails(mzGridParams.getGridType(), mzGridParams.getMzStart(),
-                            mzGridParams.getMzEnd(), mzGridParams.getParams(), mzGridParams.getStep());
-
-            result.functionDetails.add(
-                    new MSFunctionDetails(
-                            function.getFunctionName(),
-                            function.getTranslatedPath(),
-                            function.getFunctionType(),
-                            function.getResolutionType(),
-                            function.getMassAnalyzerType(),
-                            mzGridParamsDetails,
-                            file.getName(),
-                            file.getId(),
-                            function.isDia()
-                    )
-            );
-        }
-        return result;
-    }
-
-    @Override
-    public List<MsFunctionItemDetails> readMs2FunctionItems(long actor, final long experimentId) {
-        return readMsFunctionItems(actor, experimentId, MS2, FTMS);
-    }
-
-    @Override
-    public List<MsFunctionItemDetails> readMs1FunctionItems(long actor, final long experimentId) {
-        return readMsFunctionItems(actor, experimentId, MS, FTMS);
-    }
-
-    private List<MsFunctionItemDetails> readMsFunctionItems(
-            long actor,
-            final long experimentId,
-            final MSFunctionType msFunctionType,
-            final MSFunctionMassAnalyzerType msFunctionMassAnalyzerType
-    ) {
-        final ActiveExperiment experiment = experimentRepository.findOne(experimentId);
-        if (experiment == null) throw new ObjectNotFoundException("Experiment not found");
-
-        if (!ruleValidator.isUserCanReadExperiment(actor, experimentId)) {
-            throw new AccessDenied("Can't read experiment");
-        }
-
-        final List<RawFile> rawFiles = experiment.getRawFiles().getData();
-        final Set<String> commonMs2FunctionNames = getCommonMsFunctionNames(
-                actor,
-                rawFiles,
-                msFunctionType,
-                msFunctionMassAnalyzerType
-        );
-
-        return from(commonMs2FunctionNames).transform(new Function<String, MsFunctionItemDetails>() {
-            @Override
-            public MsFunctionItemDetails apply(String functionName) {
-                return new MsFunctionItemDetails(functionName);
-            }
-        }).toList();
-    }
-
-    private Set<String> getCommonMsFunctionNames(
-            long actor,
-            List<RawFile> rawFiles,
-            final MSFunctionType type,
-            final MSFunctionMassAnalyzerType msFunctionMassAnalyzerType
-    ) {
-        List<Set<String>> ms2FunctionNamesList = newArrayList();
-        for (ExperimentFileTemplate rawFile : rawFiles) {
-
-            final FluentIterable<MSFunctionDetails> functionDetails = FluentIterable.from(readFunctionsForFile(actor, rawFile.getFileMetaData().getId()).functionDetails);
-            ImmutableSet<String> ms2FunctionNames = functionDetails.filter(
-                    new Predicate<MSFunctionDetails>() {
-                        @Override
-                        public boolean apply(MSFunctionDetails msFunctionItem) {
-                            return msFunctionItem.type == type
-                                    && msFunctionMassAnalyzerType == msFunctionItem.msFunctionMassAnalyzerType;
-                        }
-                    })
-                    .transform(new Function<MSFunctionDetails, String>() {
-                        @Override
-                        public String apply(MSFunctionDetails msFunctionItem) {
-                            String functionName = msFunctionItem.name;
-                            int firstWhitespaceIndex = functionName.indexOf(' ');
-                            return firstWhitespaceIndex > 0 ? functionName.substring(0, firstWhitespaceIndex) : functionName;
-                        }
-                    })
-                    .toSet();
-
-            ms2FunctionNamesList.add(ms2FunctionNames);
-        }
-
-        Set<String> functionNamesIntersection = ms2FunctionNamesList.get(0);
-        for (Set<String> functionNames : ms2FunctionNamesList.subList(1, ms2FunctionNamesList.size())) {
-            functionNamesIntersection = Sets.intersection(functionNamesIntersection, functionNames);
-        }
-        return functionNamesIntersection;
-    }
-
-    @Override
-    public Optional<MSExperimentResolutionType> getExperimentResolutionType(long experiment, String ms1FunctionName, String ms2FunctionName) {
-        final List<ActiveFileMetaData> fmdList = fileMetaDataRepository.findByExperiment(experiment);
-        final ActiveExperiment activeExperiment = experimentRepository.findOne(experiment);
-        MSResolutionType ms1resolutionType = null;
-        MSResolutionType ms2resolutionType = null;
-
-        for (ActiveFileMetaData fmd : fmdList) {
-
-            final Set<MSFunctionItem> msFunctionsForExperiment = getMSFunctionsForExperiment(activeExperiment, fmd);
-
-            for (MSFunctionItem f : msFunctionsForExperiment) {
-                if (f.getFunctionType() == MS) {
-                    if (ms1resolutionType == null && ms1FunctionName == null) {
-                        ms1resolutionType = f.getResolutionType();
-                    } else if (ms1FunctionName != null && f.getFunctionName().startsWith(ms1FunctionName)) {
-                        ms1resolutionType = f.getResolutionType();
-                    }
-                } else if (f.getFunctionType() == MS2) {
-                    if (ms2resolutionType == null && ms2FunctionName == null) {
-                        ms2resolutionType = f.getResolutionType();
-                    } else if (ms2FunctionName != null && f.getFunctionName().startsWith(ms2FunctionName)) {
-                        ms2resolutionType = f.getResolutionType();
-                    }
-                }
-
-            }
-        }
-        if (ms1resolutionType == MSResolutionType.HIGH && ms2resolutionType == MSResolutionType.HIGH) {
-            return Optional.of(MSExperimentResolutionType.HIGH_HIGH);
-        } else if (ms1resolutionType == MSResolutionType.LOW && ms2resolutionType == MSResolutionType.LOW) {
-            return Optional.of(MSExperimentResolutionType.LOW_LOW);
-        } else if (ms1resolutionType == MSResolutionType.HIGH && ms2resolutionType == MSResolutionType.LOW) {
-            return Optional.of(MSExperimentResolutionType.HIGH_LOW);
-        }
-        return Optional.absent();
-    }
-
-    private Set<MSFunctionItem> getMSFunctionsForExperiment(final ActiveExperiment experiment, ActiveFileMetaData fmd) {
-
-        return from(fmd.getUsersFunctions())
-                .firstMatch(new Predicate<UserLabFileTranslationData>() {
-                    @Override
-                    public boolean apply(UserLabFileTranslationData input) {
-                        return input.getLab().equals(experiment.getLab() == null ? experiment.getBillLaboratory() : experiment.getLab());
-                    }
-                })
-                .transform(MS_FUNCTIONS_FROM_USER_TRANSLATION_DATA)
-                .or(Collections.<MSFunctionItem>emptySet());
-    }
-
-    @Override
     protected Function<ExperimentFileTemplate, ? extends ShortExperimentFileItem> shortInfoFileTransformer(ActiveExperiment experiment) {
         return new Function<ExperimentFileTemplate, ExtendedShortExperimentFileItem>() {
             @Override
@@ -500,30 +302,12 @@ public class DetailsReaderImpl extends DefaultDetailsReader<ActiveFileMetaData, 
     }
 
     @Override
-    public AttachmentItem readProcessingRunPluginAttachment(long actor, long attachmentId) {
-        final ProcessingRunPluginAttachment attachment = checkPresence(processingRunPluginAttachmentRepository.findOne(attachmentId));
-        return new AttachmentItem(attachment.getId(), attachment.getName(), attachment.getSizeInBytes(), attachment.getUploadDate(), attachment.getOwner().getId());
-    }
-
-    @Override
-    public ProteinSearchAttachmentItem readProteinSearchAttachment(long actor, long attachment) {
-        throw new UnsupportedOperationException();
-    }
-
-    private FluentIterable<MSFunctionItem> getMsFunctionItems(AbstractFileMetaData rawFile) {
-
-        return from(rawFile.getUsersFunctions())
-                .transformAndConcat(MS_FUNCTIONS_FROM_USER_TRANSLATION_DATA);
-    }
-
-    @Override
     protected InstrumentItem afterReadInstrument(long actor, SingleResultBuilder<InstrumentRepositoryTemplate.AccessedInstrument<Instrument>, InstrumentItem> instrumentItemBuilder) {
 
         final InstrumentItem transformed = instrumentItemBuilder.transform();
 
         return new InstrumentItem(transformed,
                 transformed.lockMasses,
-                transformed.autoTranslate,
                 transformed.hplc
         );
 
@@ -539,8 +323,9 @@ public class DetailsReaderImpl extends DefaultDetailsReader<ActiveFileMetaData, 
     @Override
     public FileItem transformFile(ActiveFileMetaData activeFileMetaData) {
         final FileItemTemplate defaultTransformed = fileHelper.getDefaultTransformer().apply(activeFileMetaData);
-        return new FileItem(defaultTransformed, activeFileMetaData.getArchiveId(), transformStorageStatus(activeFileMetaData.getStorageData().getStorageStatus(),
-                activeFileMetaData.getStorageData().isArchivedDownloadOnly()), null, 0, null);
+        final DashboardReader.StorageStatus storageStatus = transformStorageStatus(activeFileMetaData.getStorageData().getStorageStatus(),
+                activeFileMetaData.getStorageData().isArchivedDownloadOnly());
+        return new FileItem(defaultTransformed, activeFileMetaData.getArchiveId(), storageStatus, 0, null);
     }
 
     @Override
@@ -556,7 +341,7 @@ public class DetailsReaderImpl extends DefaultDetailsReader<ActiveFileMetaData, 
         final InstrumentItemTemplate instrumentItemTemplate = instrumentHelper.getDefaultTransformer().apply(accessedInstrument);
         final ImmutableList<LockMzItem> lockMasses = from(transform(instrument.getLockMasses(), LOCK_MZ_ITEM_FUNCTION)).toList();
 
-        return new InstrumentItem(instrumentItemTemplate, lockMasses, instrument.isAutoTranslate(), instrument.getHplc());
+        return new InstrumentItem(instrumentItemTemplate, lockMasses, instrument.getHplc());
     }
 
     @Override

@@ -9,7 +9,6 @@ import com.infoclinika.mssharing.model.internal.entity.restorable.*;
 import com.infoclinika.mssharing.model.internal.entity.PrepToExperimentSample;
 import com.infoclinika.mssharing.model.internal.repository.FactorRepository;
 import com.infoclinika.mssharing.model.internal.repository.LabRepository;
-import com.infoclinika.mssharing.model.internal.repository.MSFunctionItemRepository;
 import com.infoclinika.mssharing.model.write.ProjectInfo;
 import com.infoclinika.mssharing.model.write.StudyManagement;
 import com.infoclinika.mssharing.platform.entity.ExperimentFileTemplate;
@@ -35,8 +34,6 @@ public class ProjectManagementImpl extends DefaultProjectManagement<ActiveProjec
 
     @Inject
     private FileMetaInfoHelper fileMetaInfoHelper;
-    @Inject
-    private MSFunctionItemRepository msFunctionItemRepository;
     @Inject
     private FactorRepository factorRepository;
     @Inject
@@ -147,9 +144,6 @@ public class ProjectManagementImpl extends DefaultProjectManagement<ActiveProjec
         ActiveExperiment copy = (ActiveExperiment) projectManager.copyExperimentData(project, experiment, copyName);
 
         copy.setBillLaboratory(newBillLab);
-        copy.setTranslationError(experiment.getTranslationError());
-        copy.setLastTranslationAttempt(experiment.getLastTranslationAttempt());
-        copy.setTranslated(experiment.isTranslated());
         copy.setExperimentCategory(experiment.getExperimentCategory());
         return copy;
     }
@@ -160,29 +154,9 @@ public class ProjectManagementImpl extends DefaultProjectManagement<ActiveProjec
         final ActiveFileMetaData toSave = (ActiveFileMetaData) from.copy(copyName, owner);
         toSave.setBillLab(newBillLab);
         ActiveFileMetaData copy = (ActiveFileMetaData) fileMetaDataRepository.save(toSave);
-        copyMSData(from, copy, newBillLab);
         fileMetaInfoHelper.copyFileMetaAnnotation(copy.getId(), from.getId());
         //noinspection unchecked
         return (AbstractFileMetaData) fileMetaDataRepository.findOne(copy.getId());
-    }
-
-
-    public void copyMSData(final AbstractFileMetaData from, final AbstractFileMetaData target, Lab newBillLab) {
-
-        final Set<UserLabFileTranslationData> usersFunctions = from.getUsersFunctions();
-
-        for (UserLabFileTranslationData usersFunction : usersFunctions) {
-            final Set<MSFunctionItem> functions = usersFunction.getFunctions();
-            final ImmutableSet.Builder<MSFunctionItem> builder = ImmutableSet.builder();
-            for (MSFunctionItem function : functions) {
-                final MSFunctionItem originalFunction = msFunctionItemRepository.findOne(function.getId());
-                MSFunctionItem copyFunction = originalFunction.copy();
-                copyFunction = msFunctionItemRepository.save(copyFunction);
-                builder.add(copyFunction);
-            }
-            target.getUsersFunctions().add(new UserLabFileTranslationData(usersFunction.getUser(), builder.build(), newBillLab));
-        }
-
     }
 
 }

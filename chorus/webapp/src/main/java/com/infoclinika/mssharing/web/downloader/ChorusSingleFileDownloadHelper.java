@@ -8,6 +8,7 @@ import com.infoclinika.mssharing.model.helper.items.ChorusFileData;
 import com.infoclinika.mssharing.model.write.FileAccessLogService;
 import com.infoclinika.mssharing.platform.web.downloader.SingleFileDownloadHelperTemplate;
 import com.infoclinika.mssharing.services.billing.rest.api.BillingService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -34,7 +35,7 @@ public class ChorusSingleFileDownloadHelper extends SingleFileDownloadHelperTemp
 
     @Value("${amazon.archive.bucket}")
     private String archiveBucket;
-    @Resource(name = "billingService")
+    @Resource(name = "billingRestService")
     private BillingService billingService;
     @Inject
     private SecurityHelper securityHelper;

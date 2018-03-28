@@ -27,13 +27,8 @@
 
         <dependency>
             <groupId>com.infoclinika</groupId>
-            <artifactId>workflow-api</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.infoclinika</groupId>
-            <artifactId>workflow-sdk</artifactId>
-            <version>${infoclinika.workflow.version}</version>
+            <artifactId>storage-cloud</artifactId>
+            <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <!--DB related-->

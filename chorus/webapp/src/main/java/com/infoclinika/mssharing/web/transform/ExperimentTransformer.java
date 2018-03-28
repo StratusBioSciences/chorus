@@ -65,7 +65,6 @@ public class ExperimentTransformer {
         result.id = id;
         result.bounds = experiment.bounds;
         result.lockMasses = experiment.lockMasses;
-        result.numberOfProteinSearches = experiment.numberOfProteinSearches;
         result.labName = experiment.labName;
 
         final ExperimentLabelsItem labels = experiment.labels;

@@ -12,6 +12,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +36,7 @@ public class PayPalController {
     private static final Logger LOG = Logger.getLogger(PayPalController.class);
     private static final String URI = "https://www.paypal.com/cgi-bin/webscr";
 
-    @Resource(name = "billingService")
+    @Resource(name = "billingRestService")
     private BillingService billingService;
 
     @Inject

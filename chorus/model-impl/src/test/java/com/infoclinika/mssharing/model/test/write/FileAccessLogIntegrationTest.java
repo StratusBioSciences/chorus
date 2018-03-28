@@ -34,7 +34,7 @@ public class FileAccessLogIntegrationTest extends AbstractTest {
 
     private FileLine createAndReadFile(long userId){
         final long instrument = uc.createInstrumentAndApproveIfNeeded(userId, uc.getLab3()).get();
-        long fileId = instrumentManagement.createFile(userId, instrument, new FileMetaDataInfo(generateString(), 0, "", null, anySpecies(), false, false));
+        long fileId = instrumentManagement.createFile(userId, instrument, new FileMetaDataInfo(generateString(), 0, "", null, anySpecies(), false));
 
         final Set<FileLine> fileLines = fileReader.readFilesByInstrument(userId, instrument);
         return fileLines.iterator().next();
@@ -46,7 +46,7 @@ public class FileAccessLogIntegrationTest extends AbstractTest {
         UserManagementTemplate.PersonInfo personInfo = userReader.readPersonInfo(bob);
         final long instrument = uc.createInstrumentAndApproveIfNeeded(bob, uc.getLab3()).get();
 
-        instrumentManagement.startUploadFile(bob, instrument, new FileMetaDataInfo(generateString(), 0, "", null, anySpecies(), false, false));
+        instrumentManagement.startUploadFile(bob, instrument, new FileMetaDataInfo(generateString(), 0, "", null, anySpecies(), false));
         final Set<FileLine> fileLines = fileReader.readFilesByInstrument(bob, instrument);
         final FileLine file = fileLines.iterator().next();
 
@@ -63,7 +63,7 @@ public class FileAccessLogIntegrationTest extends AbstractTest {
         }
     }
 
-    @Test
+    @Test(enabled = false)
     public void test_file_upload_complete_logging() throws InterruptedException {
         final long bob = uc.createLab3AndBob();
         setFeaturePerLab(ApplicationFeature.TRANSLATION, Lists.newArrayList(uc.getLab3()));

@@ -15,9 +15,11 @@ import com.infoclinika.mssharing.services.billing.rest.api.model.BillingChargeTy
 import com.infoclinika.mssharing.services.billing.rest.api.model.BillingFeature;
 import com.infoclinika.mssharing.services.billing.rest.api.model.StorageUsage;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import javax.inject.Inject;
 import java.time.Duration;
 import java.time.Instant;
@@ -40,7 +42,8 @@ public class BillingManagementImpl implements BillingManagement {
     private LabPaymentAccountRepository labPaymentAccountRepository;
     @Inject
     private ChargeableItemRepository chargeableItemRepository;
-    @Inject
+    @Resource
+    @Qualifier("billingRestService")
     private BillingService billingService;
     @Inject
     private BillingPropertiesProvider propertiesProvider;
@@ -198,7 +201,6 @@ public class BillingManagementImpl implements BillingManagement {
         }
 
         final AccountChargeableItemData featureUsage = activateFeature(account, ChargeableItem.Feature.PROCESSING);
-        activateFeature(account, ChargeableItem.Feature.TRANSLATION);
         featureUsage.setAutoProlongate(prolongateAutomatically);
         accountChargeableItemDataRepository.save(featureUsage);
 
@@ -215,7 +217,6 @@ public class BillingManagementImpl implements BillingManagement {
     public void disableProcessingForLabAccount(long actor, long lab) {
         final LabPaymentAccount account = labPaymentAccountRepository.findByLab(lab);
         deactivateFeature(account, ChargeableItem.Feature.PROCESSING);
-        deactivateFeature(account, ChargeableItem.Feature.TRANSLATION);
         labPaymentAccountRepository.save(account);
     }
 

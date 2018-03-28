@@ -8,24 +8,17 @@
  */
 package com.infoclinika.mssharing.model.internal;
 
-import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
-import com.infoclinika.mssharing.model.api.MSFunctionType;
 import com.infoclinika.mssharing.model.features.ApplicationFeature;
 import com.infoclinika.mssharing.model.helper.BillingFeaturesHelper;
 import com.infoclinika.mssharing.model.helper.FeaturesHelper;
 import com.infoclinika.mssharing.model.internal.entity.AnnotationAttachment;
 import com.infoclinika.mssharing.model.internal.entity.Instrument;
 import com.infoclinika.mssharing.model.internal.entity.Lab;
-import com.infoclinika.mssharing.model.internal.entity.MSFunctionItem;
 import com.infoclinika.mssharing.model.internal.entity.ProteinDatabase;
-import com.infoclinika.mssharing.model.internal.entity.RawFile;
 import com.infoclinika.mssharing.model.internal.entity.UploadAppConfiguration;
 import com.infoclinika.mssharing.model.internal.entity.User;
-import com.infoclinika.mssharing.model.internal.entity.UserLabFileTranslationData;
-import com.infoclinika.mssharing.model.internal.entity.Util;
 import com.infoclinika.mssharing.model.internal.entity.restorable.AbstractFileMetaData;
 import com.infoclinika.mssharing.model.internal.entity.restorable.AbstractProject;
 import com.infoclinika.mssharing.model.internal.entity.restorable.ActiveExperiment;
@@ -59,9 +52,7 @@ import com.infoclinika.mssharing.services.billing.rest.api.model.BillingFeature;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -79,12 +70,10 @@ import static com.infoclinika.mssharing.model.features.ApplicationFeature.BILLIN
 import static com.infoclinika.mssharing.model.features.ApplicationFeature.MICROARRAYS;
 import static com.infoclinika.mssharing.model.features.ApplicationFeature.PROTEIN_ID_SEARCH;
 import static com.infoclinika.mssharing.model.features.ApplicationFeature.PROTEIN_ID_SEARCH_RESULTS;
-import static com.infoclinika.mssharing.model.features.ApplicationFeature.TRANSLATION;
 import static com.infoclinika.mssharing.model.internal.entity.restorable.StorageData.Status.ARCHIVED;
 import static com.infoclinika.mssharing.model.internal.entity.restorable.StorageData.Status.ARCHIVING_REQUESTED;
 import static com.infoclinika.mssharing.model.internal.entity.restorable.StorageData.Status.UNARCHIVED;
 import static com.infoclinika.mssharing.model.internal.entity.restorable.StorageData.Status.UNARCHIVING_REQUESTED;
-import static com.infoclinika.mssharing.model.internal.read.Transformers.MS_FUNCTIONS_FROM_USER_TRANSLATION_DATA;
 import static com.infoclinika.mssharing.model.internal.read.Transformers.RAW_META_DATA_TRANSFORMER;
 import static com.infoclinika.mssharing.platform.model.impl.ValidatorPreconditions.checkPresence;
 
@@ -99,7 +88,6 @@ public class RuleValidatorImpl extends DefaultRuleValidator<ActiveExperiment, Ac
     public static final java.util.function.Predicate<ActiveFileMetaData> IS_UPLOAD_COMPLETE = input -> input.getContentId() != null;
     private static final java.util.function.Predicate<ActiveFileMetaData> IS_ON_GLACIER = input -> input.getArchiveId() != null;
     private static final Function<ExperimentFileTemplate, AbstractFileMetaData> META_DATA_FROM_RAW_FILE = input -> (AbstractFileMetaData) getMetaData(input);
-    private static final Function<AbstractFileMetaData, Iterable<UserLabFileTranslationData>> USER_FUNCTIONS_FROM_META_DATA = AbstractFileMetaData::getUsersFunctions;
     @Inject
     private ProjectRepository projectRepository;
     @Inject
@@ -130,50 +118,9 @@ public class RuleValidatorImpl extends DefaultRuleValidator<ActiveExperiment, Ac
     private FeaturesRepository featuresRepository;
 
 
-    /**
-     * User can create experiment run in experiment only if this user is it's creator or labhead
-     */
-    @Override
-    public boolean userHasPermissionToCreateSearch(long creator, long experiment) {
-        final ActiveExperiment experimentEntity = checkPresence(experimentRepository.findOne(experiment));
-
-        final User user = Util.USER_FROM_ID.apply(creator);
-        return experimentEntity.getCreator().equals(user) || isExperimentLabHead(experimentEntity, creator);
-    }
-
     @Override
     public Predicate<ActiveFileMetaData> userHasReadPermissionsOnFilePredicate(long userId) {
         return validatorPredicates.userHasReadPermissionsOnFile(userId);
-    }
-
-    /*Checks if files of experiment are suitable for translation*/
-    @Override
-    public boolean isAllFilesInExperimentTranslatedForSearch(long experiment) {
-        final ActiveExperiment experimentEntity = checkPresence(experimentRepository.findOne(experiment));
-        boolean translated = true;
-        for (ExperimentFileTemplate file : experimentEntity.getRawFiles().getData()) {
-            boolean ms = false;
-            for (MSFunctionItem msItem : getMsFunctionItems(experimentEntity, file)) {
-                if (msItem.getFunctionType() == MSFunctionType.MS2) {
-                    ms = true;
-                }
-            }
-            if (!(ms)) {
-                translated = false;
-                break;
-            }
-        }
-        return translated;
-    }
-
-    private Set<MSFunctionItem> getMsFunctionItems(final ActiveExperiment experiment, ExperimentFileTemplate file) {
-
-        return getMetaData(file).getUsersFunctions()
-                .stream()
-                .filter(input -> input.getLab().equals(getExperimentLab(experiment).orElse(null)))
-                .findFirst()
-                .map(MS_FUNCTIONS_FROM_USER_TRANSLATION_DATA::apply)
-                .orElse(Collections.emptySet());
     }
 
     private static AbstractFileMetaData getMetaData(ExperimentFileTemplate file) {
@@ -284,11 +231,6 @@ public class RuleValidatorImpl extends DefaultRuleValidator<ActiveExperiment, Ac
     }
 
     @Override
-    public boolean canRemoveProteinSearch(long actor, long experimentRunId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public boolean canRestoreFile(long actor, DeletedFileMetaData file) {
         return (file.getOwner().getId().equals(actor) || file.getInstrument().getLab().getHead().getId().equals(actor))
                 && !fileHasDuplicateName(file);
@@ -315,49 +257,7 @@ public class RuleValidatorImpl extends DefaultRuleValidator<ActiveExperiment, Ac
     }
 
     @Override
-    public boolean isUserCanReadProteinSearches(long actor, long experimentId) {
-
-        final ActiveExperiment experiment = checkPresence(experimentRepository.findOne(experimentId));
-        final Optional<Lab> labOpt = getExperimentLab(experiment);
-
-        if(!labOpt.isPresent()) {
-            return false;
-        }
-
-        boolean enabledForLab = isFeatureEnabledForLab(PROTEIN_ID_SEARCH, labOpt.get().getId());
-        return enabledForLab && (validatorPredicates.isUserCanReadExperiment(actor).apply(experiment) || isAdmin(actor));
-    }
-
-
-    @Override
-    public boolean canUserCreateProteinSearchWithTitle(long actor, long experiment, String runName) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean userHasPermissionToRetranslateAllExperiments(long actor) {
-        final User user = checkNotNull(userRepository.findOne(actor));
-        return user.isAdmin();
-    }
-
-    @Override
-    public boolean userCanReadExperimentTranslationStatuses(long actor) {
-        final User user = checkNotNull(userRepository.findOne(actor));
-        return user.isAdmin();
-    }
-
-    @Override
     public boolean hasAdminRights(long actor) {
-        return isAdmin(actor);
-    }
-
-    @Override
-    public boolean userHasPermissionToRunProteinIDSearches(long actor, List<Long> experimentSearches) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean userCanReadProteinSearchStatuses(long actor) {
         return isAdmin(actor);
     }
 
@@ -381,27 +281,6 @@ public class RuleValidatorImpl extends DefaultRuleValidator<ActiveExperiment, Ac
                 .allMatch(rawFileHasStorageStatus(UNARCHIVED)::apply);
     }
 
-
-    @Override
-    public boolean canTranslateFile(long actor, long lab, long fileId) {
-        if (!isFeatureEnabledForLab(TRANSLATION, lab) || !isBillingFeatureEnabledForLab(BillingFeature.TRANSLATION, lab)) {
-            return false;
-        }
-        final boolean userHasLab = (userLabMembershipRepository.findByLabAndUser(lab, actor) != null);
-        return userHasLab && userHasReadPermissionsOnFile(actor, fileId);
-    }
-
-    @Override
-    public boolean canReTranslateFiles(long actor, List<Long> files) {
-        final List<ActiveFileMetaData> dataList = fileMetaDataRepository.findAllByIds(files);
-        final User user = userRepository.findOne(actor);
-        final java.util.function.Predicate<ActiveFileMetaData> canTranslateCompoundPredicate =
-                ((java.util.function.Predicate<ActiveFileMetaData>) input -> input.getInstrument().isOperator(user))
-                        .and(input -> isBillingFeatureEnabledForLab(BillingFeature.TRANSLATION, input.getInstrument().getLab().getId()))
-                        .and(input -> isFeatureEnabledForLab(TRANSLATION, input.getInstrument().getLab().getId()));
-        return dataList.stream().allMatch(canTranslateCompoundPredicate);
-    }
-
     @Override
     public boolean canModifyProteinDatabase(long actor, long proteinDatabase) {
         return isProteinDatabaseOwner(actor, proteinDatabase);
@@ -416,28 +295,6 @@ public class RuleValidatorImpl extends DefaultRuleValidator<ActiveExperiment, Ac
     private boolean isProteinDatabaseOwner(long actor, long proteinDatabase) {
         User user = proteinDatabaseRepository.findOne(proteinDatabase).getUser();
         return user.getId().equals(actor);
-    }
-
-    @Override
-    public boolean canTranslateExperimentFiles(final long actor, @Nullable Long chargedLab, ActiveExperiment experiment) {
-
-        if (chargedLab == null ||
-                chargedLab == 0 ||
-                !isFeatureEnabledForLab(TRANSLATION, chargedLab) ||
-                !isBillingFeatureEnabledForLab(BillingFeature.TRANSLATION, chargedLab)) {
-            return false;
-        }
-
-        boolean bCanTranslateFile = true;
-
-        for (RawFile rawFile : experiment.getRawFiles().getData()) {
-            if (!canTranslateFile(actor, chargedLab, rawFile.getFileMetaData().getId())) {
-                bCanTranslateFile = false;
-                break;
-            }
-        }
-
-        return bCanTranslateFile;
     }
 
     private Optional<Lab> getExperimentLab(ActiveExperiment experiment) {
@@ -526,18 +383,6 @@ public class RuleValidatorImpl extends DefaultRuleValidator<ActiveExperiment, Ac
     }
 
     @Override
-    public boolean isTranslationEnabledForLab(long lab) {
-        return isFeatureEnabledForLab(TRANSLATION, lab) && isBillingFeatureEnabledForLab(BillingFeature.TRANSLATION, lab);
-    }
-
-    @Override
-    public boolean canLabUseProteinIdSearch(long lab) {
-        return isFeatureEnabledForLab(PROTEIN_ID_SEARCH, lab)
-                && isBillingFeatureEnabledForLab(BillingFeature.PROCESSING, lab)
-                && isBillingFeatureEnabledForLab(BillingFeature.TRANSLATION, lab);
-    }
-
-    @Override
     public boolean canRemoveFile(long actor, long file) {
 
         final boolean removeFile = super.canRemoveFile(actor, file);
@@ -572,64 +417,9 @@ public class RuleValidatorImpl extends DefaultRuleValidator<ActiveExperiment, Ac
     }
 
     @Override
-    public boolean canCreateWorkflow(long actor) {
-        return findUser(actor).isAdmin();
-    }
-
-    @Override
-    public boolean isUserCanReadWorkflow(long actor) {
-        return true;
-    }
-
-    @Override
-    public boolean canRemoveTranslationData(final long actor, long file, final long lab) {
-
-        if (!isTranslationEnabledForLab(lab)) {
-            return false;
-        }
-
-        final ActiveFileMetaData fileMetaData = fileMetaDataRepository.findOne(file);
-
-        return any(fileMetaData.getUsersFunctions(), hasPermissionOnTranslationData(actor, lab));
-    }
-
-    private Predicate<UserLabFileTranslationData> hasPermissionOnTranslationData(long actor, long lab) {
-        return and(hasTranslationDataForLab(lab), hasTranslationDataForUser(actor));
-    }
-
-    @Override
-    public boolean canRemoveAnyExperimentTranslationData(long actor, long experiment) {
-        final ActiveExperiment activeExperiment = experimentRepository.findOne(experiment);
-        final Optional<Lab> lab = getExperimentLab(activeExperiment);
-
-        if (!lab.isPresent()) {
-            return false;
-        }
-
-        final Long labId = lab.get().getId();
-
-        if (!isTranslationEnabledForLab(labId)) {
-            return false;
-        }
-
-        final List<? extends ExperimentFileTemplate<?, ?, ?>> data = activeExperiment.getRawFiles().getData();
-        final FluentIterable<UserLabFileTranslationData> experimentFilesTranslations = FluentIterable.from(data).transformAndConcat(Functions.compose(USER_FUNCTIONS_FROM_META_DATA::apply, META_DATA_FROM_RAW_FILE::apply));
-        return (isExperimentLabHead(activeExperiment, actor) || activeExperiment.getCreator().getId().equals(actor))
-                && any(experimentFilesTranslations, hasPermissionOnTranslationData(actor, labId));
-    }
-
-    @Override
     public boolean canModifyAnnotationAttachment(long actor, long annotationAttachment) {
         final AnnotationAttachment attachment = annotationAttachmentRepository.findOne(annotationAttachment);
         return attachment.getOwner().getId().equals(actor);
-    }
-
-    private Predicate<UserLabFileTranslationData> hasTranslationDataForUser(final long actor) {
-        return input -> input.getUser().getId().equals(actor) || input.getLab().getHead().getId().equals(actor);
-    }
-
-    private Predicate<UserLabFileTranslationData> hasTranslationDataForLab(final long lab) {
-        return input -> input.getLab().getId().equals(lab);
     }
 
     private Predicate<AbstractFileMetaData> userIsLabHeadOfFile(final long actor) {
@@ -658,46 +448,12 @@ public class RuleValidatorImpl extends DefaultRuleValidator<ActiveExperiment, Ac
     }
 
     @Override
-    public boolean canCreatePostProcessingPipeline(long actor) {
-        return isAdmin(actor);
-    }
-
-    @Override
     public boolean canImportMicroArrays(long actor, long lab) {
         return isFeatureEnabledForLab(MICROARRAYS, lab);
     }
 
     @Override
     public boolean shouldSearchResultsBePersistedInBlibFile(long run) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public boolean canUserReadProteinSearchAttachment(long actor, long attachmentId) {
-        return isAdminOrProteinSearchAttachmentOwner(actor, attachmentId);
-    }
-
-    @Override
-    public boolean canUserManageProteinSearchAttachment(long actor, long attachmentId) {
-        return isAdminOrProteinSearchAttachmentOwner(actor, attachmentId);
-    }
-
-    @Override
-    public boolean canUserManageProteinSearchAttachments(long actor) {
-        return isAdmin(actor) ||
-                userRepository
-                        .findOne(actor)
-                        .getLabs()
-                        .stream()
-                        .anyMatch(l -> canLabUseProteinIdSearch(l.getId()));
-    }
-
-    @Override
-    public boolean isProteinSearchOwner(long actor, long proteinSearchId) {
-        throw new UnsupportedOperationException();
-    }
-
-    private boolean isAdminOrProteinSearchAttachmentOwner(long actor, long attachmentId) {
         throw new UnsupportedOperationException();
     }
 

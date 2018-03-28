@@ -31,56 +31,6 @@
             </exclusions>
         </dependency>
         <dependency>
-            <groupId>com.infoclinika</groupId>
-            <artifactId>analysis-platform-rest</artifactId>
-            <version>${infoclinika.analysis.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.infoclinika</groupId>
-            <artifactId>rest-dto</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.infoclinika</groupId>
-            <artifactId>workflow-sdk</artifactId>
-            <version>${infoclinika.workflow.version}</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>spring-amqp</artifactId>
-                    <groupId>org.springframework.amqp</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-rabbit</artifactId>
-                    <groupId>org.springframework.amqp</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-core</artifactId>
-                    <groupId>org.springframework</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-context</artifactId>
-                    <groupId>org.springframework</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>spring-test</artifactId>
-                    <groupId>org.springframework</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>aws-java-sdk</artifactId>
-                    <groupId>com.amazonaws</groupId>
-                </exclusion>
-                <exclusion>
-                    <artifactId>httpclient</artifactId>
-                    <groupId>org.apache.httpcomponents</groupId>
-                </exclusion>
-                <exclusion>
-                    <groupId>com.rabbitmq</groupId>
-                    <artifactId>amqp-client</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-search</artifactId>
             <version>${hibernate.search.version}</version>
@@ -187,7 +137,6 @@
             <artifactId>dm-integration-helper</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-
     </dependencies>
 
     <properties>

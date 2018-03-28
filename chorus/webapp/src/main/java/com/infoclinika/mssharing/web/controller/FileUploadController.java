@@ -137,7 +137,7 @@ public class FileUploadController extends AbstractFileUploadController {
             if (unfinishedUploads.isEmpty()) {
                 final NodePath nodePath = storedObjectPaths.rawFilePath(userId, instrumentId, fileName);
                 finalFileId = instrumentManagement.startUploadFile(userId, instrumentId,
-                        new FileMetaDataInfo(fileName, file.size, file.labels, nodePath.getPath(), file.specie, file.archive, file.autotranslate)
+                        new FileMetaDataInfo(fileName, file.size, file.labels, nodePath.getPath(), file.specie, file.archive)
                 );
             } else {
                 final FileLine fileLine = unfinishedUploads.iterator().next();
@@ -156,8 +156,7 @@ public class FileUploadController extends AbstractFileUploadController {
                                     file.labels,
                                     destinationPath,
                                     file.specie,
-                                    file.archive,
-                                    file.autotranslate
+                                    file.archive
                             )
                     );
                 }

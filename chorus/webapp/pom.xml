@@ -19,6 +19,7 @@
         <deployment.manager.username>admin</deployment.manager.username>
         <deployment.manager.password>password</deployment.manager.password>
         <deployment.path>/</deployment.path>
+        <docker.deployment.path>../../docker/webapp/ROOT.war</docker.deployment.path>
     </properties>
 
     <dependencies>
@@ -44,11 +45,6 @@
         <dependency>
             <groupId>com.infoclinika</groupId>
             <artifactId>uploader-ws-api</artifactId>
-            <version>1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.infoclinika</groupId>
-            <artifactId>rest-dto</artifactId>
             <version>1.0</version>
         </dependency>
 
@@ -84,6 +80,12 @@
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-guava</artifactId>
             <version>${jackson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.3.1</version>
         </dependency>
 
         <dependency>
@@ -294,6 +296,30 @@
                                         <delete file="${project.build.outputDirectory}/log4j.properties"/>
                                         <copy file="src/main/resources/log4j-production.properties"
                                               tofile="${project.build.outputDirectory}/log4j.properties"/>
+                                    </tasks>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>docker</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <tasks>
+                                        <copy file="${project.build.directory}/webapp-1.0.war"
+                                              tofile="${docker.deployment.path}"/>
                                     </tasks>
                                 </configuration>
                             </execution>

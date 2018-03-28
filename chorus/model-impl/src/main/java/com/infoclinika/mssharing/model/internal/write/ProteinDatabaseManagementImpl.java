@@ -12,7 +12,6 @@ import com.google.common.base.Strings;
 import com.infoclinika.analysis.storage.cloud.CloudStorageFactory;
 import com.infoclinika.analysis.storage.cloud.CloudStorageItemReference;
 import com.infoclinika.analysis.storage.cloud.CloudStorageService;
-import com.infoclinika.common.constant.AminoAcids;
 import com.infoclinika.common.io.FileOperations;
 import com.infoclinika.mssharing.model.internal.RuleValidator;
 import com.infoclinika.mssharing.model.internal.entity.ProteinDatabase;
@@ -29,7 +28,6 @@ import com.infoclinika.mssharing.platform.repository.SpeciesRepositoryTemplate;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
@@ -49,7 +47,7 @@ import static com.infoclinika.mssharing.model.internal.entity.ProteinDatabase.Pr
 public class ProteinDatabaseManagementImpl implements ProteinDatabaseManagement {
 
     private static final Logger LOG = Logger.getLogger(ProteinDatabaseManagementImpl.class);
-
+    private static final CloudStorageService CLOUD = CloudStorageFactory.service();
     @Inject
     private RuleValidator ruleValidator;
     @Inject
@@ -66,8 +64,6 @@ public class ProteinDatabaseManagementImpl implements ProteinDatabaseManagement 
     private String targetBucket;
     @Value("${protein.dbs.target.folder}")
     private String proteinDatabasesPrefix;
-
-    private static final CloudStorageService CLOUD = CloudStorageFactory.service();
 
     @Override
     public long createDatabase(long actor, String name, long specie, long sizeInBytes, boolean bPublic, boolean bReversed, ExperimentCategory category) {
@@ -204,25 +200,5 @@ public class ProteinDatabaseManagementImpl implements ProteinDatabaseManagement 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd HH_mm_ss");
         return String.format("Copy of %s %s", name, dateFormat.format(creationDate));
     }
-
-    private static double countProteinMolecularWeightInKDa(final String sequence) {
-        if (sequence == null || sequence.isEmpty()) {
-            return 0;
-        }
-        final char[] chars = sequence.toCharArray();
-        double molWeight = 0;
-        for (char aminoAcid : chars) {
-            final String acid = String.valueOf(aminoAcid);
-            final com.google.common.base.Optional<Double> weight = AminoAcids.getWeight(acid);
-            if (weight.isPresent()) {
-                molWeight += weight.get();
-            } else {
-                LOG.error("Can't find amino acid - ignoring ..." + acid);
-            }
-
-        }
-        return molWeight / 1000;
-    }
-
 
 }

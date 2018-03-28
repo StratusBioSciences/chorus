@@ -62,7 +62,6 @@ public class SeedDataCreator {
     private static final String USER_NAME = "user name";
     private static final String USER_LABELS = "user labels";
     private static final String FILE_CONDITION = "file condition";
-    private static final String TRANSLATE_FLAG = "translate flag";
     private static final String INSTRUMENT_SERIAL = "instrument serial";
     private static final String PHONE = "phone";
     private static final String INSTRUMENT_NAME = "instrument name";
@@ -170,7 +169,6 @@ public class SeedDataCreator {
                 add(new ColumnViewHelper.Column(0L, USER_NAME, STRING_DATA_TYPE, true, false, UNITS_17));
                 add(new ColumnViewHelper.Column(0L, USER_LABELS, STRING_DATA_TYPE, true, false, UNITS_17));
                 add(new ColumnViewHelper.Column(0L, FILE_CONDITION, STRING_DATA_TYPE, true, false, UNITS_17));
-                add(new ColumnViewHelper.Column(0L, TRANSLATE_FLAG, STRING_DATA_TYPE, true, false, UNITS_17));
                 add(new ColumnViewHelper.Column(0L, INSTRUMENT_SERIAL, STRING_DATA_TYPE, true, false, UNITS_17));
                 add(new ColumnViewHelper.Column(0L, PHONE, STRING_DATA_TYPE, true, false, UNITS_17));
                 add(new ColumnViewHelper.Column(0L, INSTRUMENT_NAME, STRING_DATA_TYPE, true, false, UNITS_17));

@@ -51,7 +51,7 @@ public class MailSendingHelperImpl extends DefaultMailSendingHelper<UserDetails>
     @Override
     public ExperimentDetails experimentDetails(long experiment) {
         final ActiveExperiment ex = experimentRepository.findOne(experiment);
-        return new ExperimentDetails(ex.getName(), ex.getCreator().getEmail(), ex.getTranslationError());
+        return new ExperimentDetails(ex.getName(), ex.getCreator().getEmail());
     }
 
     @Override

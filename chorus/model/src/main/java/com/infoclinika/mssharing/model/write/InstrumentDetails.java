@@ -11,12 +11,10 @@ import java.util.List;
 public class InstrumentDetails extends InstrumentManagementTemplate.InstrumentDetailsTemplate {
     public final String hplc;
     public final List<LockMzItem> lockMasses;
-    public final boolean autoTranslate;
 
-    public InstrumentDetails(String name, String serialNumber, String hplc, String peripherals, List<LockMzItem> lockMasses, boolean autoTranslate) {
+    public InstrumentDetails(String name, String serialNumber, String hplc, String peripherals, List<LockMzItem> lockMasses) {
         super(name, serialNumber, peripherals);
         this.hplc = hplc;
         this.lockMasses = lockMasses;
-        this.autoTranslate = autoTranslate;
     }
 }

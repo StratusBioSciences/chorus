@@ -14,19 +14,11 @@ public class FileLine extends FileReaderTemplate.FileLineTemplate {
     public final String archiveId;
     public final Date lastPingDate;
     public final boolean isArchive;
-    public final DashboardReader.TranslationStatus status;
-    public final String translationErrorMessage;
     public final Collection<Long> operators;
-    public final boolean translatedSuccessfully;
-    public final boolean sentForTranslation;
     public final String msChartsUrl;
     public final DashboardReader.StorageStatus storageStatus;
     public final boolean sizeIsConsistent;
-
     public final DashboardReader.FileColumns columns;
- 
-    public final boolean usedInProteinSearches;
-    public final ImmutableSet<FileUserFunctionInfoItem> labsWhereTranslated;
 
     public final boolean toReplace;
     public final String instrumentStudyType;
@@ -52,16 +44,10 @@ public class FileLine extends FileReaderTemplate.FileLineTemplate {
                     Date lastPingDate,
                     DashboardReader.FileColumns columns,
                     boolean invalid,
-                    DashboardReader.TranslationStatus status,
-                    String translationErrorMessage,
                     String vendorName,
                     Collection<Long> operators,
-                    boolean translatedSuccessfully,
-                    boolean sentForTranslation,
                     DashboardReader.StorageStatus storageStatus,
                     boolean sizeIsConsistent,
-                    boolean usedInProteinSearches,
-                    ImmutableSet<FileUserFunctionInfoItem> labsWhereTranslated,
                     boolean toReplace,
                     String instrumentStudyType) {
 
@@ -70,42 +56,30 @@ public class FileLine extends FileReaderTemplate.FileLineTemplate {
         this.lastPingDate = lastPingDate;
         isArchive = archive;
         this.columns = columns;
-        this.status = status;
-        this.translationErrorMessage = translationErrorMessage;
         this.operators = operators;
-        this.translatedSuccessfully = translatedSuccessfully;
-        this.sentForTranslation = sentForTranslation;
         this.msChartsUrl = msChartsUrl;
         this.storageStatus = storageStatus;
         this.sizeIsConsistent = sizeIsConsistent;
-        this.usedInProteinSearches = usedInProteinSearches;
-        this.labsWhereTranslated = labsWhereTranslated;
         this.toReplace = toReplace;
         this.instrumentStudyType = instrumentStudyType;
     }
 
     public FileLine(FileReaderTemplate.FileLineTemplate other, String archiveId,
                     Date lastPingDate, boolean isArchive,
-                    DashboardReader.TranslationStatus status, String translationErrorMessage, Collection<Long> operators,
-                    boolean translatedSuccessfully, boolean sentForTranslation, String msChartsUrl,
+                    Collection<Long> operators,
+                    String msChartsUrl,
                     DashboardReader.StorageStatus storageStatus, boolean sizeIsConsistent,
-                    DashboardReader.FileColumns columns, boolean usedInProteinSearches,
-                    ImmutableSet<FileUserFunctionInfoItem> labsWhereTranslated, boolean toReplace, String instrumentStudyType) {
+                    DashboardReader.FileColumns columns,
+                     boolean toReplace, String instrumentStudyType) {
         super(other);
         this.archiveId = archiveId;
         this.lastPingDate = lastPingDate;
         this.isArchive = isArchive;
-        this.status = status;
-        this.translationErrorMessage = translationErrorMessage;
         this.operators = operators;
-        this.translatedSuccessfully = translatedSuccessfully;
-        this.sentForTranslation = sentForTranslation;
         this.msChartsUrl = msChartsUrl;
         this.storageStatus = storageStatus;
         this.sizeIsConsistent = sizeIsConsistent;
         this.columns = columns;
-        this.usedInProteinSearches = usedInProteinSearches;
-        this.labsWhereTranslated = labsWhereTranslated;
         this.toReplace = toReplace;
         this.instrumentStudyType = instrumentStudyType;
     }

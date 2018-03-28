@@ -29,19 +29,7 @@ import com.infoclinika.mssharing.model.internal.entity.restorable.ActiveFileMeta
 import com.infoclinika.mssharing.model.internal.read.Transformers;
 import com.infoclinika.mssharing.model.internal.write.ExperimentLabelManagement;
 import com.infoclinika.mssharing.model.internal.write.ExperimentLabelManagement.ExperimentTypeInfo;
-import com.infoclinika.mssharing.model.read.AdministrationToolsReader;
-import com.infoclinika.mssharing.model.read.DashboardReader;
-import com.infoclinika.mssharing.model.read.DetailsReader;
-import com.infoclinika.mssharing.model.read.DownloadFileReader;
-import com.infoclinika.mssharing.model.read.ExtendedInfoReader;
-import com.infoclinika.mssharing.model.read.FileLine;
-import com.infoclinika.mssharing.model.read.InstrumentReader;
-import com.infoclinika.mssharing.model.read.PaymentHistoryReader;
-import com.infoclinika.mssharing.model.read.ProteinDatabaseReader;
-import com.infoclinika.mssharing.model.read.RequestsReader;
-import com.infoclinika.mssharing.model.read.TrashReader;
-import com.infoclinika.mssharing.model.read.UserPreferencesReader;
-import com.infoclinika.mssharing.model.read.UserReader;
+import com.infoclinika.mssharing.model.read.*;
 import com.infoclinika.mssharing.model.read.dto.details.ExperimentItem;
 import com.infoclinika.mssharing.model.read.dto.details.FileItem;
 import com.infoclinika.mssharing.model.write.AnalysisBounds;
@@ -81,6 +69,7 @@ import com.infoclinika.mssharing.platform.model.read.GroupsReaderTemplate;
 import com.infoclinika.mssharing.platform.model.read.LabReaderTemplate;
 import com.infoclinika.mssharing.platform.model.write.ExperimentManagementTemplate;
 import com.infoclinika.mssharing.platform.model.write.ExperimentManagementTemplate.Restriction;
+import com.infoclinika.mssharing.platform.model.write.ProjectManagementTemplate;
 import com.infoclinika.mssharing.platform.repository.UserLabMembershipRequestRepositoryTemplate;
 import com.infoclinika.mssharing.services.billing.rest.api.model.BillingChargeType;
 import com.infoclinika.mssharing.services.billing.rest.api.model.BillingFeature;
@@ -89,6 +78,7 @@ import org.joda.time.DateTimeZone;
 import org.mockito.ArgumentMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
@@ -276,7 +266,7 @@ public class AbstractTest extends AbstractTestNGSpringContextTests {
     }
 
     protected InstrumentDetails instrumentDetails() {
-        return new InstrumentDetails(generateString(), generateString(), generateString(), generateString(), lockMasses, true);
+        return new InstrumentDetails(generateString(), generateString(), generateString(), generateString(), lockMasses);
     }
 
     protected long anyInstrumentModelByVendor(long vendor) {
@@ -553,7 +543,6 @@ public class AbstractTest extends AbstractTestNGSpringContextTests {
     private long imageProcessingStepType;
 
     private ImmutableMap<Class, Long> processorToWorkflowStep;
-    private ImmutableMap<ProcessingWorkflowTemplateType, Long> workflowTypeToID;
     private long persistProteinDBStepType;
 
     private long experimentLabelType; //silac
@@ -661,17 +650,6 @@ public class AbstractTest extends AbstractTestNGSpringContextTests {
         return map;
     }
 
-    protected long createExperimentForRun(long bob) {
-        setProteinSearch(true);
-        long project = uc.createProject(bob);
-        long instrument = createInstrumentAndApproveIfNeeded(bob, uc.getLab3());
-        setProteinSearchFeaturePerLab(uc.getLab3(), true);
-        long fileId = uc.saveFile(bob, instrument);
-        long ex = createExperiment(bob, project, uc.getLab3(), noFactoredFile(fileId));
-        translateFileForRun(bob, fileId, ex);
-        return ex;
-    }
-
 
     protected int getDaysInMonth() {
         return new DateTime(DateTimeZone.forTimeZone(transformers.serverTimezone))
@@ -699,7 +677,6 @@ public class AbstractTest extends AbstractTestNGSpringContextTests {
         secondAdminId = predefinedDataCreator.admin("Mark2", "Thomson2", Data.ADMIN_EMAIL_2, "1234");
         final long chargeableItem = billingManagement.createChargeableItem(ARCHIVE_PRICE, BillingFeature.ARCHIVE_STORAGE, 1, BillingChargeType.PER_GB);//cents
         final long chargeableItem1 = billingManagement.createChargeableItem(ANALYSE_PRICE, BillingFeature.ANALYSE_STORAGE, 1, BillingChargeType.PER_GB);
-        final long chargeableItem2 = billingManagement.createChargeableItem(TRANSLATION_PRICE, BillingFeature.TRANSLATION, 1, BillingChargeType.PER_GB);//cents
         final long chargeableItem3 = billingManagement.createChargeableItem(DOWNLOAD_PRICE, BillingFeature.DOWNLOAD, 1, BillingChargeType.PER_GB);//cents
         final long chargeableItem4 = billingManagement.createChargeableItem(PROTEIN_SEARCH_PRICE, BillingFeature.PROTEIN_ID_SEARCH, 1, BillingChargeType.PER_GB);//cents
         final long chargeableItem5 = billingManagement.createChargeableItem(DOWNLOAD_PRICE, BillingFeature.PUBLIC_DOWNLOAD, 1, BillingChargeType.PER_GB);//cents
@@ -788,12 +765,6 @@ public class AbstractTest extends AbstractTestNGSpringContextTests {
         return createInstrumentAndApproveIfNeeded(bob, lab, model, instrumentDetails()).get();
     }
 
-    protected long translateFileForRun(long actor, long file, long experiment) {
-        return predefinedDataCreator.translateFileForRun(actor, file, experiment);
-    }
-
-
-
     public long proteinDatabase(long user, String dbName, String specie) {
         final long db = proteinDatabaseManagement.createDatabase(user, dbName, getSpecie(specie), 1024, false, false, PROTEOMICS);
         proteinDatabaseManagement.specifyProteinDatabaseContent(user, db, "fastadbs/5/56");
@@ -881,10 +852,6 @@ public class AbstractTest extends AbstractTestNGSpringContextTests {
     protected UserReader userReader;
     @Inject
     protected RequestsReader requestsReader;
-    @Inject
-    protected UploadHelper uploadHelper;
-    @Inject
-    protected AddingFilesHelper addingFilesHelper;
     @Inject
     protected ExtendedInfoReader extendedInfoReader;
     @Inject
@@ -1007,11 +974,5 @@ public class AbstractTest extends AbstractTestNGSpringContextTests {
 
     protected long getExperimentLabelRAminoAcid() {
         return experimentLabelWithRAminoAcid;
-    }
-
-    public static enum ProcessingWorkflowTemplateType {
-        DMS, DMS_WITHOUT_SEARCH,
-        SHOTGUN, SHOTGUN_WITHOUT_IG,
-        PECAN, MAXQUANT, ONE_STEP, MICROARRAYS;
     }
 }

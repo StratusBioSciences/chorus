@@ -11,6 +11,7 @@ import com.infoclinika.mssharing.services.billing.persistence.write.PaymentManag
 import com.infoclinika.mssharing.services.billing.rest.api.BillingService;
 import com.infoclinika.mssharing.services.billing.rest.api.model.*;
 import org.apache.log4j.Logger;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -43,13 +44,6 @@ public class BillingServiceImpl implements BillingService {
     @Override
     public String healthCheck() {
         return "health Check";
-    }
-
-    @Override
-    public void logTranslationUsage(long user, long file, long lab) {
-        LOG.debug("Billing Service: log translation usage, user: " + user + ", file: " + file + ", lab: " + lab);
-        paymentManagement.logTranslationUsage(user, file, lab);
-        LOG.debug("Billing Service: completed action - log translation usage, user: " + user + ", file: " + file + ", lab: " + lab);
     }
 
     @Override

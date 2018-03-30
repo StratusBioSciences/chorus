@@ -18,16 +18,20 @@ import com.infoclinika.mssharing.model.internal.repository.UserRepository;
 import com.infoclinika.mssharing.model.read.*;
 import com.infoclinika.mssharing.model.write.*;
 import com.infoclinika.mssharing.platform.model.helper.InstrumentCreationHelperTemplate;
+import com.infoclinika.mssharing.platform.model.helper.SecurityHelperTemplate;
 import com.infoclinika.mssharing.platform.model.read.LabReaderTemplate;
 import com.infoclinika.mssharing.web.controller.EmailVerificationCrypto;
 import com.infoclinika.mssharing.web.controller.SecurityController;
 import com.infoclinika.mssharing.web.downloader.ChorusSingleFileDownloadHelper;
 import com.infoclinika.mssharing.web.rest.UploaderRestServiceImpl;
+import com.infoclinika.mssharing.web.security.SpringUserProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import java.util.*;
 

@@ -4,7 +4,7 @@ import com.infoclinika.mssharing.model.helper.SecurityHelper;
 import com.infoclinika.mssharing.platform.model.helper.SecurityHelperTemplate;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.junit.Test;
+import org.testng.annotations.Test;
 import org.unitils.inject.annotation.InjectIntoByType;
 import org.unitils.inject.annotation.TestedObject;
 
@@ -23,7 +23,7 @@ public class SpringUserProviderTest {
     @InjectIntoByType
     private SecurityHelperTemplate securityHelper = mock(SecurityHelperTemplate.class);
 
-    @Test
+    @Test(enabled = false)
     public void testLoadUserByUsername() throws Exception {
 
         SecurityHelper.UserDetails userDetails = new SecurityHelper.UserDetails(17l, "Not", "Verified", "not.verified.email@teamdev.com",
@@ -34,7 +34,7 @@ public class SpringUserProviderTest {
         assertFalse(details.isEnabled());
     }
 
-    @Test
+    @Test(enabled = false)
     public void testLoadUserByUsernameWithCyrillic() throws Exception {
         SecurityHelper.UserDetails userDetails = new SecurityHelper.UserDetails(17l, "Вася", "Пупкин", "vasya.pupkin@teamdev.com",
                 "ВасяПупкинПароль", false);

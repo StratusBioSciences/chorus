@@ -1,7 +1,6 @@
 package com.infoclinika.mssharing.web.helper;
 
 import com.infoclinika.auth.ChorusAuthenticationService;
-import com.infoclinika.mssharing.platform.model.helper.InstrumentCreationHelperTemplate;
 import com.infoclinika.mssharing.web.rest.UploaderRestServiceImpl;
 import com.infoclinika.mssharing.web.rest.auth.ChorusAuthenticationServiceImpl;
 import org.apache.log4j.Logger;
@@ -15,7 +14,6 @@ import static org.mockito.Mockito.mock;
 /**
  * @author Pavel Kaplin
  */
-//@ContextConfiguration(locations = "classpath:testApplicationContext.cfg.xml")
 @Configuration
 @ImportResource({"testApplicationContext.cfg.xml", "h2.cfg.xml"})
 @ComponentScan(basePackages = {"com.infoclinika.mssharing.model", "com.infoclinika.mssharing.web"})

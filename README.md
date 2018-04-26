@@ -90,9 +90,9 @@ Here's description how to run Chorus.
 
 	For example you can see on this test 'chorus-opensource/chorus/webapp/src/test/java/com/infoclinika/mssharing/web/uploader/UploaderRestServiceTest.java'
 		
-	- UploaderRestServiceTest extends AbstractDataBasedTest and inject many services and interfaces which are used in this module for all existing tests.
+	1. UploaderRestServiceTest extends AbstractDataBasedTest and inject many services and interfaces which are used in this module for all existing tests.
 		
-	- https://github.com/InfoClinika/chorus-opensource/tree/master/chorus/webapp/src/test/java/com/infoclinika/mssharing/web/uploader
+	2. https://github.com/InfoClinika/chorus-opensource/tree/master/chorus/webapp/src/test/java/com/infoclinika/mssharing/web/uploader
 	
 
 3. When you run tests which work with repository using h2 database, database automatically create tables 

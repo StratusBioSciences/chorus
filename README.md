@@ -139,3 +139,7 @@ TO IMPLEMENT NEW FUNCTIONAL
 	- put file, delete, get file and etc..
 4. In addition navigate to chorus-opensource/chorus/model-impl/src/test/java/com/infoclinika/mssharing/model/test/instrument/ManagingFilesTest.java package for understand how it works or
  - https://github.com/InfoClinika/chorus-opensource/blob/master/chorus/model-impl/src/test/java/com/infoclinika/mssharing/model/test/instrument/ManagingFilesTest.java
+ 
+### Licensing
+
+Please see [LICENSE](LICENSE) for more info.

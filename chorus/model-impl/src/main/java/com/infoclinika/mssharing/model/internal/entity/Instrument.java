@@ -26,6 +26,8 @@ public class Instrument extends InstrumentTemplate<User, Lab> {
     @Fetch(FetchMode.SELECT)
     private List<LockMz> lockMasses = newArrayList();
 
+    private boolean autoTranslate = false;
+
     public Instrument() {
     }
 
@@ -51,6 +53,9 @@ public class Instrument extends InstrumentTemplate<User, Lab> {
         setId(id);
     }
 
+    public boolean isAutoTranslate() {
+        return autoTranslate;
+    }
 
     public String getHplc() {
         return hplc;

@@ -28,6 +28,9 @@ public abstract class AbstractFileMetaData extends FileMetaDataTemplate<User, In
     @OneToOne(orphanRemoval = true, cascade = CascadeType.ALL)
     @PrimaryKeyJoinColumn
     private FileMetaAnnotations metaInfo;
+    //TODO: Remove from entity and production DB
+    @Deprecated
+    private boolean toTranslate = false;
     @Embedded
     private StorageData storageData = new StorageData();
 
@@ -134,6 +137,20 @@ public abstract class AbstractFileMetaData extends FileMetaDataTemplate<User, In
 
     public void setExternalMetadata(ExternalFileMetadata externalMetadata) {
         this.externalMetadata = externalMetadata;
+    }
+
+    @Deprecated
+    public boolean isToTranslate() {
+        return toTranslate;
+    }
+
+    /*
+     * @see com.infoclinika.mssharing.model.internal.entity.UserLabFileTranslationData#
+     * translationStatus#setToTranslate(boolean)
+     */
+    @Deprecated
+    public void setToTranslate(boolean toTranslate) {
+        this.toTranslate = toTranslate;
     }
 
     @Override

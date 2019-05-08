@@ -18,6 +18,7 @@ import static com.google.common.collect.Sets.newHashSet;
 public class InstrumentCreationRequest extends InstrumentCreationRequestTemplate<User, Lab> {
 
     private String hplc;
+    private boolean autoTranslate = false;
 
     @ElementCollection
     @CollectionTable(
@@ -48,6 +49,14 @@ public class InstrumentCreationRequest extends InstrumentCreationRequestTemplate
 
     public void setHplc(String hplc) {
         this.hplc = hplc;
+    }
+
+    public boolean isAutoTranslate() {
+        return autoTranslate;
+    }
+
+    public void setAutoTranslate(boolean autoTranslate) {
+        this.autoTranslate = autoTranslate;
     }
 
     public Set<LockMz> getLockMasses() {

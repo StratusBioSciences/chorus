@@ -22,6 +22,10 @@ import static com.google.common.collect.Lists.newArrayList;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class AbstractExperiment extends ExperimentTemplate<User, Lab, AbstractProject, Instrument, Factor, RawFile> {
 
+    //if this experiment has been sent to translation already
+    @Basic(optional = false)
+    private boolean translated;
+
     private AnalysisBounds bounds;
 
     @ManyToOne(/*, optional = false*/)
@@ -146,6 +150,14 @@ public class AbstractExperiment extends ExperimentTemplate<User, Lab, AbstractPr
             bounds = new AnalysisBounds();
         }
         return bounds;
+    }
+
+    public boolean isTranslated() {
+        return translated;
+    }
+
+    public void setTranslated(boolean translated) {
+        this.translated = translated;
     }
 
     public void setBounds(AnalysisBounds bounds) {

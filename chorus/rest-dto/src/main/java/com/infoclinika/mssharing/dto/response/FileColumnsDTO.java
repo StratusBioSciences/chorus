@@ -27,12 +27,12 @@ public class FileColumnsDTO {
     private String userName;
     private String userLabels;
     private String fileCondition;
-    private String translateFlag;
     private String instrumentSerialNumber;
     private String phone;
     private String instrumentName;
 
-    public FileColumnsDTO(){}
+    public FileColumnsDTO() {
+    }
 
     public FileColumnsDTO(String name,
                           long sizeInBytes,
@@ -208,14 +208,6 @@ public class FileColumnsDTO {
         this.fileCondition = fileCondition;
     }
 
-    public String getTranslateFlag() {
-        return translateFlag;
-    }
-
-    public void setTranslateFlag(String translateFlag) {
-        this.translateFlag = translateFlag;
-    }
-
     public String getInstrumentSerialNumber() {
         return instrumentSerialNumber;
     }
@@ -243,24 +235,23 @@ public class FileColumnsDTO {
     @Override
     public String toString() {
         return "FileColumnsDTO{" +
-                "creationDate=" + creationDate +
-                ", comment='" + comment + '\'' +
-                ", instrumentMethod='" + instrumentMethod + '\'' +
-                ", startTime='" + startTime + '\'' +
-                ", endTime='" + endTime + '\'' +
-                ", startMz='" + startMz + '\'' +
-                ", endMz='" + endMz + '\'' +
-                ", fileName='" + fileName + '\'' +
-                ", seqRowPosition='" + seqRowPosition + '\'' +
-                ", sampleName='" + sampleName + '\'' +
-                ", annotationInstrument='" + annotationInstrument + '\'' +
-                ", userName='" + userName + '\'' +
-                ", userLabels='" + userLabels + '\'' +
-                ", fileCondition='" + fileCondition + '\'' +
-                ", translateFlag='" + translateFlag + '\'' +
-                ", instrumentSerialNumber='" + instrumentSerialNumber + '\'' +
-                ", phone='" + phone + '\'' +
-                ", instrumentName='" + instrumentName + '\'' +
-                '}';
+            "creationDate=" + creationDate +
+            ", comment='" + comment + '\'' +
+            ", instrumentMethod='" + instrumentMethod + '\'' +
+            ", startTime='" + startTime + '\'' +
+            ", endTime='" + endTime + '\'' +
+            ", startMz='" + startMz + '\'' +
+            ", endMz='" + endMz + '\'' +
+            ", fileName='" + fileName + '\'' +
+            ", seqRowPosition='" + seqRowPosition + '\'' +
+            ", sampleName='" + sampleName + '\'' +
+            ", annotationInstrument='" + annotationInstrument + '\'' +
+            ", userName='" + userName + '\'' +
+            ", userLabels='" + userLabels + '\'' +
+            ", fileCondition='" + fileCondition + '\'' +
+            ", instrumentSerialNumber='" + instrumentSerialNumber + '\'' +
+            ", phone='" + phone + '\'' +
+            ", instrumentName='" + instrumentName + '\'' +
+            '}';
     }
 }

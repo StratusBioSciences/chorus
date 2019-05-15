@@ -12,10 +12,9 @@ import com.infoclinika.mssharing.model.read.dto.details.FileItem;
 import com.infoclinika.mssharing.model.write.FileMetaDataInfo;
 import com.infoclinika.mssharing.platform.model.common.items.DictionaryItem;
 import com.infoclinika.mssharing.platform.model.read.Filter;
-import junit.framework.Assert;
+import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
-import org.junit.internal.matchers.TypeSafeMatcher;
-import org.junit.matchers.JUnitMatchers;
+import org.hamcrest.Matcher;
 import org.testng.annotations.Test;
 
 import java.util.Set;
@@ -29,7 +28,9 @@ import static com.infoclinika.mssharing.model.read.DashboardReader.StorageStatus
 import static com.infoclinika.mssharing.model.read.DashboardReader.StorageStatus.UNARCHIVED;
 import static com.infoclinika.mssharing.platform.model.read.Filter.ALL;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.everyItem;
+import static org.testng.AssertJUnit.assertTrue;
 
 /**
  * @author Herman Zamula
@@ -55,21 +56,21 @@ public class ManagingFilesTest extends AbstractInstrumentTest {
         final Long oldSpecie = fileLines.iterator().next().specieId;
 
         final ImmutableSet<Long> files = from(fileLines)
-                .transform(fileLineIdTransformer)
-                .toSet();
+            .transform(fileLineIdTransformer)
+            .toSet();
 
         final long newSpecie = anotherSpecie(oldSpecie);
 
         instrumentManagement.bulkSetSpecies(bob, files, newSpecie);
         final Set<FileLine> updated = fileReader.readFiles(bob, ALL);
 
-        assertThat("New species have not been set correctly", updated, JUnitMatchers.everyItem(matchSpecie(newSpecie)));
+        assertThat("New species have not been set correctly", updated, everyItem(matchSpecie(newSpecie)));
 
     }
 
     @Test
     void testCanArchiveFiles() throws ExecutionException, InterruptedException {
-        setBilling(true);
+        setFeature(ApplicationFeature.GLACIER, true);
         final long bob = uc.createLab3AndBob();
         billingManagement.makeLabAccountEnterprise(uc.createPaul(), uc.getLab3());
         final com.infoclinika.mssharing.model.write.FileItem fileItem = anyFile(bob).get(0);
@@ -81,7 +82,7 @@ public class ManagingFilesTest extends AbstractInstrumentTest {
 
     @Test
     void testCanUnarchiveFiles() throws ExecutionException, InterruptedException {
-        setBilling(true);
+        setFeature(ApplicationFeature.GLACIER, true);
         final long bob = uc.createLab3AndBob();
         final com.infoclinika.mssharing.model.write.FileItem fileItem = anyFile(bob).get(0);
         fileOperationsManager.markFilesToArchive(bob, of(fileItem.id));
@@ -95,7 +96,7 @@ public class ManagingFilesTest extends AbstractInstrumentTest {
     @Test
     public void testCanArchiveFilesInExperiment() {
 
-        setBilling(true);
+        setFeature(ApplicationFeature.GLACIER, true);
         final long bob = uc.createLab3AndBob();
         billingManagement.makeLabAccountEnterprise(uc.createPaul(), uc.getLab3());
         final com.infoclinika.mssharing.model.write.FileItem file = getLast(anyFile(bob));
@@ -110,7 +111,7 @@ public class ManagingFilesTest extends AbstractInstrumentTest {
     @Test
     public void testCanArchiveExperimentWithTheFilesPresentInOtherExperiment() {
 
-        setBilling(true);
+        setFeature(ApplicationFeature.GLACIER, true);
         final long bob = uc.createLab3AndBob();
         billingManagement.makeLabAccountEnterprise(uc.createPaul(), uc.getLab3());
         final com.infoclinika.mssharing.model.write.FileItem file = getLast(anyFile(bob));
@@ -145,31 +146,34 @@ public class ManagingFilesTest extends AbstractInstrumentTest {
 
     }
 
-    @Test
-    public void test_check_file_size_consistent(){
+    @Test(enabled = false, description = "test was disabled for open-chorus")
+    public void test_check_file_size_consistent() {
         final long bob = uc.createLab3AndBob();
-        setFeaturePerLab(ApplicationFeature.TRANSLATION, Lists.newArrayList(uc.getLab3()));
         final Optional<Long> instrument = uc.createInstrumentAndApproveIfNeeded(bob, uc.getLab3());
 
         final long fileSize = 1048576;
         final long file = instrumentManagement.startUploadFile(bob, instrument.get(),
-                new FileMetaDataInfo(UUID.randomUUID().toString(), fileSize, "", null, unspecified(), false, false));
+            new FileMetaDataInfo(UUID.randomUUID().toString(), fileSize, "", null, unspecified(), false)
+        );
         instrumentManagement.completeMultipartUpload(bob, file, "raw-files/2/1/c15092005_000.RAW");
 
         final FileLine fileBeforeCheck = fileReader.readFiles(bob, Filter.ALL).iterator().next();
-        Assert.assertTrue("Error. File size is not consistent.", fileBeforeCheck.sizeIsConsistent);
+        assertTrue("Error. File size is not consistent.", fileBeforeCheck.sizeIsConsistent);
 
         fileOperationsManager.checkIsFilesConsistent(admin());
 
         final FileLine checkedFile = fileReader.readFiles(bob, Filter.ALL).iterator().next();
-        Assert.assertTrue("Error. File size is not consistent.", checkedFile.sizeIsConsistent);
+        assertTrue("Error. File size is not consistent.", checkedFile.sizeIsConsistent);
     }
 
-    private TypeSafeMatcher<FileLine> matchSpecie(final long newSpecie) {
-        return new TypeSafeMatcher<FileLine>() {
+
+    private Matcher<FileLine> matchSpecie(final long newSpecie) {
+        return new BaseMatcher<FileLine>() {
+
             @Override
-            public boolean matchesSafely(FileLine item) {
-                return item.specieId == newSpecie;
+            public boolean matches(Object o) {
+                final FileLine fileLine = (FileLine) o;
+                return fileLine.specieId == newSpecie;
             }
 
             @Override

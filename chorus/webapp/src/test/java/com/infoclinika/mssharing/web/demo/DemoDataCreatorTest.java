@@ -15,13 +15,8 @@ import com.infoclinika.mssharing.model.read.RequestsReader;
 import com.infoclinika.mssharing.platform.model.common.items.DictionaryItem;
 import com.infoclinika.mssharing.platform.model.common.items.FileItem;
 import com.infoclinika.mssharing.platform.model.read.Filter;
-import org.junit.Test;
-import org.junit.experimental.theories.DataPoints;
-import org.junit.experimental.theories.Theories;
-import org.junit.experimental.theories.Theory;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.testng.annotations.Test;
 
 import javax.inject.Inject;
 import java.util.List;
@@ -30,16 +25,18 @@ import java.util.Set;
 import static com.google.common.collect.Iterables.find;
 import static org.hamcrest.CoreMatchers.any;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.hamcrest.number.OrderingComparison.greaterThan;
-import static org.junit.Assert.*;
-import static org.junit.internal.matchers.IsCollectionContaining.hasItem;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertTrue;
 
 /**
  * @author Pavel Kaplin
  */
-@RunWith(Theories.class)
+//@RunWith(Theories.class)
 public class DemoDataCreatorTest extends DemoDataBasedTest {
 
     private static final int EXPERIMENT_LABEL_TYPES_SIZE = 9;
@@ -69,39 +66,39 @@ public class DemoDataCreatorTest extends DemoDataBasedTest {
     @Inject
     private ExperimentLabelRepository experimentLabelRepository;
 
-    @Value("${database.data.admin.email}")
-    private String adminEmail;
-
     public DemoDataCreatorTest() {
     }
 
-    @DataPoints
     public static Filter[] getFilterValues() {
         return Filter.values();
     }
 
-    @Theory
+    //    @Theory
     public void theoryHaveProjectsForAnyFilter(Filter filter) {
-        assertThat("Have projects for filter " + filter,
-                dashboardReader.readProjects(pavelKaplinAtGmail(), filter),
-                not(empty()));
+        assertThat(
+            "Have projects for filter " + filter,
+            dashboardReader.readProjects(demoUser(), filter),
+            not(empty())
+        );
     }
 
-    @Theory
+    //    @Theory
     public void theoryHaveExperimentsForAnyFilter(Filter filter) {
-        assertThat("Have experiments for filter " + filter,
-                dashboardReader.readExperiments(pavelKaplinAtGmail(), filter),
-                not(empty()));
+        assertThat(
+            "Have experiments for filter " + filter,
+            dashboardReader.readExperiments(demoUser(), filter),
+            not(empty())
+        );
     }
 
     @Test
     public void testHaveInstruments() {
-        assertThat(dashboardReader.readInstruments(pavelKaplinAtGmail()), not(empty()));
+        assertThat(dashboardReader.readInstruments(demoUser()), not(empty()));
     }
 
     @Test
     public void testHaveFiles() {
-        final Set<InstrumentLine> instrumentItems = dashboardReader.readInstruments(pavelKaplinAtGmail());
+        final Set<InstrumentLine> instrumentItems = dashboardReader.readInstruments(demoUser());
         final InstrumentLine filled = Iterables.find(instrumentItems, new Predicate<InstrumentLine>() {
             @Override
             public boolean apply(InstrumentLine input) {
@@ -110,14 +107,14 @@ public class DemoDataCreatorTest extends DemoDataBasedTest {
         }, Iterables.get(instrumentItems, 0));
         ImmutableSet<DictionaryItem> species = experimentCreationHelper.species();
         DictionaryItem specie = find(species, DictionaryItem.UNSPECIFIED);
-        List<FileItem> files = experimentCreationHelper.availableFilesByInstrument(pavelKaplinAtGmail(), specie.id, filled.id);
+        List<FileItem> files = experimentCreationHelper.availableFilesByInstrument(demoUser(), specie.id, filled.id);
         assertThat(files, hasItem(any(FileItem.class)));
         assertThat(files, hasSize(greaterThan(0)));
     }
 
     @Test
     public void testPavelKaplinAtTeamdevComDoesNotHavePendingLabMembership() {
-        assertTrue(requestsReader.myLabMembershipOutbox(pavelKaplinAtTeamdev()).isEmpty());
+        assertTrue(requestsReader.myLabMembershipOutbox(johnDoe()).isEmpty());
     }
 
     @Test
@@ -132,21 +129,26 @@ public class DemoDataCreatorTest extends DemoDataBasedTest {
 
     @Test
     public void testCouldLogin() {
-        assertCouldLogin("pavel.kaplin@gmail.com");
-        assertCouldLogin("pavel.kaplin@teamdev.com");
-        assertCouldLogin(adminEmail);
+        assertCouldLogin("john.doe@infoclinika.com");
+        assertCouldLogin(demoDataPropertiesProvider.getAdminEmail());
+        assertCouldLogin("demo.user@infoclinika.com");
     }
 
     @Test
-    public void testAllFilesAreOfThermoVendor() {
-        Iterable<ActiveFileMetaData> all = fileMetaDataRepository.findAll();
+    public void testNumberOfThermoFiles() {
+        int count = 0;
+        final Iterable<ActiveFileMetaData> all = fileMetaDataRepository.findAll();
         for (ActiveFileMetaData fileMetaData : all) {
-            assertEquals("File " + fileMetaData + " is of Thermo vendor", "Thermo Scientific", fileMetaData.getInstrument().getModel().getVendor().getName());
+            if (fileMetaData.getInstrument().getModel().getVendor().getName().equals("Thermo Scientific")) {
+                count++;
+            }
         }
+
+        assertEquals(count, 134);
     }
 
     private void assertCouldLogin(String email) {
         SecurityHelper.UserDetails atGmailCom = securityHelper.getUserDetailsByEmail(email);
-        assertTrue("Could login as " + email + ", " + PASSWORD, encoder.matches(PASSWORD, atGmailCom.password));
+        assertTrue(encoder.matches(PASSWORD, atGmailCom.password), "Could login as " + email + ", " + PASSWORD);
     }
 }

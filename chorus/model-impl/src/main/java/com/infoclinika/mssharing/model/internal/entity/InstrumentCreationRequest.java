@@ -11,11 +11,10 @@ import static com.google.common.collect.Sets.newHashSet;
 
 /**
  * @author timofey.kasyanov
- *         date: 12.05.2014
+ *     date: 12.05.2014
  */
 @Entity
 @Table(name = "instrument_creation_request")
-@AssociationOverride(name = "operators", joinTable = @JoinTable(name = "instrument_creation_request_operator"))
 public class InstrumentCreationRequest extends InstrumentCreationRequestTemplate<User, Lab> {
 
     private String hplc;
@@ -23,8 +22,8 @@ public class InstrumentCreationRequest extends InstrumentCreationRequestTemplate
 
     @ElementCollection
     @CollectionTable(
-            name = "instrument_creation_request_lock_masses",
-            joinColumns = {@JoinColumn(name = "request_id")}
+        name = "instrument_creation_request_lock_masses",
+        joinColumns = {@JoinColumn(name = "request_id")}
     )
     private Set<LockMz> lockMasses = newHashSet();
 
@@ -33,7 +32,7 @@ public class InstrumentCreationRequest extends InstrumentCreationRequestTemplate
 
     public InstrumentCreationRequest(String name, User requester, InstrumentModel model,
                                      String serialNumber, String hplc, String peripherals,
-                                     Lab lab, boolean autoTranslate, Date requestDate) {
+                                     Lab lab, Date requestDate) {
         this.setName(name);
         this.setRequester(requester);
         this.setModel(model);
@@ -41,7 +40,6 @@ public class InstrumentCreationRequest extends InstrumentCreationRequestTemplate
         this.setPeripherals(peripherals);
         this.setLab(lab);
         this.setRequestDate(requestDate);
-        this.autoTranslate = autoTranslate;
         this.hplc = hplc;
     }
 

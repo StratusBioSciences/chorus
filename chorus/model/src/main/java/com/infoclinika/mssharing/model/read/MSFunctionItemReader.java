@@ -7,7 +7,7 @@ public interface MSFunctionItemReader {
 
     Iterable<MSFunctionItemInfo> readAll();
 
-    class MSFunctionItemInfo{
+    class MSFunctionItemInfo {
         public final long id;
         public final String functionName;
         public final Long mzGridParamsId;

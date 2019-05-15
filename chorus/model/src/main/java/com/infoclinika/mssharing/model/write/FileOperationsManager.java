@@ -22,8 +22,6 @@ public interface FileOperationsManager {
 
     void unarchiveMarkedFiles();
 
-    void moveMarkedFilesToTempAndMarkForTranslate();
-
     void makeFilesAvailableForDownload(long actor, Set<Long> files);
 
     void makeExperimentFilesAvailableForDownload(long actor, long experiment);
@@ -31,4 +29,6 @@ public interface FileOperationsManager {
     void checkIsFilesConsistent(long actor);
 
     void checkIsFileConsistent(long actor, long file);
+
+    void markUnsuccessfullyUploadedFilesToReplaceAndCorrupted();
 }

@@ -1,15 +1,13 @@
 package com.infoclinika.mssharing.model.internal.write;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ImmutableSet;
 import com.infoclinika.mssharing.model.helper.FileMetaInfoHelper;
 import com.infoclinika.mssharing.model.internal.FileNameSpotter;
 import com.infoclinika.mssharing.model.internal.entity.*;
 import com.infoclinika.mssharing.model.internal.entity.restorable.*;
-import com.infoclinika.mssharing.model.internal.entity.PrepToExperimentSample;
+import com.infoclinika.mssharing.model.internal.entity.workflow.PrepToExperimentSample;
 import com.infoclinika.mssharing.model.internal.repository.FactorRepository;
 import com.infoclinika.mssharing.model.internal.repository.LabRepository;
-import com.infoclinika.mssharing.model.internal.repository.MSFunctionItemRepository;
 import com.infoclinika.mssharing.model.write.ProjectInfo;
 import com.infoclinika.mssharing.model.write.StudyManagement;
 import com.infoclinika.mssharing.platform.entity.ExperimentFileTemplate;
@@ -36,8 +34,6 @@ public class ProjectManagementImpl extends DefaultProjectManagement<ActiveProjec
     @Inject
     private FileMetaInfoHelper fileMetaInfoHelper;
     @Inject
-    private MSFunctionItemRepository msFunctionItemRepository;
-    @Inject
     private FactorRepository factorRepository;
     @Inject
     private LabRepository labRepository;
@@ -60,22 +56,30 @@ public class ProjectManagementImpl extends DefaultProjectManagement<ActiveProjec
 
 
     @Override
-    protected void onCopyExperimentRawFiles(UserTemplate newOwner, ExperimentTemplate originalExperiment, ExperimentTemplate experimentCopy, CopyProjectInfoTemplate copyInfo) {
+    protected void onCopyExperimentRawFiles(
+        UserTemplate newOwner,
+        ExperimentTemplate originalExperiment,
+        ExperimentTemplate experimentCopy,
+        CopyProjectInfoTemplate copyInfo
+    ) {
         ActiveExperiment from = (ActiveExperiment) originalExperiment;
         ActiveExperiment to = (ActiveExperiment) experimentCopy;
         List<Factor> copiedFactors = new ArrayList<>();
         final StudyManagement.CopyProjectInfo copyProjectInfo = toChorusInfo(copyInfo);
-        final Function<AbstractFileMetaData, AbstractFileMetaData> copyMetaDataFn = createCopyMetaDataFn(newOwner, labRepository.findOne(copyProjectInfo.getBillLab()));
-        final Collection<RawFile> copiedFiles = transform(from.rawFiles.getData(), new Function<ExperimentFileTemplate, RawFile>() {
-            @Override
-            public RawFile apply(ExperimentFileTemplate from) {
+        final Function<AbstractFileMetaData, AbstractFileMetaData> copyMetaDataFn =
+            createCopyMetaDataFn(newOwner, labRepository.findOne(copyProjectInfo.getBillLab()));
+        final Collection<RawFile> copiedFiles =
+            transform(from.rawFiles.getData(), (Function<ExperimentFileTemplate, RawFile>) from1 -> {
                 //noinspection unchecked
-                final RawFile rawFile = (RawFile) from;
-                RawFile copyFile = new RawFile(copyMetaDataFn.apply((AbstractFileMetaData) from.getFileMetaData()), rawFile.getFractionNumber(), rawFile.getPreparedSample());
+                final RawFile rawFile = (RawFile) from1;
+                RawFile copyFile = new RawFile(
+                    copyMetaDataFn.apply((AbstractFileMetaData) from1.getFileMetaData()),
+                    rawFile.getFractionNumber(),
+                    rawFile.getPreparedSample()
+                );
                 copyFile.setCopy(true);
                 return copyFile;
-            }
-        });
+            });
         for (Factor factor : from.rawFiles.getFactors()) {
             copiedFactors.add(factorRepository.save(Factor.createCopy(factor, to)));
         }
@@ -88,30 +92,36 @@ public class ProjectManagementImpl extends DefaultProjectManagement<ActiveProjec
     }
 
     @Override
-    protected ExperimentTemplate onCopyExperiment(ActiveProject copyOfProject, UserTemplate newOwner, ExperimentTemplate origin, CopyProjectInfoTemplate copyInfo) {
+    protected ExperimentTemplate onCopyExperiment(
+        ActiveProject copyOfProject,
+        UserTemplate newOwner,
+        ExperimentTemplate origin,
+        CopyProjectInfoTemplate copyInfo
+    ) {
         final boolean isNameUsed = experimentRepository.findOneByName(newOwner.getId(), origin.getName()) != null;
         final Lab billLab = labRepository.findOne(toChorusInfo(copyInfo).getBillLab());
         final String copyName = createCopyName(origin.getName(), isNameUsed);
-        final ActiveExperiment experimentCopy = copyExperimentFor(copyOfProject, (ActiveExperiment) origin, billLab, copyName);
+        final ActiveExperiment experimentCopy =
+            copyExperimentFor(copyOfProject, (ActiveExperiment) origin, billLab, copyName);
         projectManager.setDownloadToken(copyOfProject.getSharing().getType(), experimentCopy);
         return saveExperiment(experimentCopy);
 
     }
 
-    private Function<AbstractFileMetaData, AbstractFileMetaData> createCopyMetaDataFn(final UserTemplate newOwner, final Lab newBillLab) {
+    private Function<AbstractFileMetaData, AbstractFileMetaData> createCopyMetaDataFn(
+        final UserTemplate newOwner,
+        final Lab newBillLab
+    ) {
 
         final Map<AbstractFileMetaData, AbstractFileMetaData> originalCopyMap = newHashMap();
 
-        return new Function<AbstractFileMetaData, AbstractFileMetaData>() {
-            @Override
-            public AbstractFileMetaData apply(AbstractFileMetaData originalMeta) {
-                if (originalCopyMap.containsKey(originalMeta)) {
-                    return originalCopyMap.get(originalMeta);
-                }
-                final AbstractFileMetaData copied = copyFileMetadata(originalMeta, newOwner, newBillLab);
-                originalCopyMap.put(originalMeta, copied);
-                return copied;
+        return originalMeta -> {
+            if (originalCopyMap.containsKey(originalMeta)) {
+                return originalCopyMap.get(originalMeta);
             }
+            final AbstractFileMetaData copied = copyFileMetadata(originalMeta, newOwner, newBillLab);
+            originalCopyMap.put(originalMeta, copied);
+            return copied;
         };
     }
 
@@ -142,14 +152,16 @@ public class ProjectManagementImpl extends DefaultProjectManagement<ActiveProjec
         return format.format(new Date());
     }
 
-    private ActiveExperiment copyExperimentFor(ActiveProject project, AbstractExperiment experiment, Lab newBillLab, String copyName) {
+    private ActiveExperiment copyExperimentFor(
+        ActiveProject project,
+        AbstractExperiment experiment,
+        Lab newBillLab,
+        String copyName
+    ) {
 
         ActiveExperiment copy = (ActiveExperiment) projectManager.copyExperimentData(project, experiment, copyName);
 
         copy.setBillLaboratory(newBillLab);
-        copy.setTranslationError(experiment.getTranslationError());
-        copy.setLastTranslationAttempt(experiment.getLastTranslationAttempt());
-        copy.setTranslated(experiment.isTranslated());
         copy.setExperimentCategory(experiment.getExperimentCategory());
         return copy;
     }
@@ -159,30 +171,9 @@ public class ProjectManagementImpl extends DefaultProjectManagement<ActiveProjec
 
         final ActiveFileMetaData toSave = (ActiveFileMetaData) from.copy(copyName, owner);
         toSave.setBillLab(newBillLab);
-        ActiveFileMetaData copy = (ActiveFileMetaData) fileMetaDataRepository.save(toSave);
-        copyMSData(from, copy, newBillLab);
+        ActiveFileMetaData copy = fileMetaDataRepository.save(toSave);
         fileMetaInfoHelper.copyFileMetaAnnotation(copy.getId(), from.getId());
         //noinspection unchecked
         return (AbstractFileMetaData) fileMetaDataRepository.findOne(copy.getId());
     }
-
-
-    public void copyMSData(final AbstractFileMetaData from, final AbstractFileMetaData target, Lab newBillLab) {
-
-        final Set<UserLabFileTranslationData> usersFunctions = from.getUsersFunctions();
-
-        for (UserLabFileTranslationData usersFunction : usersFunctions) {
-            final Set<MSFunctionItem> functions = usersFunction.getFunctions();
-            final ImmutableSet.Builder<MSFunctionItem> builder = ImmutableSet.builder();
-            for (MSFunctionItem function : functions) {
-                final MSFunctionItem originalFunction = msFunctionItemRepository.findOne(function.getId());
-                MSFunctionItem copyFunction = originalFunction.copy();
-                copyFunction = msFunctionItemRepository.save(copyFunction);
-                builder.add(copyFunction);
-            }
-            target.getUsersFunctions().add(new UserLabFileTranslationData(usersFunction.getUser(), builder.build(), newBillLab));
-        }
-
-    }
-
 }

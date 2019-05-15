@@ -1,14 +1,12 @@
 package com.infoclinika.mssharing.web.security;
 
 import com.google.common.io.Resources;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 import java.io.File;
 
-import static com.infoclinika.mssharing.web.security.ApplicationPropertiesReader.SSO_ENABLED_PROPERTY;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.testng.AssertJUnit.assertEquals;
 
 /**
  * @author Andrii Loboda
@@ -19,17 +17,13 @@ public class ApplicationPropertiesReaderShouldTest {
     @SuppressWarnings("AccessOfSystemProperties")
     @BeforeClass
     public static void setUp() {
-        final String userDirPropertiesPath = Resources.getResource("userdir/" + ApplicationPropertiesReader.APPLICATION_PROPERTIES).getFile();
+        final String userDirPropertiesPath =
+            Resources.getResource("userdir/" + ApplicationPropertiesReader.APPLICATION_PROPERTIES).getFile();
         System.setProperty("user.dir", new File(userDirPropertiesPath).getParentFile().getAbsolutePath());
 
-        final String userHomePropertiesPath = Resources.getResource("userhome/" + ApplicationPropertiesReader.APPLICATION_PROPERTIES).getFile();
+        final String userHomePropertiesPath =
+            Resources.getResource("userhome/" + ApplicationPropertiesReader.APPLICATION_PROPERTIES).getFile();
         System.setProperty("user.home", new File(userHomePropertiesPath).getParentFile().getAbsolutePath());
-    }
-
-    @Test
-    public void get_property_from_classpath() {
-        final String propValue = ApplicationPropertiesReader.getProperty(SSO_ENABLED_PROPERTY);
-        assertNotNull(propValue);
     }
 
     @Test

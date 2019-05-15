@@ -10,14 +10,11 @@ import java.util.Map;
  * @author Elena Kurilina
  */
 @Transactional
-public interface PaymentManagement  {
+public interface PaymentManagement {
 
     void depositStoreCredit(Map<String, String> paramsMap);
 
     void depositStoreCredit(long admin, long lab, long amount);
-
-    @Async
-    void logTranslationUsage(long user, long file, long lab);
 
     @Async
     void logDownloadUsage(long actor, long file, long lab);
@@ -26,16 +23,10 @@ public interface PaymentManagement  {
     void logPublicDownload(@Nullable Long actor, long file);
 
     @Async
-    void logProteinIDSearchUsage(long creator, long experiment);
-
-    @Async
     void logStorageVolumeUsage(long actor, long lab, int volumes, long time);
 
     @Async
     void logArchiveStorageVolumeUsage(long actor, long lab, int volumes, long time);
-
-    @Async
-    void logProcessingUsage(long actor, long lab, long time);
 
     @Async
     void logLabBecomeEnterprise(long actor, long lab, long time);

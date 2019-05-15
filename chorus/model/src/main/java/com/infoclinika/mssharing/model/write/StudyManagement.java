@@ -3,8 +3,10 @@
  * -----------------------------------------------------------------------
  * Copyright (c) 2011-2012 InfoClinika, Inc. 5901 152nd Ave SE, Bellevue, WA 98006,
  * United States of America.  (425) 442-8058.  http://www.infoclinika.com.
- * All Rights Reserved.  Reproduction, adaptation, or translation without prior written permission of InfoClinika, Inc. is prohibited.
- * Unpublished--rights reserved under the copyright laws of the United States.  RESTRICTED RIGHTS LEGEND Use, duplication or disclosure by the
+ * All Rights Reserved.  Reproduction, adaptation, or translation without prior written permission of InfoClinika,
+ * Inc. is prohibited.
+ * Unpublished--rights reserved under the copyright laws of the United States.  RESTRICTED RIGHTS LEGEND Use,
+ * duplication or disclosure by the
  */
 package com.infoclinika.mssharing.model.write;
 
@@ -31,16 +33,18 @@ import java.util.Set;
  * @author Stanislav Kurilin
  */
 public interface StudyManagement extends
-        ProjectManagementTemplate<ProjectInfo>,
-        ExperimentManagementTemplate<ExperimentInfo>,
-        ProjectSharingRequestManagement {
+    ProjectManagementTemplate<ProjectInfo>,
+    ExperimentManagementTemplate<ExperimentInfo>,
+    ProjectSharingRequestManagement {
 
 
     void removeProject(long project);
 
-    public long moveProjectToTrash(long actor, long projectId);
+    void removeProject(long actor, long project, boolean permanently);
 
-    public long restoreProject(long actor, long projectId);
+    long moveProjectToTrash(long actor, long projectId);
+
+    long restoreProject(long actor, long projectId);
 
     /**
      * For internal use
@@ -57,109 +61,11 @@ public interface StudyManagement extends
 
     long newProjectCopyRequest(long actor, long copyTo, long project);
 
-    void removeProject(long actor, long project, boolean permanently);
-
     void approveCopyProjectRequest(long actor, long project, long billLaboratory);
 
     void refuseCopyProjectRequest(long actor, long project);
 
-    /**
-     * Marks files of the given experiment for translation in future.
-     *
-     * @param actor        current user
-     * @param experimentId experiment ID
-     * @param chargedLab   laboratory which will pay for translation
-     */
-    void markExperimentFilesForTranslation(long actor, long experimentId, long chargedLab);
-
-    /**
-     * Marks files, not translated for given experiment in experiment Bill Laboratory, for translation
-     *
-     * @param actor        creator of the experiment
-     * @param experimentId experiment ID
-     * @param chargedLab   laboratory which will pay for translation
-     */
-    void markNotTranslatedFilesToTranslate(long actor, long experimentId, long chargedLab);
-
-    /**
-     * Marks file for translation
-     *
-     * @param actor  current user
-     * @param lab    - lab which will own translated data and thus, charged
-     * @param fileId file ID
-     */
-    void markFileForTranslation(long actor, long lab, long fileId);
-
-    /**
-     * Marks given files for translation.
-     * <p/>
-     * Ignore files not available for translation.
-     *
-     * @param actor current user
-     * @param lab   lab which will own translated data and thus, charged
-     * @param files the set of files to mark
-     * @return the set of files from requested files set that are not available for translation.
-     */
-    ImmutableSet<Long> markFilesForTranslation(long actor, long lab, @NotNull Set<Long> files);
-
-    /**
-     * Translates the given files.
-     * <p/>
-     * Available only for admin.
-     *
-     * @param actor        current user
-     * @param files        files to translate
-     * @param metadataOnly translate only metadata
-     */
-    void retranslateFiles(long actor, @NotNull List<Long> files, boolean metadataOnly);
-
     void runPreCacheViewers(long actor, long experimentId);
-
-    void removeTranslationData(long actor, Iterable<Long> files, long lab);
-
-    void removeTranslationData(long actor, long file, long lab);
-
-    void removeTranslationDataOfExperimentFiles(long bob, long experiment);
-
-    /**
-     * Retranslate all existing experiments. USE WITH CARE.
-     * <p/>
-     * Currently available only to admin user.
-     * <p/>
-     * Deprecated due to per file translation.
-     *
-     * @param actor the ID of user
-     */
-    @Deprecated
-    void retranslateAllExperiments(long actor);
-
-    @Deprecated
-    void retranslateExperiments(long actor, List<Long> experiments);
-
-    /**
-     * Translates the given experiments.
-     * <p>
-     * Available only for admin.
-     *
-     * @param actor       current user
-     * @param experiments experiments to translate
-     */
-    void retranslateExperimentsFiles(long actor, List<Long> experiments);
-
-    /**
-     * For now retranslate only files engaged in the experiments.
-     * <p/>
-     * Available only for admin.
-     *
-     * @param actor        - current user
-     * @param metadataOnly - fetch metadata only, don't convert and upload files
-     */
-    void reTranslateAllNotTranslatedFilesOfExperiments(long actor, boolean metadataOnly);
-
-    /**
-     * Internal method used by the AutomaticFileRetranslator
-     */
-    void translateMarkedFiles();
 
     void setBlogEnabled(long userId, long project, boolean blogEnabled);
 

@@ -14,17 +14,12 @@ import java.util.Set;
  */
 public interface ChargeableItemRepository extends CrudRepository<ChargeableItem, Long> {
 
-    @Query("select u from ChargeableItem u where u.feature " +
-            " = com.infoclinika.mssharing.model.internal.entity.payment.ChargeableItem$Feature.TRANSLATION")
-    ChargeableItem findTranslation();
-
     @Query("SELECT l FROM ChargeableItem l WHERE l.feature = :feature")
     ChargeableItem findByFeature(@Param("feature") Feature feature);
 
     @Query("select i from ChargeableItem i where i.feature in (" +
             "com.infoclinika.mssharing.model.internal.entity.payment.ChargeableItem$Feature.ANALYSE_STORAGE," +
             "com.infoclinika.mssharing.model.internal.entity.payment.ChargeableItem$Feature.DOWNLOAD," +
-            "com.infoclinika.mssharing.model.internal.entity.payment.ChargeableItem$Feature.ANALYSIS," +
             "com.infoclinika.mssharing.model.internal.entity.payment.ChargeableItem$Feature.PUBLIC_DOWNLOAD)")
     Set<ChargeableItem> findEnabledByDefault();
 }

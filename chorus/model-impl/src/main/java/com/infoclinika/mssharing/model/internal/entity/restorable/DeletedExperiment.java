@@ -18,33 +18,31 @@ public class DeletedExperiment extends AbstractExperiment {
 
     public DeletedExperiment(ActiveExperiment e) {
         super(
-                e.getCreator(),
-                e.getProject(),
-                e.getLab(),
-                e.getName(),
-                e.getExperiment(),
-                e.getLastTranslationAttempt(),
-                e.getInstrumentRestriction(),
-                e.getExperimentType(),
-                e.getSpecie(),
-                e.getBounds(),
-                e.getLockMasses(),
-                e.getSampleTypesCount(),
-                e.getChannelsCount(),
-                e.getLabelType(),
-                e.getGroupSpecificParametersType(),
-                e.getReporterMassTol(),
-                e.isFilterByPIFEnabled(),
-                e.getMinReporterPIF(),
-                e.getMinBasePeakRatio(),
-                e.getMinReporterFraction(),
-                e.getExperimentCategory(),
-                e.getNgsRelatedData()
+            e.getCreator(),
+            e.getProject(),
+            e.getLab(),
+            e.getName(),
+            e.getExperiment(),
+            e.getLastModification(),
+            e.getInstrumentRestriction(),
+            e.getExperimentType(),
+            e.getSpecie(),
+            e.getBounds(),
+            e.getLockMasses(),
+            e.getSampleTypesCount(),
+            e.getChannelsCount(),
+            e.getLabelType(),
+            e.getGroupSpecificParametersType(),
+            e.getReporterMassTol(),
+            e.isFilterByPIFEnabled(),
+            e.getMinReporterPIF(),
+            e.getMinBasePeakRatio(),
+            e.getMinReporterFraction(),
+            e.getExperimentCategory(),
+            e.getNgsRelatedData(),
+            e.isFailed()
         );
-        this.setTranslationError(e.getTranslationError());
-        this.setLastTranslationAttempt(e.getLastTranslationAttempt());
         this.setDownloadToken(e.getDownloadToken());
-        this.setTranslated(e.isTranslated());
         this.setRawFiles(e.getRawFiles());
         this.setLastModification(new Date());
         this.attachments = e.attachments;

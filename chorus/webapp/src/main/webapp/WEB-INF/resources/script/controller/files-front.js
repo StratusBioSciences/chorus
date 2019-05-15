@@ -1,176 +1,254 @@
-angular.module("filesControllers", ["files-back", "instruments-back", "formatters", "breadcrumbs", "security-front",
-    "security-back", "watchFighters", "downloader", "front-end", "error-catcher", "enums"])
-    .controller("files", function ($scope, contentRequestParameters, $routeParams, Files, removeFileConfirmation, FilesControllerCommon, getFilesColumnsForAdvancedFilter, PaginationPropertiesSettingService) {
-        if ($scope.pathError) return;
-        CommonLogger.setTags(["FILES", "FILES-CONTROLLER"]);
-        $scope.page.title = "Files";
-        $scope.page.showPageableFilter = true;
-        $scope.page.filterScope = $scope;
-        $scope.total = 0;
-        $scope.pageNumber = 0;
-        $scope.filter = $routeParams.filter;
-        $scope.page.subtitle = $scope.$eval("filter | filterToString");
-        $scope.page.changeableColumns = true;
-        $scope.files = [];
-        var pagedRequest = new contentRequestParameters.getParameters("files");
+"use strict";
 
-        $scope.page.advancedFilter = {
-            composedFilter: pagedRequest.advancedFilter ? angular.copy(pagedRequest.advancedFilter) : {},
-            configuration: {
-                pageable: true,
-                fields: getFilesColumnsForAdvancedFilter()
+angular.module("filesControllers",
+    ["files-back", "instruments-back", "formatters", "breadcrumbs", "security-front", "security-back",
+        "watchFighters", "downloader", "front-end", "error-catcher", "enums", "popups",
+        "feature-service", "user-details-service"])
+    .controller("files", function ($scope,
+                                   contentRequestParameters,
+                                   $routeParams,
+                                   Files,
+                                   removeFileConfirmation,
+                                   FilesControllerCommon,
+                                   getFilesColumnsForAdvancedFilter,
+                                   PaginationPropertiesSettingService,
+                                   FeatureProvider,
+                                   UserLabsProvider) {
+            if ($scope.pathError) {
+                return;
             }
-        };
+            CommonLogger.setTags(["FILES", "FILES-CONTROLLER"]);
+            $scope.page.title = "Files";
+            $scope.page.showPageableFilter = true;
+            $scope.page.filterScope = $scope;
+            $scope.total = 0;
+            $scope.pageNumber = 0;
+            $scope.filter = $routeParams.filter;
+            $scope.page.subtitle = $scope.$eval("filter | filterToString");
+            $scope.page.changeableColumns = true;
+            $scope.files = [];
+            $scope.isBillingFeatureAvailable = FeatureProvider.isBillingFeatureAvailable;
+            $scope.isUserLab = UserLabsProvider.isUserLab;
 
-        var filesController = FilesControllerCommon($scope);
+            var pagedRequest = new contentRequestParameters.getParameters("files");
+
+            $scope.page.advancedFilter = {
+                composedFilter: pagedRequest.advancedFilter ? angular.copy(pagedRequest.advancedFilter) : {},
+                configuration: {
+                    pageable: true,
+                    fields: getFilesColumnsForAdvancedFilter()
+                }
+            };
+
+            var filesController = FilesControllerCommon($scope);
 
 
-        Files.get(pagedRequest, function (filesCollection) {
-            filesController.setup(filesCollection);
-            PaginationPropertiesSettingService.setPaginationProperties($scope, filesCollection);
-        });
-
-        $scope.displayConfirmation = removeFileConfirmation($scope);
-    })
-    .controller("filesByInstrument", function ($scope, contentRequestParameters, $routeParams, Files, removeFileConfirmation, FilesControllerCommon, getFilesColumnsForAdvancedFilter, PaginationPropertiesSettingService) {
-        if ($scope.pathError) return;
-        CommonLogger.setTags(["FILES", "FILES-BY-INSTRUMENT-CONTROLLER"]);
-        $scope.page.title = "Files";
-        $scope.page.showPageableFilter = true;
-        $scope.page.filterScope = $scope;
-        $scope.page.changeableColumns = true;
-        $scope.total = 0;
-        $scope.pageNumber = 0;
-        var filesController = FilesControllerCommon($scope);
-
-        var pagedRequest = contentRequestParameters.getParameters("files");
-        $scope.page.advancedFilter = {
-            composedFilter: pagedRequest.advancedFilter ? angular.copy(pagedRequest.advancedFilter) : {},
-            configuration: {
-                pageable: true,
-                fields: getFilesColumnsForAdvancedFilter()
-            }
-        };
-
-        pagedRequest.id = $routeParams.id;
-        pagedRequest.filter = "my";
-        pagedRequest.type = "instrument";
-        Files.get(pagedRequest,
-            function (filesCollection) {
+            Files.get(pagedRequest, function (filesCollection) {
                 filesController.setup(filesCollection);
                 PaginationPropertiesSettingService.setPaginationProperties($scope, filesCollection);
             });
 
-        $scope.displayConfirmation = removeFileConfirmation($scope);
-    })
-    .controller("filesByLab", function ($scope, contentRequestParameters, $routeParams, removeFileConfirmation, FilesByLab, FilesControllerCommon, getFilesColumnsForAdvancedFilter, PaginationPropertiesSettingService) {
-        if ($scope.pathError) return;
-        CommonLogger.setTags(["FILES", "FILES-BY-LAB-CONTROLLER"]);
-        $scope.page.title = "Files";
-        $scope.page.showPageableFilter = true;
-        $scope.page.filterScope = $scope;
-        $scope.page.changeableColumns = true;
-        $scope.total = 0;
-        $scope.pageNumber = 0;
-        var filesController = FilesControllerCommon($scope);
-
-        var pagedRequest = contentRequestParameters.getParameters("files");
-        $scope.page.advancedFilter = {
-            composedFilter: pagedRequest.advancedFilter ? angular.copy(pagedRequest.advancedFilter) : {},
-            configuration: {
-                pageable: true,
-                fields: getFilesColumnsForAdvancedFilter()
+            $scope.displayConfirmation = removeFileConfirmation($scope);
+        }
+    )
+    .controller("filesByInstrument", function ($scope,
+                                               contentRequestParameters,
+                                               $routeParams,
+                                               Files,
+                                               removeFileConfirmation,
+                                               FilesControllerCommon,
+                                               getFilesColumnsForAdvancedFilter,
+                                               PaginationPropertiesSettingService,
+                                               FeatureProvider,
+                                               UserLabsProvider) {
+            if ($scope.pathError) {
+                return;
             }
-        };
-        pagedRequest.id = $routeParams.id;
-        FilesByLab.get(pagedRequest, function (filesCollection) {
-            CommonLogger.log("query to files in lab");
-            filesController.setup(filesCollection);
-            PaginationPropertiesSettingService.setPaginationProperties($scope, filesCollection);
-        });
+            CommonLogger.setTags(["FILES", "FILES-BY-INSTRUMENT-CONTROLLER"]);
+            $scope.page.title = "Files";
+            $scope.page.showPageableFilter = true;
+            $scope.page.filterScope = $scope;
+            $scope.page.changeableColumns = true;
+            $scope.total = 0;
+            $scope.pageNumber = 0;
+            $scope.isBillingFeatureAvailable = FeatureProvider.isBillingFeatureAvailable;
+            $scope.isUserLab = UserLabsProvider.isUserLab;
 
-        $scope.displayConfirmation = removeFileConfirmation($scope);
-    })
-    .controller("experiment-files", function ($scope, $routeParams, $location, contentRequestParameters, Files, ExperimentDetails, FilesByExperiment, FilesControllerCommon, getFilesColumnsForAdvancedFilter, PaginationPropertiesSettingService) {
-        if ($scope.pathError) return;
-        CommonLogger.setTags(["FILES", "EXPERIMENT-FILES-CONTROLLER"]);
-        $scope.total = 0;
-        $scope.pageNumber = 0;
-        $scope.page.showPageableFilter = true;
-        $scope.page.filterScope = $scope;
-        $scope.page.changeableColumns = true;
+            var filesController = FilesControllerCommon($scope);
 
-        var filesController = FilesControllerCommon($scope);
-        ExperimentDetails.get({id: $routeParams.experiment}, function (experiment) {
-            $scope.page.title = $routeParams.experiment + ": " + experiment.details.info.name;
-            $scope.page.res = {
-                type: "EXPERIMENT",
-                id: $routeParams.experiment,
-                path: $location.$$url.substring(0, $location.$$url.lastIndexOf("/" + $routeParams.experiment + "/files")),
-                returnUrl: $location.$$url,
-                accessLevel: experiment.details.accessLevel,
-                canEdit: ($scope.loggedInUser.username == experiment.details.ownerEmail || experiment.details.labHead == $scope.loggedInUser.id)
+            var pagedRequest = contentRequestParameters.getParameters("files");
+            $scope.page.advancedFilter = {
+                composedFilter: pagedRequest.advancedFilter ? angular.copy(pagedRequest.advancedFilter) : {},
+                configuration: {
+                    pageable: true,
+                    fields: getFilesColumnsForAdvancedFilter()
+                }
             };
-        });
 
-        var pagedRequest = contentRequestParameters.getParameters("files");
-        $scope.page.advancedFilter = {
-            composedFilter: pagedRequest.advancedFilter ? angular.copy(pagedRequest.advancedFilter) : {},
-            configuration: {
-                pageable: true,
-                fields: getFilesColumnsForAdvancedFilter()
-            }
-        };
-        pagedRequest.id = $routeParams.experiment;
-        FilesByExperiment.get(pagedRequest, function (filesCollection) {
-            filesController.setup(filesCollection);
+            pagedRequest.id = $routeParams.id;
+            pagedRequest.filter = "my";
+            pagedRequest.type = "instrument";
+            Files.get(
+                pagedRequest,
+                function (filesCollection) {
+                    filesController.setup(filesCollection);
+                    PaginationPropertiesSettingService.setPaginationProperties($scope, filesCollection);
+                }
+            );
 
-            PaginationPropertiesSettingService.setPaginationProperties($scope, filesCollection);
-        });
-    })
-    .controller("fileDetails", function ($scope, $location, $routeParams, Files, FileDetails, FileDetailsWithConditions, Security) {
-        if ($scope.pathError) return;
-        CommonLogger.setTags(["FILES", "FILE-DETAILS-CONTROLLER"]);
-        $scope.showDetailsDialog = true;
-        $scope.page.title = "File Details";
-        $scope.viewMode = true;
-
-        var throughExperiment = $routeParams.experiment != undefined;
-
-        if (!throughExperiment) {
-            FileDetails.get({filter: $routeParams.filter, id: $routeParams.id}, getFileSuccess);
-        } else {
-            FileDetailsWithConditions.get({experimentId: $routeParams.experiment, id: $routeParams.id}, getFileSuccess);
+            $scope.displayConfirmation = removeFileConfirmation($scope);
         }
-
-        function getFileSuccess(file) {
-            $scope.showConditions = throughExperiment;
-            if (throughExperiment) {
-                file.conditions = $.map(file.conditions, function (item) {
-                    return item.name;
-                })
+    )
+    .controller("filesByLab", function ($scope,
+                                        contentRequestParameters,
+                                        $routeParams,
+                                        removeFileConfirmation,
+                                        FilesByLab,
+                                        FilesControllerCommon,
+                                        getFilesColumnsForAdvancedFilter,
+                                        PaginationPropertiesSettingService,
+                                        FeatureProvider,
+                                        UserLabsProvider) {
+            if ($scope.pathError) {
+                return;
             }
-            $scope.details = file;
+            CommonLogger.setTags(["FILES", "FILES-BY-LAB-CONTROLLER"]);
+            $scope.page.title = "Files";
+            $scope.page.showPageableFilter = true;
+            $scope.page.filterScope = $scope;
+            $scope.page.changeableColumns = true;
+            $scope.total = 0;
+            $scope.pageNumber = 0;
+            $scope.isBillingFeatureAvailable = FeatureProvider.isBillingFeatureAvailable;
+            $scope.isUserLab = UserLabsProvider.isUserLab;
 
-            Security.get({path: ""}, function (user) {
-                $scope.loggedInUser = user;
-                $scope.viewMode = ($scope.loggedInUser.username != $scope.details.ownerEmail);
+            var filesController = FilesControllerCommon($scope);
+
+            var pagedRequest = contentRequestParameters.getParameters("files");
+            $scope.page.advancedFilter = {
+                composedFilter: pagedRequest.advancedFilter ? angular.copy(pagedRequest.advancedFilter) : {},
+                configuration: {
+                    pageable: true,
+                    fields: getFilesColumnsForAdvancedFilter()
+                }
+            };
+            pagedRequest.id = $routeParams.id;
+            FilesByLab.get(pagedRequest, function (filesCollection) {
+                CommonLogger.log("query to files in lab");
+                filesController.setup(filesCollection);
+                PaginationPropertiesSettingService.setPaginationProperties($scope, filesCollection);
+            });
+
+            $scope.displayConfirmation = removeFileConfirmation($scope);
+        }
+    )
+    .controller("experiment-files", function ($scope,
+                                              $routeParams,
+                                              $location,
+                                              contentRequestParameters,
+                                              Files,
+                                              ExperimentDetails,
+                                              FilesByExperiment,
+                                              FilesControllerCommon,
+                                              getFilesColumnsForAdvancedFilter,
+                                              PaginationPropertiesSettingService,
+                                              FeatureProvider,
+                                              UserLabsProvider) {
+            if ($scope.pathError) {
+                return;
+            }
+            CommonLogger.setTags(["FILES", "EXPERIMENT-FILES-CONTROLLER"]);
+            $scope.total = 0;
+            $scope.pageNumber = 0;
+            $scope.page.showPageableFilter = true;
+            $scope.page.filterScope = $scope;
+            $scope.page.changeableColumns = true;
+            $scope.isBillingFeatureAvailable = FeatureProvider.isBillingFeatureAvailable;
+            $scope.isUserLab = UserLabsProvider.isUserLab;
+
+            var filesController = FilesControllerCommon($scope);
+            ExperimentDetails.get({id: $routeParams.experiment}, function (experiment) {
+                $scope.page.title = $routeParams.experiment + ": " + experiment.details.info.name;
+                $scope.page.res = {
+                    type: "EXPERIMENT",
+                    id: $routeParams.experiment,
+                    path: $location.$$url.substring(
+                        0,
+                        $location.$$url.lastIndexOf("/" + $routeParams.experiment + "/files")
+                    ),
+                    returnUrl: $location.$$url,
+                    accessLevel: experiment.details.accessLevel,
+                    canEdit: $scope.loggedInUser.username == experiment.details.ownerEmail || experiment.details.labHead ==
+                        $scope.loggedInUser.id
+                };
+            });
+
+            var pagedRequest = contentRequestParameters.getParameters("files");
+            $scope.page.advancedFilter = {
+                composedFilter: pagedRequest.advancedFilter ? angular.copy(pagedRequest.advancedFilter) : {},
+                configuration: {
+                    pageable: true,
+                    fields: getFilesColumnsForAdvancedFilter()
+                }
+            };
+            pagedRequest.id = $routeParams.experiment;
+            FilesByExperiment.get(pagedRequest, function (filesCollection) {
+                filesController.setup(filesCollection);
+
+                PaginationPropertiesSettingService.setPaginationProperties($scope, filesCollection);
             });
         }
+    )
+    .controller("fileDetails", function ($scope, $location, $routeParams, Files, FileDetails,
+                                         FileDetailsWithConditions, Security) {
+            if ($scope.pathError) {
+                return;
+            }
+            CommonLogger.setTags(["FILES", "FILE-DETAILS-CONTROLLER"]);
+            $scope.showDetailsDialog = true;
+            $scope.page.title = "File Details";
+            $scope.viewMode = true;
+
+            var throughExperiment = $routeParams.experiment != undefined;
+
+            if (!throughExperiment) {
+                FileDetails.get({filter: $routeParams.filter, id: $routeParams.id}, getFileSuccess);
+            } else {
+                FileDetailsWithConditions.get(
+                    {experimentId: $routeParams.experiment, id: $routeParams.id},
+                    getFileSuccess
+                );
+            }
+
+            function getFileSuccess(file) {
+                $scope.showConditions = throughExperiment;
+                if (throughExperiment) {
+                    file.conditions = $.map(file.conditions, function (item) {
+                        return item.name;
+                    });
+                }
+                $scope.details = file;
+
+                Security.get({path: ""}, function (user) {
+                    $scope.loggedInUser = user;
+                    $scope.viewMode = $scope.loggedInUser.username != $scope.details.ownerEmail;
+                });
+            }
 
 
-        $scope.save = function () {
-            var file = {};
-            file.labels = $scope.details.labels;
-            file.fileId = $scope.details.id;
-            Files.update(file, function () {
-                CommonLogger.log("File Saved");
-                setTimeout(function () {
-                    $(".modal").modal("hide");
-                }, 0);
-            });
+            $scope.save = function () {
+                var file = {};
+                file.labels = $scope.details.labels;
+                file.fileId = $scope.details.id;
+                Files.update(file, function () {
+                    CommonLogger.log("File Saved");
+                    setTimeout(function () {
+                        $(".modal").modal("hide");
+                    }, 0);
+                });
+            };
         }
-    })
+    )
     .controller("fileColumnsEditor", function ($scope, FileColumns, columnsEditor) {
         columnsEditor($scope, FileColumns);
     })
@@ -178,25 +256,10 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
     .factory("removeFileConfirmation", function ($route, Files) {
         return function ($scope) {
             return function (file, $event) {
-                $scope.confirmation = new Confirmation("#remove-file-confirmation", file,
-                    {
-                        success: function () {
-                            if ($scope.confirmation.removePermanently) {
-                                Files.deletePermanently({files: [file.id]}, $route.reload);
-                            } else {
-                                Files.delete({files: [file.id]}, $route.reload);
-                            }
-                        },
-                        getName: function () {
-                            return file.name;
-                        }
-                    }
-                );
-                $scope.confirmation.removePermanently = true;
-                $scope.confirmation.showPopup();
+                $scope.deleteFilesPopupConfiguration.api.showPopup([file]);
                 $event.stopPropagation();
-            }
-        }
+            };
+        };
     })
     .factory("getFilesColumnsForAdvancedFilter", function () {
         return function () {
@@ -222,12 +285,11 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                 {prop: "fileName", title: "File Name", type: "string"},
                 {prop: "seqRowPosition", title: "Position", type: "string"},
                 {prop: "sampleName", title: "Sample Name", type: "string"},
-                {prop: "translateFlag", title: "Translate Flag", type: "string"},
                 {prop: "instrumentSerialNumber", title: "Instrument Serial", type: "string"},
                 {prop: "phone", title: "Phone", type: "string"},
                 {prop: "instrumentName", title: "Instrument Name", type: "string"}
             ];
-        }
+        };
     })
     .factory("filesExpandMenu", function (FileDetails, FileDetailsWithConditions, $routeParams) {
         return initExpandMenu(function openInlineFashion(file) {
@@ -247,128 +309,68 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                     if (throughExperiment) {
                         response.conditions = $.map(response.conditions, function (item) {
                             return item.name;
-                        })
+                        });
                     }
                     file.details = response;
-                }
+                };
             }
         });
     })
-    .factory("FilesControllerCommon",
-        function ($rootScope, $route, $location, $routeParams, $timeout, Instruments, FileDownloads, DashboardButtonFactory, DashboardButton,
-                  animatedScroll, downloadFiles, $filter, applyPaging, Files, FilesTranslation, experimentByFiles, Laboratories,
-                  OperatedInstruments, ExperimentSpecies, $q, filesExpandMenu, changeableColumnsHelper, FilesCharts, Security,
-                  FileColumns, UserLabProvider, InstrumentStudyType, LabFeatures, BillingFeatures, ExperimentRestriction) {
+    .factory("FilesControllerCommon", function ($rootScope,
+                                                $route,
+                                                $location,
+                                                $routeParams,
+                                                $timeout,
+                                                $window,
+                                                Instruments,
+                                                FileDownloads,
+                                                DashboardButtonFactory,
+                                                DashboardButton,
+                                                animatedScroll,
+                                                downloadFiles,
+                                                $filter,
+                                                applyPaging,
+                                                Files,
+                                                experimentByFiles,
+                                                Laboratories,
+                                                OperatedInstruments,
+                                                ExperimentSpecies,
+                                                $q,
+                                                filesExpandMenu,
+                                                changeableColumnsHelper,
+                                                Security,
+                                                FileColumns,
+                                                InstrumentStudyType,
+                                                LabFeatures,
+                                                BillingFeatures,
+                                                ExperimentRestriction,
+                                                FeatureProvider,
+                                                UserLabsProvider,
+                                                UserDetailsProvider) {
             return function ($scope) {
                 filesExpandMenu($scope);
                 changeableColumnsHelper($scope, FileColumns);
 
-                $scope.haveNGStudyType = function (selectedItems) {
-                    return selectedItems.some(function (item) {
-                        return item.instrumentStudyType == InstrumentStudyType.NG;
-                    })    
-                };
+                $scope.deleteFilesPopupConfiguration = {};
+                $scope.haveNGStudyType = haveNGStudyType;
 
                 return {
                     setup: function (filesCollection) {
-                        function getStatusObject(status, errorMessage) {
-                            var obj = "";
-                            if (status === "NOT_STARTED") {
-                                obj = {
-                                    class: "not-translated",
-                                    title: "Not translated",
-                                    action: showFileTranslationResultsIsNotAvailable
-                                };
-                            } else if (status === "IN_PROGRESS") {
-                                obj = {
-                                    class: "translation-in-progress",
-                                    title: "Translation in progress",
-                                    action: showFileTranslationIsInProgressConfirm
-                                };
-                            } else if (status === "FAILURE") {
-                                obj = {
-                                    class: "translation-error",
-                                    title: "Translated with error",
-                                    errorMessage: errorMessage,
-                                    action: showFileTranslationFinishedWithErrorsConfirm
-                                };
-                            } else if (status === "SUCCESS") {
-                                obj = {
-                                    class: "translation-complete",
-                                    title: "Translated successfully",
-                                    action: function (file) {
-                                        openChartWindow(file.msChartsUrl);
-                                    }
-                                };
-                            } else {
-                                CommonLogger.warn("File status = " + status + " is not recognition!");
-                            }
-                            return obj;
 
-
-                            function showFileTranslationIsInProgressConfirm() {
-                                var confirmOptions = {
-                                    id: "fileTranslationIsInProgressConfirm",
-                                    title: "Translation is in Progress",
-                                    message: "File translation is currently in progress. You will be able to view results after it is finished.",
-                                    dialogClass: "message-dialog warning"
-                                };
-                                showConfirm(confirmOptions);
-                            }
-
-
-                            function showFileTranslationFinishedWithErrorsConfirm() {
-                                var confirmOptions = {
-                                    id: "fileTranslationFinishedWithErrorsConfirm",
-                                    title: "Translation Failure",
-                                    message: "File translation has been finished with errors. <br/> Select \"Translation\" in context menu for details.",
-                                    dialogClass: "message-dialog error"
-                                };
-                                showConfirm(confirmOptions);
-                            }
-
-
-                            function showFileTranslationResultsIsNotAvailable() {
-                                var confirmOptions = {
-                                    id: "fileTranslationResultsIsNotAvailableConfirm",
-                                    title: "Translation Results is not Available",
-                                    message: "File translation results is not available. You need to run translation in order to be able to view results.",
-                                    dialogClass: "message-dialog warning"
-                                };
-                                showConfirm(confirmOptions);
-                            }
-                        }
                         $scope.page.onFilterEnter = function () {
-                            applyPaging($scope)
+                            applyPaging($scope);
                         };
 
                         $scope.labs = Laboratories.query();
 
                         var validators = {};
-                        var labsWithTranslationEnabled = [];
-                        $timeout(function () {
-                            labsWithTranslationEnabled = UserLabProvider.getLabsWithTranslationEnabled();
-                        }, 1000);
-
-                        validators.isAvailableForTranslation = function (file) {
-                            return isTranslationAvailable() && isFileUploaded(file) && labsWithTranslationEnabled.length > 0;
-                        };
-
-                        validators.isAvailableForTranslationDataRemovingThroughLab = function (file, labItem) {
-                            var userId = $rootScope.getUserId();
-                            return $.grep(file.labsWhereTranslated, function (item) {
-                                    return labItem.id == item.lab
-                                        && (userId == labItem.labHead || item.initiator == userId);
-                                }).length > 0;
-                        };
 
                         validators.isFileUploadedToUsersLab = function (file, labItem) {
-                            var userId = $rootScope.getUserId();
                             return file.labId == labItem.id;
                         };
 
                         validators.isUserOperatorOfAllFiles = function (files) {
-                            var userId = $rootScope.getUserId();
+                            var userId = UserDetailsProvider.getUserId();
                             for (var i = 0; i < files.length; i++) {
                                 var isOperator = $.inArray(userId, files[i].operators) > -1;
                                 if (isOperator == false) {
@@ -378,48 +380,39 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                             return true;
                         };
 
-                        function getLabIdsAvailableForRemovingTranslationData(file) {
-                            return $.grep($scope.labs, function (lab) {
-                                return validators.isAvailableForTranslationDataRemovingThroughLab(file, lab);
-                            });
-                        }
-
-                        function isTranslationAvailable() {
-                            return $rootScope.isFeatureAvailable(LabFeatures.TRANSLATION)
-                                && $rootScope.isBillingFeatureAvailable(BillingFeatures.TRANSLATION);
-                        }
-
-                        validators.canRemoveTranslationData = function (file) {
-                            return !file.usedInProteinSearches
-                                && file.translatedSuccessfully
-                                && getLabIdsAvailableForRemovingTranslationData(file).length > 0;
-                        };
-
                         validators.isAvailableForArchive = function (file) {
-                            var userId = $rootScope.getUserId();
+                            var userId = UserDetailsProvider.getUserId();
                             var labId = file.labId;
-                            return $rootScope.isUserLab(labId)
+                            return UserLabsProvider.isUserLab(labId)
                                 && isFileUploaded(file)
+                                && !file.corrupted
                                 && file.storageStatus == "UNARCHIVED"
                                 && (file.labHead == userId || file.owner == userId);
                         };
 
                         validators.isAvailableForUnarchive = function (file) {
-                            var userId = $rootScope.getUserId();
+                            var userId = UserDetailsProvider.getUserId();
                             var labId = file.labId;
-                            return $rootScope.isUserLab(labId)
+                            return UserLabsProvider.isUserLab(labId)
                                 && isFileUploaded(file)
                                 && file.storageStatus != "UNARCHIVED"
                                 && (file.labHead == userId || file.owner == userId)
-                                && $rootScope.isBillingFeatureAvailable(BillingFeatures.ANALYSE_STORAGE, labId);
+                                && FeatureProvider.isBillingFeatureAvailable(BillingFeatures.ANALYSE_STORAGE, labId);
                         };
 
                         validators.archiveFeatureIsAvailable = function (file) {
-                            return $rootScope.isUserLab(file.labId) && $rootScope.isBillingFeatureAvailable(BillingFeatures.ARCHIVE_STORAGE, file.labId);
+                            return UserLabsProvider.isUserLab(file.labId)
+                                && FeatureProvider.isBillingFeatureAvailable(
+                                    BillingFeatures.ARCHIVE_STORAGE,
+                                    file.labId
+                                );
                         };
 
                         validators.canEdit = function (file) {
-                            var userId = $rootScope.getUserId();
+                            if (file.corrupted) {
+                                return false;
+                            }
+                            var userId = UserDetailsProvider.getUserId();
                             var isOperator = $.inArray(userId, file.operators) > -1;
                             return file.labHead == userId
                                 || file.owner == userId
@@ -428,8 +421,8 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
 
                         validators.isFileInUserLab = function (file) {
                             return $.grep($scope.labs, function (item) {
-                                    return item.id == file.labId;
-                                }).length > 0;
+                                return item.id == file.labId;
+                            }).length > 0;
                         };
 
                         validators.isFilePublic = function (file) {
@@ -437,16 +430,47 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                         };
 
                         function isFileUploaded(file) {
-                            return (file.archiveId || file.contentId);
+                            return Boolean(file.archiveId) || Boolean(file.contentId);
                         }
 
                         validators.canDownload = function (file) {
                             return isFileUploaded(file)
-                                && (file.accessLevel == "PUBLIC" || $rootScope.isBillingFeatureAvailable(BillingFeatures.DOWNLOAD));
+                                && !file.corrupted
+                                && (file.accessLevel == "PUBLIC" ||
+                                    FeatureProvider.isBillingFeatureAvailable(BillingFeatures.DOWNLOAD));
                         };
 
                         validators.canArchiveFile = function (file) {
-                            return validators.archiveFeatureIsAvailable(file) && validators.isAvailableForArchive(file);
+                            return validators.archiveFeatureIsAvailable(file)
+                                && validators.isAvailableForArchive(file);
+                        };
+
+                        validators.haveCompounds = function (file) {
+                            return !file.corrupted && file.fileCompounds && file.fileCompounds.length > 0;
+                        };
+
+                        validators.fileCannotBeSelected = function (file) {
+                            if (file.corrupted) {
+                                return false;
+                            }
+                            return !file.contentId && !file.archiveId;
+                        };
+
+                        validators.displayDetailsButton = function (file) {
+                            if (!file) {
+                                return false;
+                            }
+                            if (file.corrupted) {
+                                return file.accessLevel === "PRIVATE";
+                            }
+                            return Boolean(file.contentId) || Boolean(file.archiveId);
+                        };
+
+                        validators.canDeleteFile = function (file) {
+                            if (file.accessLevel !== "PRIVATE") {
+                                return false;
+                            }
+                            return file.corrupted || !file.usedInExperiments;
                         };
 
                         var popups = {};
@@ -454,7 +478,7 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                         popups.showArchiveFilePopup = function (file) {
                             popups.archiveFilePopup = new Confirmation("#archive-file-confirmation", file, {
                                 success: function (item) {
-                                    onArchiveFiles([item])
+                                    onArchiveFiles([item]);
                                 }
                             });
                             popups.archiveFilePopup.fileName = file.name;
@@ -464,7 +488,7 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                         popups.showUnarchiveFilePopup = function (file) {
                             popups.unarchiveFilePopup = new Confirmation("#unarchive-file-confirmation", file, {
                                 success: function (item) {
-                                    onUnarchiveFiles([item])
+                                    onUnarchiveFiles([item]);
                                 }
                             });
                             popups.unarchiveFilePopup.fileName = file.name;
@@ -474,16 +498,16 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                         popups.showEditPopup = function (file) {
                             popups.editFilePopup = new Confirmation("#edit-file-popup", file, {
                                 success: function (item) {
-                                    editFiles([item], popups.editFilePopup)
+                                    editFiles([item], popups.editFilePopup);
                                 }
                             });
 
-                            var currentUser = $rootScope.getUserId();
+                            var currentUser = UserDetailsProvider.getUserId();
                             var isOwner = currentUser == file.owner;
                             var isLabHead = currentUser == file.labHead;
                             var isOperator = $.inArray(currentUser, file.operators) > -1;
 
-                            var canEditSpecies = ((isOwner || isOperator || isLabHead) && !file.usedInExperiments);
+                            var canEditSpecies = (isOwner || isOperator || isLabHead) && !file.usedInExperiments;
                             var defaultModel = {
                                 species: species,
                                 appendLabels: "true",
@@ -503,38 +527,12 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                         popups.showDownloadSharedFilesPopup = function (files) {
                             $scope.downloadSharedFilesPopup = new Confirmation("#download-shared-files-popup", files, {
                                 success: function (files) {
-                                    downloadFiles(files, undefined, $scope.downloadSharedFilesPopup.selectedLab).download();
+                                    downloadFiles(files, undefined, $scope.downloadSharedFilesPopup.selectedLab)
+                                        .download();
                                 }
                             });
                             $scope.downloadSharedFilesPopup.selectedLab = null;
                             $scope.downloadSharedFilesPopup.showPopup();
-                        };
-
-                        popups.showRemoveTranslationDataPopup = function (file) {
-                            popups.removeTranslationDataPopup = new Confirmation("#delete-translation-data-confirmation", file, {
-                                success: function (file) {
-                                    var labIdsAvailableForRemovingTranslationData = getLabIdsAvailableForRemovingTranslationData(file);
-                                    $.each(labIdsAvailableForRemovingTranslationData, function (i, lab) {
-                                        Files.deleteTranslationData({files: [file.id], lab: lab.id}, $route.reload);
-                                    }); //TODO: If user has translation data in several labs show popup with choosing laboratory to remove translated data
-                                }
-                            });
-                            popups.removeTranslationDataPopup.showPopup();
-                        };
-
-                        popups.showFileTranslationPopup = function (file) {
-                            popups.translationStatusPopup = new Confirmation("#file-translation-status", file);
-                            popups.translationStatusPopup.translate = function () {
-                                $scope.showTranslateFilePopup(file);
-                            };
-                            popups.translationStatusPopup.remove = function () {
-                                popups.showRemoveTranslationDataPopup(file);
-                            };
-                            popups.translationStatusPopup.canDelete = validators.canRemoveTranslationData(file);
-                            popups.translationStatusPopup.canView = popups.translationStatusPopup.item.status === "SUCCESS";
-                            popups.translationStatusPopup.canTranslate = validators.isAvailableForTranslation(file);
-                            popups.translationStatusPopup.status = file.status;
-                            popups.translationStatusPopup.showPopup();
                         };
 
                         function reloadWithTimeoutFn(wait) {
@@ -542,49 +540,20 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                                 setTimeout(function () {
                                     $route.reload();
                                 }, wait);
-                            }
+                            };
                         }
 
                         $scope.validators = validators;
                         $scope.popups = popups;
 
-                        console.groupCollapsed("Retranslate Available Files");
                         var availableInstruments = [];
                         var isTableEmpty = false;
 
-                        $scope.showTranslateFilePopup = function (file) {
-
-                            var availableLaboratories = labsWithTranslationEnabled;
-                            var labCandidateToBeSelected = $.grep(availableLaboratories, function (lab) {
-                                return lab.id == file.labId;
-                            });
-                            var selectedLab = labCandidateToBeSelected.length > 0 ?
-                                labCandidateToBeSelected[0].id :
-                                (availableLaboratories.length > 0 ?
-                                    availableLaboratories[0].id :
-                                    null);
-
-                            var translationPopupItem = {
-                                file: file,
-                                selectedLab: selectedLab,
-                                availableLabs: availableLaboratories
-                            };
-                            $scope.translateFilePopup = new Confirmation("#translate-file-popup", translationPopupItem, {
-                                success: function (item) {
-                                    FilesTranslation.reTranslateSelected(
-                                        {lab: translationPopupItem.selectedLab, files: [file.id]}, function () {
-                                            console.log("File sent for translation");
-                                            $route.reload();
-                                        })
-                                }
-                            });
-                            $scope.translateFilePopup.showPopup();
-                        };
                         OperatedInstruments.query(function (data) {
                             availableInstruments = $.map(data, function (item) {
                                 return item.id;
                             });
-                            $scope.files = $.map((filesCollection.items || filesCollection), function (item) {
+                            $scope.files = $.map(filesCollection.items || filesCollection, function (item) {
                                 item.selected = false;
                                 //Hot fix: If there are files in experimentByFiles, then select it
                                 $.each(experimentByFiles.getFiles(), function () {
@@ -592,43 +561,8 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                                         item.selected = this.selected;
                                     }
                                 });
-                                if (item.vendorName === "Thermo Scientific") {
-                                    if (item.contentId != null) {
-                                        if (item.status !== "IN_PROGRESS") {
-                                            if ($rootScope.isAdmin() || ($rootScope.getUserId() == item.owner) || $.inArray(item.instrumentId, availableInstruments) > -1) {
-                                                CommonLogger.info("The File " + item.name + " is supported for retranslate.");
-                                                item.isAvailableReTranslate = true;
-                                            } else {
-                                                CommonLogger.warn("The File " + item.name + " isn't supported retranslate. You aren't owner or admin.");
-                                                item.isAvailableReTranslate = false;
-                                            }
-                                        } else {
-                                            CommonLogger.warn("The File " + item.name + " is status IN_PROGRESS. Isn't supported for retranslate.");
-                                            item.isAvailableReTranslate = false;
-                                        }
-                                    } else {
-                                        CommonLogger.warn("The File " + item.name + " isn't upload. Isn't supported for retranslate.");
-                                        item.isAvailableReTranslate = false;
-                                    }
-                                } else {
-                                    CommonLogger.warn("The File " + item.name + " is vendor " + item.vendorName + ". Isn't supported for retranslate.");
-                                    item.isAvailableReTranslate = false;
-                                }
-
-
-                                item.translationErrorMessage = processTranslationErrorMessage(item.translationErrorMessage);
-
-                                item.statusObject = getStatusObject(item.status, item.translationErrorMessage);
                                 CommonLogger.log(item);
                                 return item;
-
-                                function processTranslationErrorMessage(errorMessage) {
-
-                                    if (!errorMessage || errorMessage.toLowerCase().indexOf("exception") != -1) {
-                                        return "";
-                                    }
-                                    return errorMessage;
-                                }
                             });
                             //and then clean files in experimentByFiles
                             experimentByFiles.clear();
@@ -653,33 +587,44 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                         };
 
                         $scope.requestDownload = function (file) {
-                            showFileDownloadConfirm("Preparing job for downloading file was started. You will receive notification," +
-                                " when all files will be ready.", function () {
-                                FileDownloads.moveToStorage({files: [file.id]});
-                            });
+                            showFileDownloadConfirm(
+                                "Preparing job for downloading file was started. You will receive notification," +
+                                " when all files will be ready.",
+                                function () {
+                                    FileDownloads.moveToStorage({files: [file.id]});
+                                }
+                            );
                         };
                         $scope.getDownloadTitle = function (status) {
-                            if (status == "UNARCHIVED") {
+                            if (status === "UNARCHIVED") {
                                 return "File is ready to download";
-                            } else if (status == "UN_ARCHIVING_IN_PROCESS") {
+                            } else if (status === "UN_ARCHIVING_IN_PROCESS") {
                                 return "File unArchiving request is already in progress";
-                            } else if (status == "UN_ARCHIVING_FOR_DOWNLOAD_IN_PROCESS") {
+                            } else if (status === "UN_ARCHIVING_FOR_DOWNLOAD_IN_PROCESS") {
                                 return "File download request is already in progress";
-                            } else {
-                                return "Request the file download";
                             }
+                            return "Request the file download";
+
                         };
 
                         $scope.getDownloadIcon = function (status) {
-                            if (status == "UNARCHIVED") {
+                            if (status === "UNARCHIVED") {
                                 return "quickDownload";
-                            } else if (status == "UN_ARCHIVING_IN_PROCESS") {
+                            } else if (status === "UN_ARCHIVING_IN_PROCESS") {
                                 return "download-in-time";
-                            } else if (status == "UN_ARCHIVING_FOR_DOWNLOAD_IN_PROCESS") {
+                            } else if (status === "UN_ARCHIVING_FOR_DOWNLOAD_IN_PROCESS") {
                                 return "download-in-progress";
-                            } else {
-                                return "slowDownload";
                             }
+                            return "slowDownload";
+
+                        };
+
+                        $scope.downloadCompounds = function (file) {
+
+                            $.fileDownload("/files/compoundsDownload/" + file.id, {
+                                failCallback: function (response, url) {
+                                }
+                            });
                         };
 
                         var species = ExperimentSpecies.query();
@@ -687,52 +632,59 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                         var switchDownloadButton = function (selectedItems, featuresByLab) {
                             var button = new DashboardButton(0, "download", "Download selected files", "download");
                             var enabledDownloadLabsFeatures = $.grep(featuresByLab, function (enabledInLab) {
-                                return $.inArray(BillingFeatures.DOWNLOAD, enabledInLab.features) >= 0
+                                return $.inArray(BillingFeatures.DOWNLOAD, enabledInLab.features) >= 0;
                             });
                             var enabledLabsWithDownloadFeature = $.map(enabledDownloadLabsFeatures, function (item) {
                                 return item.lab;
                             });
                             var allowedToDownload = $.grep(selectedItems, function (item) {
-                                return $.inArray(item.labId, enabledLabsWithDownloadFeature) > -1;
+                                return $.inArray(item.labId, enabledLabsWithDownloadFeature) > -1 && !item.corrupted;
                             });
                             button.display = allowedToDownload.length > 0 && enabledDownloadLabsFeatures.length > 0;
                             button.disabledHandler = function () {
-                                return enabledDownloadLabsFeatures.length != featuresByLab.length;
+                                const hasCorruptedFiles = selectedItems.some(function (file) {
+                                    return file.corrupted;
+                                });
+                                return hasCorruptedFiles || enabledDownloadLabsFeatures.length !== featuresByLab.length;
                             };
+
                             function download() {
                                 CommonLogger.log("Download Selected button clicked.");
                                 if ($.grep(allowedToDownload, function (item) {
-                                        return item.storageStatus != "UNARCHIVED";
-                                    }).length > 0) {
-                                    showFileDownloadConfirm("Preparing job for downloading files was started. You will receive notification," +
-                                        " when all files will be ready.", function () {
-                                        FileDownloads.moveToStorage({
-                                            files: $.map(allowedToDownload, function (file) {
-                                                return file.id;
-                                            })
-                                        });
-                                    });
+                                    return item.storageStatus !== "UNARCHIVED";
+                                }).length > 0) {
+                                    showFileDownloadConfirm(
+                                        "Preparing job for downloading files was started. You will receive notification," +
+                                        " when all files will be ready.",
+                                        function () {
+                                            FileDownloads.moveToStorage({
+                                                files: $.map(allowedToDownload, function (file) {
+                                                    return file.id;
+                                                })
+                                            });
+                                        }
+                                    );
+                                } else if (FeatureProvider.isFeatureAvailable(LabFeatures.BILLING)) {
+
+                                    var canDownloadAllFilesThroughUserLabs = $.grep(
+                                        allowedToDownload,
+                                        function (file) {
+                                            return validators.isFileInUserLab(file) || validators.isFilePublic(file);
+                                        }
+                                    ).length === allowedToDownload.length;
+
+                                    if (canDownloadAllFilesThroughUserLabs) {
+                                        downloadFiles(allowedToDownload).download();
+                                    } else if ($scope.labs.length === 1) {
+                                        downloadFiles(allowedToDownload, undefined, $scope.labs[0].id).download();
+                                    } else {
+                                        $scope.popups.showDownloadSharedFilesPopup(allowedToDownload);
+                                    }
+
                                 } else {
 
-                                    if ($rootScope.isFeatureAvailable(LabFeatures.BILLING)) {
+                                    downloadFiles(allowedToDownload).download();
 
-                                        var canDownloadAllFilesThroughUserLabs = $.grep(allowedToDownload, function (file) {
-                                                return validators.isFileInUserLab(file) || validators.isFilePublic(file);
-                                            }).length == allowedToDownload.length;
-
-                                        if (canDownloadAllFilesThroughUserLabs) {
-                                            downloadFiles(allowedToDownload).download();
-                                        } else if ($scope.labs.length == 1) {
-                                            downloadFiles(allowedToDownload, undefined, $scope.labs[0].id).download();
-                                        } else {
-                                            $scope.popups.showDownloadSharedFilesPopup(allowedToDownload);
-                                        }
-
-                                    } else {
-
-                                        downloadFiles(allowedToDownload).download();
-
-                                    }
                                 }
                             }
 
@@ -763,194 +715,19 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                             DashboardButtonFactory.put(button);
                         };
 
-                        var switchRetranslateButton = function (selectedItems) {
-
-                            var button = new DashboardButton(9, "retranslate", "Retranslate Selected Files", "retranslate-selected");
-
-                            function reTranslateData(items, lab) {
-                                CommonLogger.log("Data re-translation of the selected Files has been started = ", items);
-                                var request = {"files": []};
-                                request.lab = lab;
-                                angular.forEach(items, function (item) {
-                                    this.files.push(item.id);
-                                }, request);
-                                FilesTranslation.reTranslateSelected(request, reloadWithTimeoutFn(500));
-                            }
-
-                            var availableForReTranslate = $.grep(selectedItems, validators.isAvailableForTranslation);
-                            var isUserOperatorOfAllFiles = validators.isUserOperatorOfAllFiles(selectedItems);
-
-                            var dataForReTranslatePerLab = [];
-
-                            var USER_IS_NOT_AN_OPERATOR = "user-is-not-an-operator";
-
-                            $.each(availableForReTranslate, function (i, item) {
-                                if (isUserOperatorOfAllFiles) {
-                                    $.each($scope.labs, function (i, lab) {
-                                        if (validators.isFileUploadedToUsersLab(item, lab)) {
-                                            if (!dataForReTranslatePerLab[lab.id]) {
-                                                dataForReTranslatePerLab[lab.id] = [];
-                                            }
-                                            dataForReTranslatePerLab[lab.id].push(item);
-                                        }
-                                    });
-                                    //If the user is not an operator of the instrument the file was uploaded with,
-                                    // then add it to the array with the "user-is-not-an-operator" key
-                                } else {
-                                    if (!dataForReTranslatePerLab[USER_IS_NOT_AN_OPERATOR]) {
-                                        dataForReTranslatePerLab[USER_IS_NOT_AN_OPERATOR] = [];
-                                    }
-                                    dataForReTranslatePerLab[USER_IS_NOT_AN_OPERATOR].push(item);
-                                }
-                            });
-
-                            button.disabledHandler = function () {
-                                return selectedItems.length != availableForReTranslate.length;
-                            };
-                            button.display = selectedItems.length != 0 && selectedItems.length == availableForReTranslate.length;
-
-                            if (button.display && $scope.haveNGStudyType(selectedItems)) {
-                                button.display = false;
-                            }
-
-                            var availableLabs = labsWithTranslationEnabled;
-                            var selectedLab = availableLabs.length > 0 ?
-                                availableLabs[0].id :
-                                null;
-
-                            var popupOptions = {
-                                model: {
-                                    isUserOperatorOfAllFiles: isUserOperatorOfAllFiles,
-                                    availableLabs: availableLabs,
-                                    selectedLab: selectedLab
-                                },
-                                title: "Re-Translate Selected Files",
-                                type: "dialog",
-                                bodyMessageUrl: "../pages/component/operations/bulk-retranslate-files.html",
-                                success: {
-                                    caption: "Re-Translate",
-                                    handler: function () {
-                                        if (!isUserOperatorOfAllFiles) {
-                                            reTranslateData(dataForReTranslatePerLab[USER_IS_NOT_AN_OPERATOR], popupOptions.model.selectedLab);
-                                        } else {
-                                            $.each(Object.keys(dataForReTranslatePerLab), function (i, lab) {
-                                                reTranslateData(dataForReTranslatePerLab[lab], lab);
-                                            })
-                                        }
-                                    }
-                                }
-                            };
-
-                            button.popupOptions = popupOptions;
-                            button.disabledPopupOptions = popupOptions;
-                            button.showPopup = true;
-                            DashboardButtonFactory.put(button);
-                        };
-
-                        var switchRemoveTranslationDataButton = function (selectedItems) {
-                            var button = new DashboardButton(92, "remove-translation-data", "Remove files translation data", "delete-translation");
-
-                            function removeTranslationData(items, lab) {
-                                CommonLogger.log("Removes Translation data of the selected Files start = ", items);
-                                var request = {"files": []};
-                                request.lab = lab;
-                                angular.forEach(items, function (item) {
-                                    this.files.push(item.id);
-                                }, request);
-                                Files.deleteTranslationData(request, reloadWithTimeoutFn(500));
-                            }
-
-                            var availableForRemove = $.grep(selectedItems, validators.canRemoveTranslationData);
-                            var dataForRemovePerLab = {};
-
-                            $.each(availableForRemove, function (i, item) {
-                                $.each($scope.labs, function (i, lab) {
-                                    if (validators.isAvailableForTranslationDataRemovingThroughLab(item, lab)) {
-                                        if (!dataForRemovePerLab[lab.id]) {
-                                            dataForRemovePerLab[lab.id] = [item];
-                                        } else {
-                                            dataForRemovePerLab[lab.id].push(item);
-                                        }
-                                    }
-                                })
-                            });
-
-                            button.disabledHandler = function () {
-                                return selectedItems.length != availableForRemove.length;
-                            };
-                            var isAllAvailableToArchive = selectedItems.length == availableForRemove.length;
-                            button.display = availableForRemove.length != 0;
-
-                            if (button.display && $scope.haveNGStudyType(selectedItems)) {
-                                button.display = false;
-                            }
-
-                            var popupOptions = {
-                                model: {allAvailableToDelete: isAllAvailableToArchive},
-                                title: "Delete Translation Data of the Selected Files",
-                                type: "dialog",
-                                bodyMessageUrl: "../pages/component/operations/bulk-delete-files-translation-data.html",
-                                success: {
-                                    caption: "Delete",
-                                    handler: function () {
-                                        $.each(Object.keys(dataForRemovePerLab), function (i, lab) {
-                                            removeTranslationData(dataForRemovePerLab[lab], lab);
-                                        })
-                                    }
-                                }
-                            };
-
-                            button.popupOptions = popupOptions;
-                            button.disabledPopupOptions = popupOptions;
-                            button.showPopup = true;
-                            DashboardButtonFactory.put(button);
-
-                        };
-
                         var switchRemovesButton = function (selectedItems) {
-                            var button = new DashboardButton(91, "remove-files", "Remove selected files", "delete-file");
+                            var button = new DashboardButton(
+                                91,
+                                "remove-files",
+                                "Remove selected files",
+                                "delete-file"
+                            );
                             button.display = selectedItems.length > 0;
 
-                            function removeFiles(items, removePermanently) {
-                                CommonLogger.log("Removes Selected Files start = ", items);
-                                var fileIds = {"files": []};
-                                angular.forEach(items, function (item) {
-                                    this.files.push(item.id);
-                                }, fileIds);
-                                if (removePermanently) {
-                                    Files.deletePermanently(fileIds, $route.reload);
-                                } else {
-                                    Files.delete(fileIds, $route.reload);
-                                }
-                            }
-
                             button.onClickHandler = function () {
-                                $scope.removesSelectedPopup = new FilesSelectedPopup("#removes-selected-confirmation", function () {
-                                    removeFiles(selectedItems, $scope.removesSelectedPopup.removePermanently);
-                                });
-                                $scope.removesSelectedPopup.removePermanently = true;
-                                $scope.removesSelectedPopup.showPopup();
+                                $scope.deleteFilesPopupConfiguration.api.showPopup(selectedItems);
                             };
-                            var allowedToDelete = $.grep(selectedItems, function (item) {
-                                return item.accessLevel == "PRIVATE" && !item.usedInExperiments
-                                    && (item.contentId != null || item.archiveId != null);
-                            });
-                            button.disabledHandler = function () {
-                                return selectedItems.length != allowedToDelete.length;
-                            };
-                            button.display = allowedToDelete.length != 0;
 
-                            button.disabledPopupOptions = {
-                                title: allowedToDelete.length == 0 ? "Delete Files Operation Is Not Available" : "Can Not Delete All Selected Files",
-                                type: allowedToDelete.length == 0 ? "info" : "dialog",
-                                success: {
-                                    handler: function () {
-                                        removeFiles(allowedToDelete);
-                                    },
-                                    caption: "Delete"
-                                },
-                                bodyMessageUrl: "../pages/component/operations/unsupported-file-delete.html"
-                            };
                             DashboardButtonFactory.put(button);
                         };
 
@@ -992,17 +769,17 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                         var switchEditButton = function (selectedItems) {
                             var button = new DashboardButton(3, "edit-labels", "Edit selected files", "edit-labels");
 
-                            var allowedFilesForEditSpecies = $.grep(selectedItems, function (item) {
-                                var userId = $rootScope.getUserId();
-                                var isOperator = $.inArray(userId, item.operators) > -1;
-                                return (isOperator || userId == item.labHead || userId == item.owner) && !item.usedInExperiments;
-                            });
+                            function isFileAllowedForEdit(file) {
+                                var userId = UserDetailsProvider.getUserId();
+                                var isOperator = $.inArray(userId, file.operators) > -1;
+                                return (isOperator || userId === file.labHead || userId === file.owner)
+                                    && !file.corrupted;
+                            }
 
-                            var allowedFilesForEditLabels = $.grep(selectedItems, function (item) {
-                                var userId = $rootScope.getUserId();
-                                var isOperator = $.inArray(userId, item.operators) > -1;
-                                return (isOperator || userId == item.labHead || userId == item.owner);
+                            var allowedFilesForEditSpecies = $.grep(selectedItems, function (file) {
+                                return isFileAllowedForEdit(file) && !file.usedInExperiments;
                             });
+                            var allowedFilesForEditLabels = $.grep(selectedItems, isFileAllowedForEdit);
 
                             var defaultModel = {
                                 species: species,
@@ -1012,15 +789,17 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                                 canEditAllLabels: allowedFilesForEditLabels.length == selectedItems.length
                             };
                             button.showPopup = true;
+                            var dialogTitle = selectedItems.length > 1 ? "Edit Files" : "Edit File";
                             var popupOptions = {
                                 model: defaultModel,
-                                title: "Bulk Edit Files",
+                                title: dialogTitle,
                                 type: "dialog",
                                 bodyMessageUrl: "../pages/component/operations/edit-files.html",
                                 success: {
                                     caption: "Save",
                                     handler: function (model) {
-                                        editFiles(selectedItems, model);
+                                        const itemsToEdit = selectedItems.filter(item => !item.corrupted);
+                                        editFiles(itemsToEdit, model);
                                     }
                                 },
                                 cancel: {
@@ -1031,11 +810,11 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                             };
                             button.popupOptions = popupOptions;
                             button.disabledPopupOptions = popupOptions;
-                            button.display = (allowedFilesForEditLabels.length + allowedFilesForEditSpecies.length) > 0;
+                            button.display = allowedFilesForEditLabels.length + allowedFilesForEditSpecies.length > 0;
 
                             button.disabledHandler = function () {
                                 return allowedFilesForEditLabels.length != selectedItems.length
-                                    || allowedFilesForEditSpecies.length != selectedItems.length
+                                    || allowedFilesForEditSpecies.length != selectedItems.length;
                             };
 
                             DashboardButtonFactory.put(button);
@@ -1061,8 +840,14 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                         }
 
                         var switchExperimentButton = function (selectedFiles) {
-                            var button = new DashboardButton(4, "E", "Run new experiment with selected files", "add-to-experiment");
-                            button.display = selectedFiles.length > 0;
+                            var button = new DashboardButton(
+                                4,
+                                "E",
+                                "Run new experiment with selected files",
+                                "add-to-experiment"
+                            );
+                            const allowedToUseInExperiment = selectedFiles.filter(file => !file.corrupted);
+                            button.display = allowedToUseInExperiment.length > 0;
                             var haveSameInstrument = true;
                             button.disabledHandler = function () {
                                 var allFilesHaveSimilarInstrumentModelAndSpecie = true;
@@ -1070,6 +855,7 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                                     var commonInstrumentModelId = selectedFiles[0].modelId;
                                     var commonSpecieId = selectedFiles[0].specieId;
                                     var commonInstrumentId = selectedFiles[0].instrumentId;
+                                    let hasCorruptedFiles = false;
                                     angular.forEach(selectedFiles, function (file) {
                                         if (file.modelId != commonInstrumentModelId || file.specieId != commonSpecieId) {
                                             allFilesHaveSimilarInstrumentModelAndSpecie = false;
@@ -1077,11 +863,14 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                                         if (file.instrumentId != commonInstrumentId) {
                                             haveSameInstrument = false;
                                         }
+                                        if (file.corrupted) {
+                                            hasCorruptedFiles = true;
+                                        }
                                     });
-                                    return !allFilesHaveSimilarInstrumentModelAndSpecie;
-                                } else {
-                                    return allFilesHaveSimilarInstrumentModelAndSpecie
+                                    return !allFilesHaveSimilarInstrumentModelAndSpecie || hasCorruptedFiles;
                                 }
+                                return allFilesHaveSimilarInstrumentModelAndSpecie;
+
                             };
                             button.disabledPopupOptions = {
                                 title: "Create Experiment Operation Is Not Available",
@@ -1105,24 +894,37 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                         }
 
                         var switchArchiveButton = function (selectedItems, enabledFeaturesByLab) {
-                            var button = new DashboardButton(7, "Archive", "Archive Selected Files", "archive-selected");
-                            var userId = $rootScope.getUserId();
+                            var button = new DashboardButton(
+                                7,
+                                "Archive",
+                                "Archive Selected Files",
+                                "archive-selected"
+                            );
+                            var userId = UserDetailsProvider.getUserId();
                             var allowedToArchiving = $.grep(selectedItems, function (item) {
                                 return item.storageStatus === "UNARCHIVED"
-                                    && (item.owner == userId || item.labHead == userId) && validators.canArchiveFile(item);
+                                    && !item.corrupted
+                                    && (item.owner == userId || item.labHead == userId)
+                                    && validators.canArchiveFile(item);
                             });
-                            var enabledAnalysableStorageLabFeatures = $.grep(enabledFeaturesByLab, function (enabledInLab) {
-                                return $.inArray(BillingFeatures.ANALYSE_STORAGE, enabledInLab.features) >= 0
-                            });
+                            var enabledAnalysableStorageLabFeatures = $.grep(
+                                enabledFeaturesByLab,
+                                function (enabledInLab) {
+                                    return $.inArray(BillingFeatures.ANALYSE_STORAGE, enabledInLab.features) >= 0;
+                                }
+                            );
                             var allFilesIsAllowedToArchiving = allowedToArchiving.length == selectedItems.length;
-                            var allFilesLabsProvideAnalysableFeature = enabledAnalysableStorageLabFeatures.length == enabledFeaturesByLab.length;
+                            var allFilesLabsProvideAnalysableFeature = enabledAnalysableStorageLabFeatures.length ==
+                                enabledFeaturesByLab.length;
 
-                            button.display = allowedToArchiving.length > 0 && enabledAnalysableStorageLabFeatures.length > 0;
+                            button.display =
+                                allowedToArchiving.length > 0 && enabledAnalysableStorageLabFeatures.length > 0;
                             button.disabledHandler = function () {
                                 return !allFilesIsAllowedToArchiving || !allFilesLabsProvideAnalysableFeature;
                             };
                             button.showPopup = true;
-                            var isAllAvailableToArchive = allFilesIsAllowedToArchiving && allFilesLabsProvideAnalysableFeature;
+                            var isAllAvailableToArchive = allFilesIsAllowedToArchiving &&
+                                allFilesLabsProvideAnalysableFeature;
                             var popupOptions = {
                                 model: {allAvailableToArchive: isAllAvailableToArchive},
                                 title: "Archive Files",
@@ -1156,18 +958,27 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                         }
 
                         var switchUnarchiveButton = function (selectedItems, enabledFeaturesByLab) {
-                            var button = new DashboardButton(8, "Unarchive", "Unarchive Selected Files", "unarchive-selected");
+                            var button = new DashboardButton(
+                                8,
+                                "Unarchive",
+                                "Unarchive Selected Files",
+                                "unarchive-selected"
+                            );
 
-                            var userId = $rootScope.getUserId();
+                            var userId = UserDetailsProvider.getUserId();
                             var archivedFiles = $.grep(selectedItems, function (item) {
                                 return item.storageStatus !== "UNARCHIVED"
                                     && (item.owner == userId || item.labHead == userId);
                             });
 
-                            var enabledAnalysableStorageLabFeatures = $.grep(enabledFeaturesByLab, function (enabledInLab) {
-                                return $.inArray(BillingFeatures.ANALYSE_STORAGE, enabledInLab.features) >= 0
-                            });
-                            var allFilesLabsProvideAnalysableFeature = enabledAnalysableStorageLabFeatures.length == enabledFeaturesByLab.length;
+                            var enabledAnalysableStorageLabFeatures = $.grep(
+                                enabledFeaturesByLab,
+                                function (enabledInLab) {
+                                    return $.inArray(BillingFeatures.ANALYSE_STORAGE, enabledInLab.features) >= 0;
+                                }
+                            );
+                            var allFilesLabsProvideAnalysableFeature = enabledAnalysableStorageLabFeatures.length ==
+                                enabledFeaturesByLab.length;
                             var allFilesIsArchived = archivedFiles.length == selectedItems.length;
 
                             button.display = archivedFiles.length > 0 && enabledAnalysableStorageLabFeatures.length > 0;
@@ -1193,111 +1004,6 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                             DashboardButtonFactory.put(button);
                         };
 
-                        var switchShowChartsButton = function (selectedFiles, billingFeaturesByLab, featuresByLab) {
-
-                            var button = new DashboardButton(5, "E", "View chart", "retranslate-selected");
-                            var labIds = $.map(billingFeaturesByLab, function (item) {
-                                return item.lab;
-                            });
-                            var enabledTranslationLabsFeatures = $.grep(labIds, function (labId) {
-                                var billingFeaturesItem = $.grep(billingFeaturesByLab, function (it) {
-                                    return it.lab == labId
-                                })[0];
-                                var featuresItem = $.grep(featuresByLab, function (it) {
-                                    return it.lab == labId;
-                                })[0];
-
-                                return $.inArray(BillingFeatures.TRANSLATION, billingFeaturesItem.features) >= 0
-                                    && $.inArray(LabFeatures.TRANSLATION, featuresItem.features);
-                            });
-
-                            var allFilesLabsProvideTranslationFeature = enabledTranslationLabsFeatures.length == billingFeaturesByLab.length;
-
-                            var archivedFilesCount = $.grep(selectedFiles, function (item) {
-                                return item.storageStatus !== "UNARCHIVED";
-                            }).length;
-
-                            var allFilesWithoutError = true;
-                            if (selectedFiles.length > 0) {
-                                angular.forEach(selectedFiles, function (file) {
-                                    allFilesWithoutError = allFilesWithoutError && file.translatedSuccessfully;
-                                });
-                            }
-                            var canInitiateTranslation = allFilesWithoutError ||
-                                (!allFilesWithoutError && $.grep(selectedFiles, function (item) {
-                                    return item.labHead == $scope.loggedInUser.id || item.owner == $scope.loggedInUser.id;
-                                }).length == selectedFiles.length);
-                            button.display = selectedFiles.length > 0
-                                && enabledTranslationLabsFeatures.length > 0
-                                && archivedFilesCount != selectedFiles.length
-                                && canInitiateTranslation;
-
-                            if (button.display && $scope.haveNGStudyType(selectedFiles)) {
-                                button.display = false;
-                            }
-
-                            button.disabledHandler = function () {
-                                var allFilesTranslated = true;
-                                if (selectedFiles.length > 0) {
-                                    angular.forEach(selectedFiles, function (file) {
-                                        allFilesTranslated = allFilesTranslated && file.translatedSuccessfully;
-                                    });
-                                }
-                                return !allFilesTranslated || !allFilesLabsProvideTranslationFeature;
-
-                            };
-
-                            var currentUrl = null;
-
-                            var urlRequest = {"fileIds": []};
-                            angular.forEach(selectedFiles, function (file) {
-                                urlRequest.fileIds.push(file.id);
-                            });
-                            if (urlRequest.fileIds.length > 0) {
-                                FilesCharts.getUrl(urlRequest, function (response) {
-                                    currentUrl = response.url;
-                                });
-                            }
-                            var labCandidateToBeSelected = urlRequest.fileIds.length == 0 ? [] : $.grep($scope.laboratories, function (lab) {
-                                return lab.id == selectedFiles[0].labId; // checking which lab should be selected at first - display if user has membership to file"s lab
-                            });
-                            button.disabledPopupOptions = {
-                                title: "View Charts Operation Is Not Available",
-                                bodyMessageUrl: "../pages/component/operations/unsupported-view-charts.html",
-                                type: "dialog",
-                                model: {
-                                    haveArchivedFiles: archivedFilesCount > 0,
-                                    availableLabs: $scope.laboratories,
-                                    selectedLab: labCandidateToBeSelected.length == 0 ? $scope.laboratories[0].id : labCandidateToBeSelected[0].id
-                                },
-                                success: {
-                                    caption: archivedFilesCount === 0 && "Translate" || "Translate Allowed",
-                                    handler: function () {
-                                        var notTranslatedFiles = $.grep(selectedFiles, function (file) {
-                                            return !file.translatedSuccessfully && file.storageStatus === "UNARCHIVED";
-                                        });
-                                        var requestToTranslate = {
-                                            "files": [],
-                                            "lab": button.disabledPopupOptions.model.selectedLab
-                                        };
-                                        angular.forEach(notTranslatedFiles, function (item) {
-                                            this.files.push(item.id);
-                                        }, requestToTranslate);
-                                        FilesTranslation.reTranslateSelected(requestToTranslate, $route.reload);
-                                    }
-                                },
-                                cancel: {
-                                    handler: function () {
-                                        switchEditButton(selectedFiles);
-                                    }
-                                }
-                            };
-
-                            button.onClickHandler = function () {
-                                openChartWindow(currentUrl);
-                            };
-                            DashboardButtonFactory.put(button);
-                        };
 
                         function openChartWindow(currentUrl) {
                             if (currentUrl != null) {
@@ -1316,20 +1022,20 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                         };
 
                         $scope.getEmptyTableMessage = function () {
-                            return "There are no files";
+                            return "There are no items";
                         };
 
                         $scope.$watch(function ($scope) {
                             //watch the number of "selected" items
                             var selected = $.grep($scope.files || [], function (item) {
-                                return item.selected
+                                return item.selected;
                             });
                             return selected.length;
                         }, function () {
                             CommonLogger.log("The selected file list has been changed.");
                             //examine those of the items which are selected and update the download button accordingly
                             var selectedItems = $.grep($scope.files || [], function (item) {
-                                return item.selected
+                                return item.selected;
                             });
 
                             var withFeaturesByLabs = function withFeaturesByLabs(selectedItems, callback) {
@@ -1353,7 +1059,7 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                                         return {
                                             lab: item,
                                             features: features[item]
-                                        }
+                                        };
                                     });
                                     billingLabFeaturesLoaded = true;
                                     tryToResolve();
@@ -1363,14 +1069,14 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                                         return {
                                             lab: item,
                                             features: features[item]
-                                        }
+                                        };
                                     });
                                     labFeaturesLoaded = true;
                                     tryToResolve();
                                 });
 
                                 function tryToResolve() {
-                                    if(labFeaturesLoaded && billingLabFeaturesLoaded) {
+                                    if (labFeaturesLoaded && billingLabFeaturesLoaded) {
                                         callback(selectedItems, billingLabFeatures, labFeatures);
                                     }
                                 }
@@ -1380,25 +1086,28 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                             switchRemovesButton(selectedItems);
                             switchEditButton(selectedItems);
                             switchExperimentButton(selectedItems);
-                            switchRemoveTranslationDataButton(selectedItems);
                             withFeaturesByLabs(selectedItems, function (items, billingFeatures, labFeatures) {
-                                switchShowChartsButton(items, billingFeatures, labFeatures);
-                                switchRetranslateButton(selectedItems, billingFeatures, labFeatures);
                                 switchDownloadButton(items, billingFeatures);
                                 switchArchiveButton(items, billingFeatures);
                                 switchUnarchiveButton(items, billingFeatures);
                             });
 
-                            $scope.allItemsSelected = $scope.files && $scope.files.length > 0 && selectedItems.length == $scope.files.length;
+                            $scope.allItemsSelected =
+                                $scope.files && $scope.files.length > 0 && selectedItems.length == $scope.files.length;
                         });
 
                         $scope.selectItem = function (file, event) {
-                            if (file.contentId == null && file.archiveId == null) return;
+                            if (file.contentId == null && file.archiveId == null) {
+                                return;
+                            }
                             file.selected = !file.selected;
                         };
 
                         $scope.selectAll = function (files) {
                             Selections.selectAll($.grep(files, function (file) {
+                                if (file.corrupted) {
+                                    return true;
+                                }
                                 return (file.contentId != null || file.archiveId != null) && !file.invalid;
                             }));
                         };
@@ -1410,9 +1119,16 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                         $scope.allItemsSelected = false;
 
                     }
+                };
+
+                function haveNGStudyType(selectedItems) {
+                    return selectedItems.some(function (item) {
+                        return item.instrumentStudyType == InstrumentStudyType.NGS;
+                    });
                 }
             };
-        })
+        }
+    )
     .directive("cellColumn", function () {
         return {
             restrict: "E",
@@ -1421,7 +1137,7 @@ angular.module("filesControllers", ["files-back", "instruments-back", "formatter
                 type: "=", value: "=", cellClass: "=", show: "=", cellStyle: "=", cellTitle: "="
             },
             templateUrl: "../pages/component/cell-column.html"
-        }
+        };
     });
 
 
@@ -1457,7 +1173,9 @@ function showFileDownloadConfirm(message, onOk) {
         buttons: {
             "OK": function () {
                 $(this).dialog("close");
-                if (onOk) onOk();
+                if (onOk) {
+                    onOk();
+                }
             }
         }
     });
